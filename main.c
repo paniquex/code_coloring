@@ -4,6 +4,25 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+/* Keywords array for keyword_colorer func */
+enum {KEYWORDS_AMOUNT = 14, KEYWORD_MAX_LENGTH = 14};
+const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
+        {'u', 'n', 's', 'i', 'g', 'n', 'e', 'd'},
+        {'v', 'o', 'i', 'd', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+        {'v', 'o', 'l', 'o', 't', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0'},
+        {'w', 'h', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+        {'_', 'A', 'l', 'i', 'g', 'n', 'a', 's', '0', '0', '0', '0', '0', '0'},
+        {'_', 'A', 'l', 'i', 'g', 'n', 'o', 'f', '0', '0', '0', '0', '0', '0'},
+        {'_', 'A', 't', 'o', 'm', 'i', 'c', '0', '0', '0', '0', '0', '0', '0'},
+        {'_', 'B', 'o', 'o', 'l', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+        {'_', 'C', 'o', 'm', 'p', 'l', 'e', 'x', '0', '0', '0', '0', '0', '0'},
+        {'_', 'G', 'e', 'n', 'e', 'r', 'i', 'c', '0', '0', '0', '0', '0', '0'},
+        {'_', 'I', 'm', 'a', 'g', 'i', 'n', 'a', 'r', 'y', '0', '0', '0', '0'},
+        {'_', 'N', 'o', 'r', 'e', 't', 'u', 'r', 'n', '0', '0', '0', '0', '0'},
+        {'_', 'S', 't', 'a', 't', 'i', 'c', '_', 'a', 's', 's', 'e', 'r', 't'},
+        {'_', 'T', 'h', 'r', 'e', 'a', 'd', '_', 'l', 'o', 'c', 'a', 'l', '0'},
+                                                        };
+
 /* Punctuators array for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 54, PUNCTUATOR_MAX_LENGTH = 4};
 const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
@@ -71,6 +90,9 @@ comment_colorer(int color);
 
 int
 punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH]);
+
+int
+keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]);
 
 int
 space_print_skip();
@@ -144,7 +166,7 @@ number_colorer(int color) {
     while ((curr_symb = getchar()) != EOF) {
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
-                printf("\033[1;31m");
+                printf("\033[0;95m");
                 is_first_digit = 0;
             }
             putchar(curr_symb);
@@ -280,7 +302,7 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
             return 1;
         }
         for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
-            if ((PUNCTUATORS[i][j] == curr_symb) && (indexes[i] == 1)) {
+            if ((PUNCTUATORS[i][j] == curr_symb) && (PUNCTUATORS[i][j] != '0') && (indexes[i] == 1)) {
                 if ((j == 0) && (is_first_punc)) {
                     is_first_punc = 0;
                     printf("\033[0;31m");
@@ -296,6 +318,49 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
         }
     }
     if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
+        return 2;
+    }
+}
+
+
+int
+keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
+    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
+                                                    0, else*/
+    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
+        indexes[i] = 1;
+    }
+    int curr_symb;
+    char is_first_keyword = 1;
+    char was_printed = 0; // if on j-step one symbol of keyword was printed
+    int j=0;
+    int length_of_current_keyword = 0;
+    for (j; j < KEYWORD_MAX_LENGTH; j++) {
+        was_printed = 0;
+        if ((curr_symb = getchar()) == EOF) {
+            if (fseek(stdin, -j + length_of_current_keyword, SEEK_CUR) == -1) {
+                return 2;
+            }
+            if (!is_first_keyword) printf("\033[0m");
+            return 1;
+        }
+        for (int i=0; i < KEYWORDS_AMOUNT; i++) {
+            if ((KEYWORDS[i][j] == curr_symb) && (KEYWORDS[i][j] != '0') && (indexes[i] == 1)) {
+                if ((j == 0) && (is_first_keyword)) {
+                    is_first_keyword = 0;
+                    printf("\033[0;31m");
+                }
+                if (!was_printed) {
+                    putchar(curr_symb);
+                    length_of_current_keyword++;
+                    was_printed = 1;
+                }
+            } else {
+                indexes[i] = 0;
+            }
+        }
+    }
+    if (fseek(stdin, -j + length_of_current_keyword, SEEK_CUR) == -1) {
         return 2;
     }
 }
