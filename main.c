@@ -7,7 +7,7 @@
 /* Keywords array for keyword_colorer func */
 enum {KEYWORDS_AMOUNT = 14, KEYWORD_MAX_LENGTH = 14};
 const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
-        {'u', 'n', 's', 'i', 'g', 'n', 'e', 'd'},
+        {'u', 'n', 's', 'i', 'g', 'n', 'e', 'd', '0', '0', '0', '0', '0', '0'},
         {'v', 'o', 'i', 'd', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'v', 'o', 'l', 'o', 't', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0'},
         {'w', 'h', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -112,44 +112,46 @@ int main() {
         is_step_was_sucessfull[i] = 0;
     }
     while (!flag) {
-        while (!is_input_has_not_pattern[0]) {
-            int result;
-            result = comment_colorer(1);
-            if ((result == 3) || (result == 1)) {
-                is_input_has_not_pattern[0] = 1;
-            }
-            if (result == 0) {
-                is_step_was_sucessfull[0] = 1;
-            }
-            flag = space_print_skip();
-        }
-
-        while (!is_input_has_not_pattern[1]) {
-            int result;
-            result = number_colorer(1);
-            if ((result == 3) || (result == 1)) {
-                is_input_has_not_pattern[1] = 1;
-            }
-            if (result == 0) {
-                is_step_was_sucessfull[1] = 1;
-            }
-            flag = space_print_skip();
-        }
-        if (is_step_was_sucessfull[1]) {
-            is_input_has_not_pattern[0] = 0;
-            is_input_has_not_pattern[1] = 0;
-            is_step_was_sucessfull[1] = 0;
-            continue;
-        }
-        //if (punctuator_colorer(PUNCTUATORS) == 3) {
-        //    flag = space_print_skip();
-        //    continue;
-        //}
-        punctuator_colorer(PUNCTUATORS);
-        flag = space_print_skip();
-        for (int i = 0; i < 7; i++) {
-            is_input_has_not_pattern[i] = 0;
-        }
+        flag = keyword_colorer(KEYWORDS);
+        while (space_print_skip() == 0);
+//        while (!is_input_has_not_pattern[0]) {
+//            int result;
+//            result = comment_colorer(1);
+//            if ((result == 3) || (result == 1)) {
+//                is_input_has_not_pattern[0] = 1;
+//            }
+//            if (result == 0) {
+//                is_step_was_sucessfull[0] = 1;
+//            }
+//            flag = space_print_skip();
+//        }
+//
+//        while (!is_input_has_not_pattern[1]) {
+//            int result;
+//            result = number_colorer(1);
+//            if ((result == 3) || (result == 1)) {
+//                is_input_has_not_pattern[1] = 1;
+//            }
+//            if (result == 0) {
+//                is_step_was_sucessfull[1] = 1;
+//            }
+//            flag = space_print_skip();
+//        }
+//        if (is_step_was_sucessfull[1]) {
+//            is_input_has_not_pattern[0] = 0;
+//            is_input_has_not_pattern[1] = 0;
+//            is_step_was_sucessfull[1] = 0;
+//            continue;
+//        }
+//        //if (punctuator_colorer(PUNCTUATORS) == 3) {
+//        //    flag = space_print_skip();
+//        //    continue;
+//        //}
+//        punctuator_colorer(PUNCTUATORS);
+//        flag = space_print_skip();
+//        for (int i = 0; i < 7; i++) {
+//            is_input_has_not_pattern[i] = 0;
+//        }
     }
     return 0;
 }
@@ -348,7 +350,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
             if ((KEYWORDS[i][j] == curr_symb) && (KEYWORDS[i][j] != '0') && (indexes[i] == 1)) {
                 if ((j == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
-                    printf("\033[0;31m");
+                    printf("\033[0;34m");
                 }
                 if (!was_printed) {
                     putchar(curr_symb);
@@ -368,12 +370,17 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
 
 int
 space_print_skip() {
+    /* 0, if this symb is space
+     * 1, if EOF
+     * 2, if some kind of error was found
+     * 3, if symb is not space*/
     int curr_symb;
     if ((curr_symb = getchar()) != EOF) {
         if (curr_symb != ' ') {
             if (fseek(stdin, -1, SEEK_CUR) == -1) {
                 return 2;
             }
+            return 3;
         } else {
             putchar(' ');
         }
