@@ -72,6 +72,9 @@ comment_colorer(int color);
 int
 punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH]);
 
+int
+space_print_skip();
+
 
 int main() {
     int flag = 0;
@@ -79,22 +82,52 @@ int main() {
     dup2(fd, 0);
     close(fd);
     int symb;
+    const int AMOUNT_OF_COLORERS = 7;
+    int is_input_has_not_pattern[AMOUNT_OF_COLORERS];
+    int is_step_was_sucessfull[AMOUNT_OF_COLORERS];
+    for (int i = 0; i < 7; i++) {
+        is_input_has_not_pattern[i] = 0;
+        is_step_was_sucessfull[i] = 0;
+    }
     while (!flag) {
-        //flag = comment_colorer(1);
-        //if (flag == 1) break;
-        number_colorer(1);
-        punctuator_colorer(PUNCTUATORS);
-        // putchar(getchar());
-        // putchar(fgetc(0));
-        if ((symb = getchar()) != EOF) {
-            if (symb != ' ') {
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
-                    return 2;
-                }
-            } else {
-                putchar(' ');
+        while (!is_input_has_not_pattern[0]) {
+            int result;
+            result = comment_colorer(1);
+            if ((result == 3) || (result == 1)) {
+                is_input_has_not_pattern[0] = 1;
             }
-        } else flag = 1;
+            if (result == 0) {
+                is_step_was_sucessfull[0] = 1;
+            }
+            flag = space_print_skip();
+        }
+
+        while (!is_input_has_not_pattern[1]) {
+            int result;
+            result = number_colorer(1);
+            if ((result == 3) || (result == 1)) {
+                is_input_has_not_pattern[1] = 1;
+            }
+            if (result == 0) {
+                is_step_was_sucessfull[1] = 1;
+            }
+            flag = space_print_skip();
+        }
+        if (is_step_was_sucessfull[1]) {
+            is_input_has_not_pattern[0] = 0;
+            is_input_has_not_pattern[1] = 0;
+            is_step_was_sucessfull[1] = 0;
+            continue;
+        }
+        //if (punctuator_colorer(PUNCTUATORS) == 3) {
+        //    flag = space_print_skip();
+        //    continue;
+        //}
+        punctuator_colorer(PUNCTUATORS);
+        flag = space_print_skip();
+        for (int i = 0; i < 7; i++) {
+            is_input_has_not_pattern[i] = 0;
+        }
     }
     return 0;
 }
@@ -102,6 +135,11 @@ int main() {
 
 int 
 number_colorer(int color) {
+ /* 0 - if digit was found
+  * 1 - if EOF was found
+  * 2 - if some kind of error was found
+  * 3 - if digit was not found*/
+
     int curr_symb, is_first_digit = 1;
     while ((curr_symb = getchar()) != EOF) {
         if (isdigit(curr_symb)) {
@@ -113,11 +151,15 @@ number_colorer(int color) {
         } else {
             if (!is_first_digit) {
                 printf("\033[0m");
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 0;
             }
             if (fseek(stdin, -1, SEEK_CUR) == -1) {
                 return 2;
             }
-            return 0;
+            return 3;
             }
         }
     return 1;
@@ -126,6 +168,11 @@ number_colorer(int color) {
 
 int
 comment_colorer(int color) {
+    /*0, if somekind of comment was found
+     *1, if EOF was reached
+     *2, if somekind of error was found
+     *3, if comment was not found
+     */
     int curr_symb;
     int state1 = 0, state2 = 0;
     while ((curr_symb = getchar()) != EOF) {
@@ -196,11 +243,16 @@ comment_colorer(int color) {
             state1 = 1;
             state2 = 1;
             continue;
+        } else {
+            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                return 2;
+            }
+            return 3;
         }
-        if (fseek(stdin, -1, SEEK_CUR) == -1) {
-            return 2;
-        }
-        return 0;
+//        if (fseek(stdin, -1, SEEK_CUR) == -1) {
+//            return 2;
+//        }
+//        return 0;
     }
     return 1;
 }
@@ -246,4 +298,20 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
     if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
+}
+
+
+int
+space_print_skip() {
+    int curr_symb;
+    if ((curr_symb = getchar()) != EOF) {
+        if (curr_symb != ' ') {
+            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                return 2;
+            }
+        } else {
+            putchar(' ');
+        }
+    } else return 1;
+    return 0;
 }
