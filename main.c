@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 /* Punctuators array for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 54, PUNCTUATOR_MAX_LENGTH = 4};
@@ -74,15 +75,26 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
 
 int main() {
     int flag = 0;
+    int fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
+    dup2(fd, 0);
+    close(fd);
+    int symb;
     while (!flag) {
         //flag = comment_colorer(1);
         //if (flag == 1) break;
-        flag = number_colorer(1);
-        //if (flag == 1) break;
-        //flag = punctuator_colorer(PUNCTUATORS);
-        //if (flag == 1) break;
+        number_colorer(1);
+        punctuator_colorer(PUNCTUATORS);
         // putchar(getchar());
         // putchar(fgetc(0));
+        if ((symb = getchar()) != EOF) {
+            if (symb != ' ') {
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+            } else {
+                putchar(' ');
+            }
+        } else flag = 1;
     }
     return 0;
 }
@@ -90,23 +102,24 @@ int main() {
 
 int 
 number_colorer(int color) {
-    int curr_symb, is_first_symb = 1;
+    int curr_symb, is_first_digit = 1;
     while ((curr_symb = getchar()) != EOF) {
-        if (isdigit(curr_symb) && (is_first_symb)) {
-            printf("\033[1;31m");
-            is_first_symb = 0;
-        } else if (!(isdigit(curr_symb))) {
-            if (!is_first_symb) {
+        if (isdigit(curr_symb)) {
+            if (is_first_digit) {
+                printf("\033[1;31m");
+                is_first_digit = 0;
+            }
+            putchar(curr_symb);
+        } else {
+            if (!is_first_digit) {
                 printf("\033[0m");
-            } else {
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
-                    return 2;
-                }
-                return 0;
+            }
+            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                return 2;
+            }
+            return 0;
             }
         }
-        putchar(curr_symb);
-    }
     return 1;
 }
 
@@ -204,10 +217,11 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
     char is_first_punc = 1;
     char was_printed = 0; // if on j-step one symbol of punctuator was printed
     int j=0;
+    int length_of_current_punctuator = 0;
     for (j; j < PUNCTUATOR_MAX_LENGTH; j++) {
         was_printed = 0;
         if ((curr_symb = getchar()) == EOF) {
-            if (fseek(stdin, -j - 1, SEEK_CUR) == -1) {
+            if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
                 return 2;
             }
             if (!is_first_punc) printf("\033[0m");
@@ -216,11 +230,12 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
         for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
             if ((PUNCTUATORS[i][j] == curr_symb) && (indexes[i] == 1)) {
                 if ((j == 0) && (is_first_punc)) {
-                    is_first_punc = -1;
+                    is_first_punc = 0;
                     printf("\033[0;31m");
                 }
                 if (!was_printed) {
                     putchar(curr_symb);
+                    length_of_current_punctuator++;
                     was_printed = 1;
                 }
             } else {
@@ -228,7 +243,7 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
             }
         }
     }
-    if (fseek(stdin, -j - 1, SEEK_CUR) == -1) {
+    if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
 }
