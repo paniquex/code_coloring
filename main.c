@@ -332,14 +332,26 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
+    int keyword_to_print[KEYWORD_MAX_LENGTH];
+    for (int i=0; i < KEYWORD_MAX_LENGTH; i++) {
+        keyword_to_print[i] = 0;
+    }
     int curr_symb;
     char is_first_keyword = 1;
+    char is_at_least_one_full_keyword = 0;
     char was_printed = 0; // if on j-step one symbol of keyword was printed
     int j=0;
     int length_of_current_keyword = 0;
     for (j; j < KEYWORD_MAX_LENGTH; j++) {
         was_printed = 0;
         if ((curr_symb = getchar()) == EOF) {
+            if (is_at_least_one_full_keyword) {
+                for (int i = 0; i < length_of_current_keyword; i++) {
+                    printf("%c", keyword_to_print[i]);
+                }
+            } else {
+                printf("\033[0m");
+            }
             if (fseek(stdin, -j + length_of_current_keyword, SEEK_CUR) == -1) {
                 return 2;
             }
@@ -353,14 +365,27 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
                     printf("\033[0;34m");
                 }
                 if (!was_printed) {
-                    putchar(curr_symb);
+                    //putchar(curr_symb);
+                    keyword_to_print[length_of_current_keyword] = curr_symb;
                     length_of_current_keyword++;
                     was_printed = 1;
                 }
             } else {
+                if ((KEYWORDS[i][j+1] == '0') && (indexes[i] == 1)) {
+                    is_at_least_one_full_keyword = 1;
+                    break;
+                }
                 indexes[i] = 0;
             }
         }
+    }
+    if (curr_symb != ' ') {
+        printf("\033[0m");
+    } else {
+        for (int i=0; i < length_of_current_keyword; i++) {
+            printf("%c", keyword_to_print[i]);
+        }
+        printf("\033[0m");
     }
     if (fseek(stdin, -j + length_of_current_keyword, SEEK_CUR) == -1) {
         return 2;
