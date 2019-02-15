@@ -95,11 +95,16 @@ int
 keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]);
 
 int
-is_white_space(int symb_symb);
+identifier_colorer(int color);
+
+int
+is_white_space(int symb);
 
 int
 white_space_print_skip();
 
+int
+is_nondigit(int symb);
 
 int main() {
     int flag = 0;
@@ -115,7 +120,8 @@ int main() {
         is_step_was_sucessfull[i] = 0;
     }
     while (!flag) {
-        flag = keyword_colorer(KEYWORDS);
+//        flag = keyword_colorer(KEYWORDS);
+        flag = identifier_colorer(1);
         while (white_space_print_skip() == 0);
 //        while (!is_input_has_not_pattern[0]) {
 //            int result;
@@ -359,10 +365,10 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
     int curr_symb;
     char is_first_keyword = 1;
     char is_at_least_one_full_keyword = 0;
-    char was_printed = 0; // if on symb_was_readed-step one symbol of keyword was printed
-    int amount_symb_was_readed = 0;
+    char was_printed = 0; // if on symb_was_read-step one symbol of keyword was printed
+    int amount_symb_was_read = 0;
     int length_of_current_keyword = 0;
-    for (amount_symb_was_readed; amount_symb_was_readed < KEYWORD_MAX_LENGTH; amount_symb_was_readed++) {
+    for (amount_symb_was_read; amount_symb_was_read < KEYWORD_MAX_LENGTH; amount_symb_was_read++) {
         was_printed = 0;
         if ((curr_symb = getchar()) == EOF) {
             if (is_at_least_one_full_keyword) {
@@ -372,15 +378,15 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
             } else {
                 printf("\033[0m");
             }
-            if (fseek(stdin, -amount_symb_was_readed + length_of_current_keyword, SEEK_CUR) == -1) {
+            if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
                 return 2;
             }
             if (!is_first_keyword) printf("\033[0m");
             return 1;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
-            if ((KEYWORDS[i][amount_symb_was_readed] == curr_symb) && (KEYWORDS[i][amount_symb_was_readed] != '0') && (indexes[i] == 1)) {
-                if ((amount_symb_was_readed == 0) && (is_first_keyword)) {
+            if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (KEYWORDS[i][amount_symb_was_read] != '0') && (indexes[i] == 1)) {
+                if ((amount_symb_was_read == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
                     printf("\033[0;34m");
                 }
@@ -391,7 +397,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
                     was_printed = 1;
                 }
             } else {
-                if ((is_white_space(curr_symb)) && (KEYWORDS[i][amount_symb_was_readed] == '0') && (indexes[i] != 0)) {
+                if ((is_white_space(curr_symb)) && (KEYWORDS[i][amount_symb_was_read] == '0') && (indexes[i] != 0)) {
                     for (int k = 0; k < length_of_current_keyword; k++) {
                         putchar(keyword_to_print[k]);
                     }
@@ -403,22 +409,48 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
             }
         }
     }
-//    if (curr_symb != ' ') {
-//        printf("\033[0m");
-//    } else {
-//        for (int i=0; i < length_of_current_keyword; i++) {
-//            printf("%c", keyword_to_print[i]);
-//        }
-//        printf("\033[0m");
-//    }
-    if (fseek(stdin, -amount_symb_was_readed + length_of_current_keyword, SEEK_CUR) == -1) {
+    if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
         return 2;
     }
 }
 
 
-int indetifier_colorer(int color) {
 
+
+int identifier_colorer(int color) {
+    int curr_symb;
+    int amount_symb_was_read = 0;
+    int state1 = 0;
+    while ((curr_symb = getchar()) != EOF) {
+        amount_symb_was_read++;
+        if (state1 == 0) {
+            if (is_nondigit(curr_symb)) {
+//                printf("\033[0;95m");
+//                putchar(curr_symb);
+                state1 = 1;
+            } else {
+                return 3;
+            }
+        }
+        if (state1 == 1) {
+            if ((is_nondigit(curr_symb)) || (isdigit(curr_symb))) {
+
+            } else if (is_white_space(curr_symb)) {
+                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                printf("\033[0;95m");
+                for(int i = 0; i < amount_symb_was_read; i++) {
+                    putchar(getchar());
+                }
+                printf("\033[0m");
+                return 0;
+            } else {
+                return 3;
+            }
+        }
+    }
+    return 1;
 }
 
 
@@ -455,4 +487,10 @@ white_space_print_skip() {
         }
     } else return 1;
     return 0;
+}
+
+
+int is_nondigit(int symb) {
+    if ((isalpha(symb)) || (symb == '_')) return 1;
+    else return 0;
 }
