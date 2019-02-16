@@ -26,14 +26,14 @@ const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
 /* Punctuators array for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 54, PUNCTUATOR_MAX_LENGTH = 4};
 const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
-                            {'[', '0', '0', '0'},
-                            {']', '0', '0', '0'},
-                            {'(', '0', '0', '0'},
-                            {')', '0', '0', '0'},
-                            {'{', '0', '0', '0'},
-                            {'}', '0', '0', '0'},
-                            {'.', '0', '0', '0'},
-                            {'-', '>', '0', '0'},
+//                            {'[', '0', '0', '0'},
+//                            {']', '0', '0', '0'},
+//                            {'(', '0', '0', '0'},
+//                            {')', '0', '0', '0'},
+//                            {'{', '0', '0', '0'},
+//                            {'}', '0', '0', '0'},
+//                            {'.', '0', '0', '0'},
+//                            {'-', '>', '0', '0'},
                             {'+', '+', '0', '0'},
                             {'-', '-', '0', '0'},
                             {'&', '0', '0', '0'},
@@ -56,10 +56,10 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
                             {'|', '0', '0', '0'},
                             {'&', '&', '0', '0'},
                             {'|', '|', '0', '0'},
-                            {'?', '0', '0', '0'},
-                            {':', '0', '0', '0'},
-                            {';', '0', '0', '0'},
-                            {'.', '.', '.', '0'},
+//                            {'?', '0', '0', '0'},
+//                            {':', '0', '0', '0'},
+//                            {';', '0', '0', '0'},
+//                            {'.', '.', '.', '0'},
                             {'=', '0', '0', '0'},
                             {'*', '=', '0', '0'},
                             {'/', '=', '0', '0'},
@@ -71,15 +71,15 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
                             {'&', '=', '0', '0'},
                             {'^', '=', '0', '0'},
                             {'|', '=', '0', '0'},
-                            {',', '0', '0', '0'},
-                            {'#', '0', '0', '0'},
-                            {'#', '#', '0', '0'},
-                            {'<', ':', '0', '0'},
-                            {':', '>', '0', '0'},
-                            {'<', '%', '0', '0'},
-                            {'%', '>', '0', '0'},
-                            {'%', ':', '0', '0'},
-                            {'%', ':', '%', ':'},
+//                            {',', '0', '0', '0'},
+//                            {'#', '0', '0', '0'},
+//                            {'#', '#', '0', '0'},
+//                            {'<', ':', '0', '0'},
+//                            {':', '>', '0', '0'},
+//                            {'<', '%', '0', '0'},
+//                            {'%', '>', '0', '0'},
+//                            {'%', ':', '0', '0'},
+//                            {'%', ':', '%', ':'},
                                                                       };
 
 int 
@@ -106,6 +106,12 @@ white_space_print_skip();
 int
 is_nondigit(int symb);
 
+int
+string_literal_colorer(int color);
+
+int
+char_consts_colorer(int color);
+
 int main() {
     int flag = 0;
     int fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
@@ -121,7 +127,7 @@ int main() {
     }
     while (!flag) {
 //        flag = keyword_colorer(KEYWORDS);
-        flag = identifier_colorer(1);
+        flag = string_literal_colorer(1);
         while (white_space_print_skip() == 0);
 //        while (!is_input_has_not_pattern[0]) {
 //            int result;
@@ -493,4 +499,158 @@ white_space_print_skip() {
 int is_nondigit(int symb) {
     if ((isalpha(symb)) || (symb == '_')) return 1;
     else return 0;
+}
+
+
+int
+string_literal_colorer(int color) {
+    int curr_symb;
+    int state = 0;
+    while ((curr_symb = getchar()) != EOF) {
+        if (state == 0) {
+            if (curr_symb == '\"') {
+                printf("\033[0;32m");
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
+                int curr_prefix = curr_symb;
+                if ((curr_symb == 'L') || (curr_symb == 'U')) {
+                    curr_symb = getchar();
+                    if (curr_symb != '\"') {
+                        if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                            return 2;
+                        }
+                        return 3;
+                    } else {
+                        printf("\033[0;32m");
+                        printf("%c\"", curr_prefix);
+                        state = 1;
+                        continue;
+                    }
+                } else { //curr_symb == u
+                    curr_symb = getchar();
+                    if ((curr_symb != '8') && (curr_symb != '\"')) {
+                        if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                            return 2;
+                        }
+                        return 3;
+                    } else {
+                        if (curr_symb == '\"') {
+                            printf("\033[0;32m");
+                            printf("%c\"", curr_prefix);
+                            state = 1;
+                            continue;
+                        }
+                        if (curr_symb == '8') {
+                            curr_symb = getchar();
+                            if (curr_symb == '\"') {
+                                printf("\033[0;32m");
+                                printf("%c8\"", curr_prefix);
+                                state = 1;
+                                continue;
+                            } else {
+                                if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                                    return 2;
+                                }
+                                return 3;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 3;
+            }
+        }
+        if (state == 1) {
+            if (curr_symb != '\\') {
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            } else {
+                state = 2;
+                continue;
+            }
+        }
+        if (state == 2) {
+            if (curr_symb == '\\') {
+                putchar(curr_symb);
+                state = 2;
+                continue;
+            } else if (curr_symb == '\"') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            } else {
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            }
+        }
+    }
+    return 1;
+}
+
+int
+char_consts_colorer(int color) {
+    int curr_symb;
+    int state = 0;
+    while ((curr_symb = getchar()) != EOF) {
+        if (state == 0) {
+            if (curr_symb == '\'') {
+                printf("\033[1;33m");
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
+                int curr_prefix = curr_symb;
+                curr_symb = getchar();
+                if (curr_symb == '\'') {
+                    printf("\033[1;33m");
+                    printf("%c\'", curr_prefix);
+                    state = 1;
+                    continue;
+                } else {
+                    if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                        return 2;
+                    }
+                    return 3;
+                }
+            } else {
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 3;
+            }
+        }
+        if (state == 1) {
+            if (curr_symb != '\\') {
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            } else {
+                state = 2;
+                continue;
+            }
+        }
+        if (state == 2) {
+            if (curr_symb == '\\') {
+                putchar(curr_symb);
+                state = 2;
+                continue;
+            } else if (curr_symb == '\'') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            } else {
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            }
+        }
+    }
+    return 1;
 }
