@@ -24,21 +24,13 @@ const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
                                                         };
 
 /* Punctuators array for punctuator_colorer func */
-enum {PUNCTUATORS_AMOUNT = 54, PUNCTUATOR_MAX_LENGTH = 4};
+enum {PUNCTUATORS_AMOUNT = 43, PUNCTUATOR_MAX_LENGTH = 4};
 const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
-//                            {'[', '0', '0', '0'},
-//                            {']', '0', '0', '0'},
-//                            {'(', '0', '0', '0'},
-//                            {')', '0', '0', '0'},
-//                            {'{', '0', '0', '0'},
-//                            {'}', '0', '0', '0'},
-//                            {'.', '0', '0', '0'},
-//                            {'-', '>', '0', '0'},
-                            {'+', '+', '0', '0'},
                             {'-', '-', '0', '0'},
                             {'&', '0', '0', '0'},
                             {'*', '0', '0', '0'},
                             {'+', '0', '0', '0'},
+                            {'+', '+', '0', '0'},
                             {'-', '0', '0', '0'},
                             {'~', '0', '0', '0'},
                             {'!', '0', '0', '0'},
@@ -56,10 +48,6 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
                             {'|', '0', '0', '0'},
                             {'&', '&', '0', '0'},
                             {'|', '|', '0', '0'},
-//                            {'?', '0', '0', '0'},
-//                            {':', '0', '0', '0'},
-//                            {';', '0', '0', '0'},
-//                            {'.', '.', '.', '0'},
                             {'=', '0', '0', '0'},
                             {'*', '=', '0', '0'},
                             {'/', '=', '0', '0'},
@@ -71,6 +59,19 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
                             {'&', '=', '0', '0'},
                             {'^', '=', '0', '0'},
                             {'|', '=', '0', '0'},
+
+//                            {'?', '0', '0', '0'},
+//                            {':', '0', '0', '0'},
+//                            {';', '0', '0', '0'},
+//                            {'.', '.', '.', '0'},
+//                            {'[', '0', '0', '0'},
+//                            {']', '0', '0', '0'},
+//                            {'(', '0', '0', '0'},
+//                            {')', '0', '0', '0'},
+//                            {'{', '0', '0', '0'},
+//                            {'}', '0', '0', '0'},
+//                            {'.', '0', '0', '0'},
+//                            {'-', '>', '0', '0'},
 //                            {',', '0', '0', '0'},
 //                            {'#', '0', '0', '0'},
 //                            {'#', '#', '0', '0'},
@@ -125,10 +126,68 @@ int main() {
         is_input_has_not_pattern[i] = 0;
         is_step_was_sucessfull[i] = 0;
     }
-    while (!flag) {
-//        flag = keyword_colorer(KEYWORDS);
-        flag = string_literal_colorer(1);
+    while (getchar() != EOF) {
+        fseek(stdin, -1, SEEK_CUR);
         while (white_space_print_skip() == 0);
+        if (white_space_print_skip() == 1) {
+            break;
+        }
+        flag = comment_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Comment colorer***");
+            return 2;
+        }
+
+        flag = string_literal_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***String literal colorer***");
+            return 2;
+        }
+
+        flag = char_consts_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Char consts colorer***");
+            return 2;
+        }
+
+        flag = keyword_colorer(KEYWORDS);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Keyword colorer***");
+            return 2;
+        }
+
+        flag = identifier_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Identifier colorer***");
+            return 2;
+        }
+
+        flag = number_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Number colorer***");
+            return 2;
+        }
+
+        flag = punctuator_colorer(PUNCTUATORS);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Punctuator colorer***");
+            return 2;
+        }
+        break;
 //        while (!is_input_has_not_pattern[0]) {
 //            int result;
 //            result = comment_colorer(1);
@@ -183,7 +242,7 @@ number_colorer(int color) {
     while ((curr_symb = getchar()) != EOF) {
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
-                printf("\033[0;95m");
+                printf("\033[1;36m");
                 is_first_digit = 0;
             }
             putchar(curr_symb);
@@ -374,7 +433,21 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
     char was_printed = 0; // if on symb_was_read-step one symbol of keyword was printed
     int amount_symb_was_read = 0;
     int length_of_current_keyword = 0;
+    int is_indexes_array_of_zeros = 0;
     for (amount_symb_was_read; amount_symb_was_read < KEYWORD_MAX_LENGTH; amount_symb_was_read++) {
+        is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
+        for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+            if (indexes[i] != 0) {
+                is_indexes_array_of_zeros = 0;
+            }
+        }
+        if (is_indexes_array_of_zeros) {
+            printf("\033[0m");
+            if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
+                return 2;
+            }
+            return 3;
+        }
         was_printed = 0;
         if ((curr_symb = getchar()) == EOF) {
             if (is_at_least_one_full_keyword) {
@@ -434,7 +507,11 @@ int identifier_colorer(int color) {
 //                printf("\033[0;95m");
 //                putchar(curr_symb);
                 state1 = 1;
+                continue;
             } else {
+                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                    return 2;
+                }
                 return 3;
             }
         }
@@ -442,7 +519,7 @@ int identifier_colorer(int color) {
             if ((is_nondigit(curr_symb)) || (isdigit(curr_symb))) {
 
             } else if (is_white_space(curr_symb)) {
-                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                if (fseek(stdin, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 printf("\033[0;95m");
@@ -452,9 +529,15 @@ int identifier_colorer(int color) {
                 printf("\033[0m");
                 return 0;
             } else {
+                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                    return 2;
+                }
                 return 3;
             }
         }
+    }
+    if (fseek(stdin, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
+        return 2;
     }
     return 1;
 }
@@ -477,10 +560,10 @@ is_white_space(int symb) {
 
 int
 white_space_print_skip() {
-    /* 0, if this symb is space
+    /* 0, if this symb is white_space
      * 1, if EOF
      * 2, if some kind of error was found
-     * 3, if symb is not space*/
+     * 3, if symb is not white_space*/
     int curr_symb;
     if ((curr_symb = getchar()) != EOF) {
         if (!is_white_space(curr_symb)) {
@@ -566,11 +649,16 @@ string_literal_colorer(int color) {
             }
         }
         if (state == 1) {
-            if (curr_symb != '\\') {
+            if ((curr_symb != '\\') && (curr_symb != '\"')) {
                 putchar(curr_symb);
                 state = 1;
                 continue;
+            } else if (curr_symb == '\"') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
             } else {
+                putchar(curr_symb);
                 state = 2;
                 continue;
             }
@@ -591,6 +679,7 @@ string_literal_colorer(int color) {
             }
         }
     }
+    printf("\033[0m");
     return 1;
 }
 
