@@ -59,28 +59,6 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
                             {'&', '=', '0', '0'},
                             {'^', '=', '0', '0'},
                             {'|', '=', '0', '0'},
-
-//                            {'?', '0', '0', '0'},
-//                            {':', '0', '0', '0'},
-//                            {';', '0', '0', '0'},
-//                            {'.', '.', '.', '0'},
-//                            {'[', '0', '0', '0'},
-//                            {']', '0', '0', '0'},
-//                            {'(', '0', '0', '0'},
-//                            {')', '0', '0', '0'},
-//                            {'{', '0', '0', '0'},
-//                            {'}', '0', '0', '0'},
-//                            {'.', '0', '0', '0'},
-//                            {'-', '>', '0', '0'},
-//                            {',', '0', '0', '0'},
-//                            {'#', '0', '0', '0'},
-//                            {'#', '#', '0', '0'},
-//                            {'<', ':', '0', '0'},
-//                            {':', '>', '0', '0'},
-//                            {'<', '%', '0', '0'},
-//                            {'%', '>', '0', '0'},
-//                            {'%', ':', '0', '0'},
-//                            {'%', ':', '%', ':'},
                                                                       };
 
 int 
@@ -116,6 +94,10 @@ char_consts_colorer(int color);
 int main() {
     int flag = 0;
     int fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
+    int fd1 = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_WRONLY | O_APPEND);
+    char space = ' ';
+    write(fd1, &space, sizeof(space));
+    close(fd1);
     dup2(fd, 0);
     close(fd);
     int symb;
@@ -187,45 +169,7 @@ int main() {
             perror("***Punctuator colorer***");
             return 2;
         }
-        break;
-//        while (!is_input_has_not_pattern[0]) {
-//            int result;
-//            result = comment_colorer(1);
-//            if ((result == 3) || (result == 1)) {
-//                is_input_has_not_pattern[0] = 1;
-//            }
-//            if (result == 0) {
-//                is_step_was_sucessfull[0] = 1;
-//            }
-//            flag = space_print_skip();
-//        }
-//
-//        while (!is_input_has_not_pattern[1]) {
-//            int result;
-//            result = number_colorer(1);
-//            if ((result == 3) || (result == 1)) {
-//                is_input_has_not_pattern[1] = 1;
-//            }
-//            if (result == 0) {
-//                is_step_was_sucessfull[1] = 1;
-//            }
-//            flag = space_print_skip();
-//        }
-//        if (is_step_was_sucessfull[1]) {
-//            is_input_has_not_pattern[0] = 0;
-//            is_input_has_not_pattern[1] = 0;
-//            is_step_was_sucessfull[1] = 0;
-//            continue;
-//        }
-//        //if (punctuator_colorer(PUNCTUATORS) == 3) {
-//        //    flag = space_print_skip();
-//        //    continue;
-//        //}
-//        punctuator_colorer(PUNCTUATORS);
-//        flag = space_print_skip();
-//        for (int i = 0; i < 7; i++) {
-//            is_input_has_not_pattern[i] = 0;
-//        }
+        putchar(getchar());
     }
     return 0;
 }
@@ -274,27 +218,45 @@ comment_colorer(int color) {
     int curr_symb;
     int state1 = 0, state2 = 0;
     while ((curr_symb = getchar()) != EOF) {
-        if (state1 == 3) {
-            state1 = 2;
-            putchar(curr_symb);
+        if ((curr_symb == '/') && (state1 == 0)) {
+            state1 = 1;
+            state2 = 1;
             continue;
+        } else if ((state1 == 0) && (state2 == 0)) {
+            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                return 2;
+            }
+            return 3;
         }
-        if (state2 == 3) {
-            if (curr_symb == '/') {
-                printf("/");
-                printf("\033[0m");
+        if ((state1 == 1) || (state2 == 1)) {
+            if ((curr_symb != '/') && (curr_symb != '*')) {
+                state1 = 0;
                 state2 = 0;
-                return 0;
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 3;
             }
-            if (curr_symb != '*') {
-                state2 = 2;
+            else {
+                printf("\033[4;33m");
+                if (curr_symb == '/') {
+                    state1 = 2;
+                    state2 = 0;
+                    printf("//");
+                }
+                else {
+                    state1 = 0;
+                    state2 = 2;
+                    printf("/*");
+                }
             }
-            putchar(curr_symb);
             continue;
         }
+
         if (state1 == 2) {
             if (curr_symb == '\n') {
                 state1 = 0;
+                printf("\033[0m");
                 if (fseek(stdin, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
@@ -313,45 +275,31 @@ comment_colorer(int color) {
             putchar(curr_symb);
             continue;
         }
-        if ((state1 == 1) || (state2 == 1)) {
-            if ((curr_symb != '/') && (curr_symb != '*')) {
-                state1 = 0;
+        if (state1 == 3) {
+            state1 = 2;
+            putchar(curr_symb);
+            continue;
+        }
+        if (state2 == 3) {
+            if (curr_symb == '/') {
+                printf("/");
+                printf("\033[0m");
                 state2 = 0;
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
-                    return 2;
-                }
                 return 0;
             }
-            else {
-                printf("\033[0;33m");
-                if (curr_symb == '/') {
-                    state1 = 2;
-                    state2 = 0;
-                    printf("//");
-                }
-                else {
-                    state1 = 0;
-                    state2 = 2;
-                    printf("/*");
-                }
+            if (curr_symb != '*') {
+                state2 = 2;
             }
+            putchar(curr_symb);
             continue;
         }
-        if ((curr_symb == '/') && (state1 == 0)) {
-            state1 = 1;
-            state2 = 1;
-            continue;
-        } else {
-            if (fseek(stdin, -1, SEEK_CUR) == -1) {
-                return 2;
-            }
-            return 3;
+        if (fseek(stdin, -1, SEEK_CUR) == -1) {
+            return 2;
         }
-//        if (fseek(stdin, -1, SEEK_CUR) == -1) {
-//            return 2;
-//        }
-//        return 0;
+        return 0;
+        printf("\033[0m");
     }
+    printf("\033[0m");
     return 1;
 }
 
@@ -396,6 +344,11 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
     if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
+    if (!is_first_punc) {
+        printf("\033[0m");
+        return 0;
+    }
+    return 3;
 }
 
 
@@ -443,7 +396,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
         }
         if (is_indexes_array_of_zeros) {
             printf("\033[0m");
-            if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
+            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
@@ -516,23 +469,23 @@ int identifier_colorer(int color) {
             }
         }
         if (state1 == 1) {
-            if ((is_nondigit(curr_symb)) || (isdigit(curr_symb))) {
+            if ((is_nondigit(curr_symb)) || (isdigit(curr_symb)))  {
 
-            } else if (is_white_space(curr_symb)) {
-                if (fseek(stdin, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
-                    return 2;
-                }
-                printf("\033[0;95m");
-                for(int i = 0; i < amount_symb_was_read; i++) {
-                    putchar(getchar());
-                }
-                printf("\033[0m");
-                return 0;
             } else {
                 if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
                     return 2;
                 }
-                return 3;
+                printf("\033[0;95m");
+                for(int i = 0; i < amount_symb_was_read-1; i++) {
+                    putchar(getchar());
+                }
+                printf("\033[0m");
+                return 0;
+//            } else {
+//                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+//                    return 2;
+//                }
+//                return 3;
             }
         }
     }
@@ -604,6 +557,7 @@ string_literal_colorer(int color) {
                         if (fseek(stdin, -2, SEEK_CUR) == -1) {
                             return 2;
                         }
+                        printf("\033[0m");
                         return 3;
                     } else {
                         printf("\033[0;32m");
@@ -617,6 +571,7 @@ string_literal_colorer(int color) {
                         if (fseek(stdin, -2, SEEK_CUR) == -1) {
                             return 2;
                         }
+                        printf("\033[0m");
                         return 3;
                     } else {
                         if (curr_symb == '\"') {
@@ -636,6 +591,7 @@ string_literal_colorer(int color) {
                                 if (fseek(stdin, -2, SEEK_CUR) == -1) {
                                     return 2;
                                 }
+                                printf("\033[0m");
                                 return 3;
                             }
                         }
@@ -645,15 +601,20 @@ string_literal_colorer(int color) {
                 if (fseek(stdin, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
+                printf("\033[0m");
                 return 3;
             }
         }
         if (state == 1) {
-            if ((curr_symb != '\\') && (curr_symb != '\"')) {
+            if (curr_symb == '\\') {
                 putchar(curr_symb);
                 state = 1;
                 continue;
             } else if (curr_symb == '\"') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            } else if (curr_symb == '\n') {
                 putchar(curr_symb);
                 printf("\033[0m");
                 return 0;
@@ -716,12 +677,20 @@ char_consts_colorer(int color) {
             }
         }
         if (state == 1) {
-            if (curr_symb != '\\') {
+            if (curr_symb == '\\') {
+                state = 2;
+                continue;
+            } else if (curr_symb == '\'') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            } else if (curr_symb == '\n') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            } else {
                 putchar(curr_symb);
                 state = 1;
-                continue;
-            } else {
-                state = 2;
                 continue;
             }
         }
