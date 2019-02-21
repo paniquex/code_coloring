@@ -63,33 +63,140 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
 
 int 
 number_colorer(int color);
+/*
+ * DESCRIPTION:
+ * number_colorer() attempts to read symbols from stdin until EOF
+ * if first digit has reached, then it prints to stdout "color key"
+ * after first digit was found, if current symbol != digit, then prints to stdout
+ * "standard color key".
+ * RETURN VALUES:
+     * 0 - if digit was found
+     * 1 - if EOF was found
+     * 2 - if some kind of error was found
+     * 3 - if digit was not found
+*/
+
 
 int 
 comment_colorer(int color);
+/*
+ * DESCRIPTION:
+    * comment_colorer() attempts to read symbols from stdin until EOF
+    * if it has found "comment token(or pattern)", then prints it with brown(yellow) color
+ * RETURN VALUES:
+    * 0, if somekind of comment was found
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if comment was not found
+*/
+
 
 int
 punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH]);
+/*
+ * DESCRIPTION:
+    * punctuator_colorer() attempts to read symbols from stdin until EOF
+    * it uses PUNCTUATORS array, which contains all available pattern of punctuators
+    * if it has found "punctuator token(or pattern)" then it prints it with red color
+ * RETURN VALUES:
+     * 0, if punctuator was found and printed
+     * 1, if EOF was reached
+     * 2, if somekind of error was found
+     * 3, if no punctuator was found
+*/
+
 
 int
 keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]);
+/* DESCRIPTION:
+    * keyword_colorer() attempts to read symbols from stdin until EOF
+    * it uses KEYWORDS array, which contains all available pattern of punctuators
+    * if it has found "keyword token(or pattern)" then it prints it with blue color
+ * RETURN VALUES:
+     * 0, if keyword was found and printed
+     * 1, if EOF was reached
+     * 2, if somekind of error was found
+     * 3, if no keyword was found
+  Important:
+    * at the end of keyword must be at least one white space, if keyword ends without white spaces - don't print
+  EXAMPLE:
+     * 1)*EOF* - end of file
+     * input:_Imaginary*EOF*
+     * output:
+     * 2)*WHITESPACE* - white space symbol
+     * input:_Imaginary*WHITESPACE**EOF*
+     * output:_Imaginary*WHITESPACE*
+ */
+
 
 int
 identifier_colorer(int color);
+/* DESCRIPTION:
+ * identifier_colorer() attempts to read symbols from stdin until EOF
+ * if it has found "identifier token(or pattern)" then it prints it with pink color
+ *
+ * RETURN VALUES:
+    * 0, if identifier was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no identifier was found
+*/
 
 int
 is_white_space(int symb);
+/* DESCRIPTION:
+ * is_white_space() checks symb, if it is white_space character or not
+ * RETURN VALUES:
+    * 0, if it is not white_space
+    * 1  else
+*/
 
 int
 white_space_print_skip();
+/* DESCRIPTION:
+ * white_space_print_skip() attempts to read one symbol from stdin
+ * and checks if it is white_space character, then prints it
+ * RETURN VALUES:
+    * 0, if this symb is white_space
+    * 1, if EOF
+    * 2, if some kind of error was found
+    * 3, if symb is not white_space
+*/
+
 
 int
 is_nondigit(int symb);
+/*
+ * RETURN VALUES:
+    * 1, if symb is nondigit
+    * 0, else
+ */
+
 
 int
 string_literal_colorer(int color);
+/* DESCRIPTION:
+    * string_literal_colorer() attempts to read symbols from stdin until EOF
+    * if it has found "string_literal token(or pattern)" then it prints it with green color
+ * RETURN VALUES:
+    * 0, if string_literal was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no string_literal was found
+ * */
 
 int
 char_consts_colorer(int color);
+/* DESCRIPTION:
+    * char_consts_colorer() attempts to read symbols from stdin until EOF
+    * if it has found "char_consts token(or pattern)" then it prints it with green color
+ * RETURN VALUES:
+    * 0, if char_consts was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no char_consts was found
+ * */
+
 
 int main() {
     int flag = 0;
@@ -177,10 +284,7 @@ int main() {
 
 int 
 number_colorer(int color) {
- /* 0 - if digit was found
-  * 1 - if EOF was found
-  * 2 - if some kind of error was found
-  * 3 - if digit was not found*/
+
 
     int curr_symb, is_first_digit = 1;
     while ((curr_symb = getchar()) != EOF) {
@@ -210,11 +314,6 @@ number_colorer(int color) {
 
 int
 comment_colorer(int color) {
-    /*0, if somekind of comment was found
-     *1, if EOF was reached
-     *2, if somekind of error was found
-     *3, if comment was not found
-     */
     int curr_symb;
     int state1 = 0, state2 = 0;
     while ((curr_symb = getchar()) != EOF) {
@@ -354,23 +453,6 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
 
 int
 keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
-
-/* 0, if keyword was found and printed
- * 1, if EOF was reached
- * 2, if somekind of error was found
- * 3, if no keyword was found
- *
- * at the end of keyword must be at least one white space, if keyword ends without white spaces - don't print
- * EXAMPLE:
- * 1)*EOF* - end of file
- * input:_Imaginary*EOF*
- * output:
- * 2)*WHITESPACE* - white space symbol
- * input:_Imaginary*WHITESPACE**EOF*
- * output:_Imaginary*WHITESPACE*
- */
-
-
     short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
                                                     0, else*/
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
@@ -481,11 +563,6 @@ int identifier_colorer(int color) {
                 }
                 printf("\033[0m");
                 return 0;
-//            } else {
-//                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
-//                    return 2;
-//                }
-//                return 3;
             }
         }
     }
