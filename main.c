@@ -21,47 +21,47 @@ const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
         {'_', 'N', 'o', 'r', 'e', 't', 'u', 'r', 'n', '0', '0', '0', '0', '0'},
         {'_', 'S', 't', 'a', 't', 'i', 'c', '_', 'a', 's', 's', 'e', 'r', 't'},
         {'_', 'T', 'h', 'r', 'e', 'a', 'd', '_', 'l', 'o', 'c', 'a', 'l', '0'},
-                                                        };
+};
 
 /* Punctuators array for punctuator_colorer func */
-enum {PUNCTUATORS_AMOUNT = 43, PUNCTUATOR_MAX_LENGTH = 4};
+enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
 const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
-                            {'-', '-', '0', '0'},
-                            {'&', '0', '0', '0'},
-                            {'*', '0', '0', '0'},
-                            {'+', '0', '0', '0'},
-                            {'+', '+', '0', '0'},
-                            {'-', '0', '0', '0'},
-                            {'~', '0', '0', '0'},
-                            {'!', '0', '0', '0'},
-                            {'/', '0', '0', '0'},
-                            {'%', '0', '0', '0'},
-                            {'<', '<', '0', '0'},
-                            {'>', '>', '0', '0'},
-                            {'<', '0', '0', '0'},
-                            {'>', '0', '0', '0'},
-                            {'<', '=', '0', '0'},
-                            {'>', '=', '0', '0'},
-                            {'=', '=', '0', '0'},
-                            {'!', '=', '0', '0'},
-                            {'^', '0', '0', '0'},
-                            {'|', '0', '0', '0'},
-                            {'&', '&', '0', '0'},
-                            {'|', '|', '0', '0'},
-                            {'=', '0', '0', '0'},
-                            {'*', '=', '0', '0'},
-                            {'/', '=', '0', '0'},
-                            {'%', '=', '0', '0'},
-                            {'+', '=', '0', '0'},
-                            {'-', '=', '0', '0'},
-                            {'<', '<', '=', '0'},
-                            {'>', '>', '=', '0'},
-                            {'&', '=', '0', '0'},
-                            {'^', '=', '0', '0'},
-                            {'|', '=', '0', '0'},
-                                                                      };
+        {'-', '-', '0', '0'},
+        {'&', '0', '0', '0'},
+        {'*', '0', '0', '0'},
+        {'+', '0', '0', '0'},
+        {'+', '+', '0', '0'},
+        {'-', '0', '0', '0'},
+        {'~', '0', '0', '0'},
+        {'!', '0', '0', '0'},
+        {'/', '0', '0', '0'},
+        {'%', '0', '0', '0'},
+        {'<', '<', '0', '0'},
+        {'>', '>', '0', '0'},
+        {'<', '0', '0', '0'},
+        {'>', '0', '0', '0'},
+        {'<', '=', '0', '0'},
+        {'>', '=', '0', '0'},
+        {'=', '=', '0', '0'},
+        {'!', '=', '0', '0'},
+        {'^', '0', '0', '0'},
+        {'|', '0', '0', '0'},
+        {'&', '&', '0', '0'},
+        {'|', '|', '0', '0'},
+        {'=', '0', '0', '0'},
+        {'*', '=', '0', '0'},
+        {'/', '=', '0', '0'},
+        {'%', '=', '0', '0'},
+        {'+', '=', '0', '0'},
+        {'-', '=', '0', '0'},
+        {'<', '<', '=', '0'},
+        {'>', '>', '=', '0'},
+        {'&', '=', '0', '0'},
+        {'^', '=', '0', '0'},
+        {'|', '=', '0', '0'},
+};
 
-int 
+int
 number_colorer(int color);
 /*
  * DESCRIPTION:
@@ -77,7 +77,7 @@ number_colorer(int color);
 */
 
 
-int 
+int
 comment_colorer(int color);
 /*
  * DESCRIPTION:
@@ -197,92 +197,31 @@ char_consts_colorer(int color);
     * 3, if no char_consts was found
  * */
 
+int
+preparing_for_coloring(int *fd);
+/* DESCRIPTION:
+ * preparing_for_coloring takes pointer to file descriptor fd, then
+ * */
+
+int
+coloring_stage();
+
 
 int main() {
-    int flag = 0;
-    int fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
-    int fd1 = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_WRONLY | O_APPEND);
-    char space = ' ';
-    write(fd1, &space, sizeof(space));
-    close(fd1);
-    dup2(fd, 0);
-    close(fd);
-    int symb;
-    const int AMOUNT_OF_COLORERS = 7;
-    int is_input_has_not_pattern[AMOUNT_OF_COLORERS];
-    int is_step_was_sucessfull[AMOUNT_OF_COLORERS];
-    for (int i = 0; i < 7; i++) {
-        is_input_has_not_pattern[i] = 0;
-        is_step_was_sucessfull[i] = 0;
+    int fd;
+    if (preparing_for_coloring(&fd) != 0) {
+        perror("Preparing for coloring stage error: ");
+        return 1;
     }
-    while (getchar() != EOF) {
-        fseek(stdin, -1, SEEK_CUR);
-        while (white_space_print_skip() == 0);
-        if (white_space_print_skip() == 1) {
-            break;
-        }
-        flag = comment_colorer(0);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Comment colorer***");
-            return 2;
-        }
-
-        flag = string_literal_colorer(0);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***String literal colorer***");
-            return 2;
-        }
-
-        flag = char_consts_colorer(0);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Char consts colorer***");
-            return 2;
-        }
-
-        flag = keyword_colorer(KEYWORDS);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Keyword colorer***");
-            return 2;
-        }
-
-        flag = identifier_colorer(0);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Identifier colorer***");
-            return 2;
-        }
-
-        flag = number_colorer(0);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Number colorer***");
-            return 2;
-        }
-
-        flag = punctuator_colorer(PUNCTUATORS);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Punctuator colorer***");
-            return 2;
-        }
-        putchar(getchar());
+    if (coloring_stage() != 0) {
+        perror("Coloring stage error: ");
+        return 1;
     }
     return 0;
 }
 
 
-int 
+int
 number_colorer(int color) {
 
 
@@ -306,8 +245,8 @@ number_colorer(int color) {
                 return 2;
             }
             return 3;
-            }
         }
+    }
     return 1;
 }
 
@@ -505,7 +444,6 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
                     printf("\033[0;34m");
                 }
                 if (!was_printed) {
-                    //putchar(curr_symb);
                     keyword_to_print[length_of_current_keyword] = curr_symb;
                     length_of_current_keyword++;
                     was_printed = 1;
@@ -539,8 +477,6 @@ int identifier_colorer(int color) {
         amount_symb_was_read++;
         if (state1 == 0) {
             if (is_nondigit(curr_symb)) {
-//                printf("\033[0;95m");
-//                putchar(curr_symb);
                 state1 = 1;
                 continue;
             } else {
@@ -706,10 +642,6 @@ string_literal_colorer(int color) {
                 putchar(curr_symb);
                 state = 2;
                 continue;
-            } else if (curr_symb == '\"') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
             } else {
                 putchar(curr_symb);
                 state = 1;
@@ -724,6 +656,7 @@ string_literal_colorer(int color) {
 int
 char_consts_colorer(int color) {
     int curr_symb;
+    int backslash_counter = 0;
     int state = 0;
     while ((curr_symb = getchar()) != EOF) {
         if (state == 0) {
@@ -772,20 +705,121 @@ char_consts_colorer(int color) {
             }
         }
         if (state == 2) {
-            if (curr_symb == '\\') {
-                putchar(curr_symb);
-                state = 2;
-                continue;
-            } else if (curr_symb == '\'') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
-            } else {
-                putchar(curr_symb);
-                state = 1;
-                continue;
-            }
+            putchar(curr_symb);
+            state = 1;
+            continue;
         }
     }
     return 1;
+}
+
+
+int
+preparing_for_coloring(int *fd) {
+    *fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
+    if (*fd == -1) {
+        perror("File didn't open: ");
+        return 1;
+    }
+    int fd1 = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_WRONLY | O_APPEND);
+    if (fd1 == -1) {
+        close(*fd);
+        perror("File didn't open: ");
+        return 1;
+    }
+    char space = ' ';
+    if (write(fd1, &space, sizeof(space)) == -1) {
+        close(fd1);
+        close(*fd);
+        perror("Cannot write to file: ");
+    }
+    close(fd1);
+    if (dup2(*fd, 0) == -1) {
+        close(*fd);
+        perror("Dup2 didn't work.");
+        return 1;
+    }
+    close(*fd);
+    return 0;
+}
+
+
+int
+coloring_stage() {
+    int flag;
+    int symb;
+    while (getchar() != EOF) {
+        if (fseek(stdin, -1, SEEK_CUR) == -1) {
+            perror("fseek error: ");
+            return 2;
+        }
+        while (white_space_print_skip() == 0);
+        if (white_space_print_skip() == 1) {
+            break;
+        }
+
+        flag = comment_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Comment colorer***");
+            return 2;
+        }
+
+        flag = string_literal_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***String literal colorer***");
+            return 2;
+        }
+
+        flag = char_consts_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Char consts colorer***");
+            return 2;
+        }
+
+        flag = keyword_colorer(KEYWORDS);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Keyword colorer***");
+            return 2;
+        }
+
+        flag = identifier_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Identifier colorer***");
+            return 2;
+        }
+
+        flag = number_colorer(0);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Number colorer***");
+            return 2;
+        }
+
+        flag = punctuator_colorer(PUNCTUATORS);
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Punctuator colorer***");
+            return 2;
+        }
+        /* if not of the 7 patterns, then print without color */
+        if ((symb = getchar()) == -1) {
+            perror("getchar error: ");
+            return 1;
+        }
+        putchar(symb);
+
+    }
+    return 0;
 }
