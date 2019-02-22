@@ -62,7 +62,7 @@ const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
 };
 
 int
-number_colorer(int color);
+number_colorer();
 /*
  * DESCRIPTION:
  * number_colorer() attempts to read symbols from stdin until EOF
@@ -78,7 +78,7 @@ number_colorer(int color);
 
 
 int
-comment_colorer(int color);
+comment_colorer();
 /*
  * DESCRIPTION:
     * comment_colorer() attempts to read symbols from stdin until EOF
@@ -130,7 +130,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]);
 
 
 int
-identifier_colorer(int color);
+identifier_colorer();
 /* DESCRIPTION:
  * identifier_colorer() attempts to read symbols from stdin until EOF
  * if it has found "identifier token(or pattern)" then it prints it with pink color
@@ -140,6 +140,29 @@ identifier_colorer(int color);
     * 1, if EOF was reached
     * 2, if somekind of error was found
     * 3, if no identifier was found
+*/
+
+
+int
+is_hexadecimal_digit(int symb);
+/* DESCRIPTION:
+ * is_hexadecimal_digit checks symb, if it is hexadecimal digit or not
+ * RETURN VALUES:
+    * 0, if it is not white_space
+    * 1,  else
+*/
+
+int
+ucn_colorer();
+/* DESCRIPTION:
+ * ucn_colorer() attempts to read symbols from stdin until EOF
+ * if it has found "universal character token(or pattern)" then it prints it with pink color
+ *
+ * RETURN VALUES:
+    * 0, if Universal character name was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no Universal character name was found
 */
 
 int
@@ -174,7 +197,7 @@ is_nondigit(int symb);
 
 
 int
-string_literal_colorer(int color);
+string_literal_colorer();
 /* DESCRIPTION:
     * string_literal_colorer() attempts to read symbols from stdin until EOF
     * if it has found "string_literal token(or pattern)" then it prints it with green color
@@ -186,7 +209,7 @@ string_literal_colorer(int color);
  * */
 
 int
-char_consts_colorer(int color);
+char_consts_colorer();
 /* DESCRIPTION:
     * char_consts_colorer() attempts to read symbols from stdin until EOF
     * if it has found "char_consts token(or pattern)" then it prints it with green color
@@ -200,12 +223,31 @@ char_consts_colorer(int color);
 int
 preparing_for_coloring(int *fd);
 /* DESCRIPTION:
- * preparing_for_coloring takes pointer to file descriptor fd, then
- * */
+    * preparing_for_coloring takes pointer to file descriptor fd
+    * then reassings fd with stdin, close fd.
+ * RETURN VALUES:
+    * 0, if there were no errors
+    * 1, else
+ */
 
 int
 coloring_stage();
-
+/* DESCRIPTION:
+    * coloring_stage() contains all colorer functions:
+    * 0) white_space_print_skip()
+    * 1) comment_colorer()
+    * 2) sting_literal_colorer()
+    * 3) char_consts_colorer()
+    * 4) keyword_colorer()
+    * 5) identifier_colorer()
+    * 6) number_colorer()
+    * 7) punctuator_colorer()
+    * 8) just putchar(curr_symb), if symbol don't match any pattern
+ * RETURN VALUES:
+    * 0, if everything was correct
+    * 1, if getchar() occurs an error
+    * 2, if some of colorers occurs an error
+ */
 
 int main() {
     int fd;
@@ -221,10 +263,10 @@ int main() {
 }
 
 
+/* COMPONENT-FUNCTIONS BLOCK */
+
 int
-number_colorer(int color) {
-
-
+number_colorer() {
     int curr_symb, is_first_digit = 1;
     while ((curr_symb = getchar()) != EOF) {
         if (isdigit(curr_symb)) {
@@ -252,7 +294,7 @@ number_colorer(int color) {
 
 
 int
-comment_colorer(int color) {
+comment_colorer() {
     int curr_symb;
     int state1 = 0, state2 = 0;
     while ((curr_symb = getchar()) != EOF) {
@@ -469,7 +511,8 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
 
 
 
-int identifier_colorer(int color) {
+int
+identifier_colorer() {
     int curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
@@ -504,6 +547,87 @@ int identifier_colorer(int color) {
     }
     if (fseek(stdin, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
         return 2;
+    }
+    return 1;
+}
+
+
+int
+is_hexadecimal_digit(int symb) {
+    enum {HEXADECIMAL_DIGITS_AMOUNT = 22};
+    const char HEXADECIMAL_DIGITS[HEXADECIMAL_DIGITS_AMOUNT] = {
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a',
+            'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+    for (int i=0; i < HEXADECIMAL_DIGITS_AMOUNT; i++) {
+        if (symb == HEXADECIMAL_DIGITS[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+int
+ucn_colorer() {
+    int curr_symb;
+    int amount_symb_was_read = 0;
+    int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
+    int state1 = 0;
+    while ((curr_symb = getchar()) != EOF) {
+        amount_symb_was_read++;
+        if (state1 == 0) {
+            if (curr_symb == '\\') {
+                state1 = 1;
+                continue;
+            } else {
+                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 3;
+            }
+        }
+        if (state1 == 1) {
+            if (curr_symb == 'u') {
+                print_u_or_U = 'u';
+                state1 = 2;
+                continue;
+            }
+            if (curr_symb == 'U') {
+                print_u_or_U = 1;
+                state1 = 2;
+                continue;
+            }
+            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                return 2;
+            }
+            return 3;
+        }
+        if (state1 == 2) {
+            if (is_hexadecimal_digit(curr_symb)) {
+                printf("\033[0;95m");
+                putchar('\\');
+                putchar(print_u_or_U);
+                putchar(curr_symb);
+                state1 = 3;
+                continue;
+            } else {
+                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 3;
+            }
+        }
+        if (state1 == 3) {
+            if (is_hexadecimal_digit(curr_symb)) {
+                putchar(curr_symb);
+            } else {
+                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                    return 2;
+                }
+                return 0;
+            }
+        }
     }
     return 1;
 }
@@ -552,7 +676,7 @@ int is_nondigit(int symb) {
 
 
 int
-string_literal_colorer(int color) {
+string_literal_colorer() {
     int curr_symb;
     int state = 0;
     while ((curr_symb = getchar()) != EOF) {
@@ -654,7 +778,7 @@ string_literal_colorer(int color) {
 }
 
 int
-char_consts_colorer(int color) {
+char_consts_colorer() {
     int curr_symb;
     int backslash_counter = 0;
     int state = 0;
@@ -758,7 +882,7 @@ coloring_stage() {
             break;
         }
 
-        flag = comment_colorer(0);
+        flag = comment_colorer();
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -766,7 +890,7 @@ coloring_stage() {
             return 2;
         }
 
-        flag = string_literal_colorer(0);
+        flag = string_literal_colorer();
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -774,7 +898,7 @@ coloring_stage() {
             return 2;
         }
 
-        flag = char_consts_colorer(0);
+        flag = char_consts_colorer();
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -790,7 +914,15 @@ coloring_stage() {
             return 2;
         }
 
-        flag = identifier_colorer(0);
+        flag = ucn_colorer();
+        if (flag == 0) {
+            continue;
+        } else if (flag == 2) {
+            perror("***Ucn colorer***");
+            return 2;
+        }
+
+        flag = identifier_colorer();
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -798,7 +930,7 @@ coloring_stage() {
             return 2;
         }
 
-        flag = number_colorer(0);
+        flag = number_colorer();
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -819,7 +951,6 @@ coloring_stage() {
             return 1;
         }
         putchar(symb);
-
     }
     return 0;
 }
