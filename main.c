@@ -221,7 +221,7 @@ char_consts_colorer();
  * */
 
 int
-preparing_for_coloring(int *fd);
+preparing_for_coloring();
 /* DESCRIPTION:
     * preparing_for_coloring takes pointer to file descriptor fd
     * then reassings fd with stdin, close fd.
@@ -250,8 +250,7 @@ coloring_stage();
  */
 
 int main() {
-    int fd;
-    if (preparing_for_coloring(&fd) != 0) {
+    if (preparing_for_coloring() != 0) {
         perror("Preparing for coloring stage error: ");
         return 1;
     }
@@ -259,6 +258,7 @@ int main() {
         perror("Coloring stage error: ");
         return 1;
     }
+    unlink("input.txt");
     return 0;
 }
 
@@ -839,31 +839,38 @@ char_consts_colorer() {
 
 
 int
-preparing_for_coloring(int *fd) {
-    *fd = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_RDONLY);
-    if (*fd == -1) {
+preparing_for_coloring() {
+    unlink("input.txt");
+    int fd = open("input.txt", O_CREAT | O_RDWR | 0600);
+    if (fd == -1) {
         perror("File didn't open: ");
         return 1;
     }
-    int fd1 = open("//home/paniquex/CLionProjects/code_colorer/input.txt", O_WRONLY | O_APPEND);
-    if (fd1 == -1) {
-        close(*fd);
-        perror("File didn't open: ");
-        return 1;
+    int curr_symb;
+    while ((curr_symb = getchar()) != EOF) {
+        if (write(fd, &curr_symb, sizeof(char)) == -1) {
+            close(fd);
+            perror("Cannot write to file: ");
+            return 1;
+        }
     }
     char space = ' ';
-    if (write(fd1, &space, sizeof(space)) == -1) {
-        close(fd1);
-        close(*fd);
+    if (write(fd, &space, sizeof(space)) == -1) {
+        close(fd);
         perror("Cannot write to file: ");
+        return 1;
     }
-    close(fd1);
-    if (dup2(*fd, 0) == -1) {
-        close(*fd);
+    if (lseek(fd, 0, SEEK_SET) == -1) {
+        close(fd);
+        perror("lseek error: ");
+        return 1;
+    }
+    if (dup2(fd, 0) == -1) {
+        close(fd);
         perror("Dup2 didn't work.");
         return 1;
     }
-    close(*fd);
+    close(fd);
     return 0;
 }
 
