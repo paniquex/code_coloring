@@ -7,47 +7,12 @@
 #include <uuid/uuid.h>
 #include <stdlib.h>
 
-/* Keywords array for keyword_colorer func */
-enum {KEYWORDS_AMOUNT = 14, KEYWORD_MAX_LENGTH = 14};
+/* keywords_amount for keyword_colorer func */
+enum {KEYWORDS_AMOUNT = 14};
 
 
-/* Punctuators array for punctuator_colorer func */
+/* punctuators_amount for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
-const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH] = {
-        {'-', '-', '0', '0'},
-        {'&', '0', '0', '0'},
-        {'*', '0', '0', '0'},
-        {'+', '0', '0', '0'},
-        {'+', '+', '0', '0'},
-        {'-', '0', '0', '0'},
-        {'~', '0', '0', '0'},
-        {'!', '0', '0', '0'},
-        {'/', '0', '0', '0'},
-        {'%', '0', '0', '0'},
-        {'<', '<', '0', '0'},
-        {'>', '>', '0', '0'},
-        {'<', '0', '0', '0'},
-        {'>', '0', '0', '0'},
-        {'<', '=', '0', '0'},
-        {'>', '=', '0', '0'},
-        {'=', '=', '0', '0'},
-        {'!', '=', '0', '0'},
-        {'^', '0', '0', '0'},
-        {'|', '0', '0', '0'},
-        {'&', '&', '0', '0'},
-        {'|', '|', '0', '0'},
-        {'=', '0', '0', '0'},
-        {'*', '=', '0', '0'},
-        {'/', '=', '0', '0'},
-        {'%', '=', '0', '0'},
-        {'+', '=', '0', '0'},
-        {'-', '=', '0', '0'},
-        {'<', '<', '=', '0'},
-        {'>', '>', '=', '0'},
-        {'&', '=', '0', '0'},
-        {'^', '=', '0', '0'},
-        {'|', '=', '0', '0'},
-};
 
 int
 number_colorer();
@@ -80,7 +45,7 @@ comment_colorer();
 
 
 int
-punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH]);
+punctuator_colorer(char *PUNCTUATORS[PUNCTUATORS_AMOUNT], int punctuator_max_length);
 /*
  * DESCRIPTION:
     * punctuator_colorer() attempts to read symbols from stdin until EOF
@@ -219,7 +184,7 @@ preparing_for_coloring();
  */
 
 int
-coloring_stage();
+coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
 /* DESCRIPTION:
     * coloring_stage() contains all colorer functions:
     * 0) white_space_print_skip()
@@ -240,24 +205,37 @@ coloring_stage();
 
 char **
 keywords_array_init(int *keyword_max_length);
+/* DESCRIPTION:
+ * keywords_array_init takes pointer to int and
+ *
+ */
+
+
+char **
+punctuators_array_init(int *punctuator_max_length);
 
 
 int main() {
-
 
 //    uuid_t binuuid;
 //    uuid_generate_random(binuuid);
 //    char *uuid = malloc(37);
 //    uuid_unparse_upper(binuuid, uuid);
 //    printf("%s1", uuid);
+
     int keyword_max_length = 0;
     char **keywords;
-    keywords = keywords_array_init(&keyword_max_length); //keywords initializer
+    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
+
+    int punctuator_max_length = 0;
+    char **punctuators;
+    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initializer
+
     if (preparing_for_coloring() != 0) {
         perror("Preparing for coloring stage error: ");
         return 1;
     }
-    if (coloring_stage(keywords, keyword_max_length) != 0) {
+    if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
         perror("Coloring stage error: ");
         return 1;
     }
@@ -391,50 +369,80 @@ comment_colorer() {
 
 
 int
-punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LENGTH]) {
-    short int indexes[PUNCTUATORS_AMOUNT];          /* 1, if start of punctuator matches with PUNCTUATORS i-th row
+punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
+    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of punctuator matches with KEYWORDS i-th row
                                                     0, else*/
-    for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
+    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
+    int punctuator_to_print[punctuator_max_length];
+    for (int i=0; i < punctuator_max_length; i++) {
+        punctuator_to_print[i] = 0;
+    }
     int curr_symb;
-    char is_first_punc = 1;
-    char was_printed = 0; // if on j-step one symbol of punctuator was printed
-    int j=0;
+    char is_first_punctuator = 1;
+    char is_at_least_one_full_punctuator = 0;
+    char was_printed = 0; // if on symb_was_read-step one symbol of punctuator was printed
+    int amount_symb_was_read = 0;
     int length_of_current_punctuator = 0;
-    for (j; j < PUNCTUATOR_MAX_LENGTH; j++) {
-        was_printed = 0;
-        if ((curr_symb = getchar()) == EOF) {
-            if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
+    int is_indexes_array_of_zeros = 0;
+    for (amount_symb_was_read; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
+        is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
+        for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+            if (indexes[i] != 0) {
+                is_indexes_array_of_zeros = 0;
+            }
+        }
+        if (is_indexes_array_of_zeros) {
+            printf("\033[0m");
+            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
                 return 2;
             }
-            if (!is_first_punc) printf("\033[0m");
+            return 3;
+        }
+        was_printed = 0;
+        if ((curr_symb = getchar()) == EOF) {
+            if (is_at_least_one_full_punctuator) {
+                for (int i = 0; i < length_of_current_punctuator; i++) {
+                    printf("%c", punctuator_to_print[i]);
+                }
+            } else {
+                printf("\033[0m");
+            }
+            if (fseek(stdin, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
+                return 2;
+            }
+            if (!is_first_punctuator) printf("\033[0m");
             return 1;
         }
         for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
-            if ((PUNCTUATORS[i][j] == curr_symb) && (PUNCTUATORS[i][j] != '0') && (indexes[i] == 1)) {
-                if ((j == 0) && (is_first_punc)) {
-                    is_first_punc = 0;
-                    printf("\033[0;31m");
+            int curr_length = strlen(PUNCTUATORS[i]);
+            if ((PUNCTUATORS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
+                if ((amount_symb_was_read == 0) && (is_first_punctuator)) {
+                    is_first_punctuator = 0;
+                    printf("\033[0;34m");
                 }
                 if (!was_printed) {
-                    putchar(curr_symb);
+                    punctuator_to_print[length_of_current_punctuator] = curr_symb;
                     length_of_current_punctuator++;
                     was_printed = 1;
                 }
             } else {
+                if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
+                    for (int k = 0; k < length_of_current_punctuator; k++) {
+                        putchar(punctuator_to_print[k]);
+                    }
+                    putchar(curr_symb);
+                    if (!is_first_punctuator) printf("\033[0m");
+                    return 0;
+                }
                 indexes[i] = 0;
             }
         }
     }
-    if (fseek(stdin, -j + length_of_current_punctuator, SEEK_CUR) == -1) {
+    if (fseek(stdin, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
-    if (!is_first_punc) {
-        printf("\033[0m");
-        return 0;
-    }
-    return 3;
 }
 
 
@@ -778,6 +786,11 @@ string_literal_colorer() {
                 printf("\033[0m");
                 return 0;
             }
+            else if (curr_symb == '\n') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            }
             else {
                 putchar(curr_symb);
                 state = 1;
@@ -824,6 +837,7 @@ char_consts_colorer() {
         }
         if (state == 1) {
             if (curr_symb == '\\') {
+                putchar(curr_symb);
                 state = 2;
                 continue;
             } else if (curr_symb == '\'') {
@@ -888,7 +902,7 @@ preparing_for_coloring() {
 
 
 int
-coloring_stage(char **keywords, int keyword_max_length) {
+coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
     int flag;
     int symb;
     while (getchar() != EOF) {
@@ -957,7 +971,7 @@ coloring_stage(char **keywords, int keyword_max_length) {
             return 2;
         }
 
-        flag = punctuator_colorer(PUNCTUATORS);
+        flag = punctuator_colorer(punctuators, punctuator_max_length);
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -1009,4 +1023,61 @@ keywords_array_init(int *keyword_max_length) {
         keywords[i] = keywords_arr[i];
     }
     return keywords;
+}
+
+
+
+char **
+punctuators_array_init(int *punctuator_max_length) {
+    char *punctuators_arr[PUNCTUATORS_AMOUNT] =
+            {
+                            "--",
+                            "&",
+                            "*",
+                            "+",
+                            "++",
+                            "-",
+                            "~",
+                            "!",
+                            "/",
+                            "%",
+                            "<<",
+                            ">>",
+                            "<",
+                            ">",
+                            "<=",
+                            ">=",
+                            "==",
+                            "!=",
+                            "^",
+                            "|",
+                            "&&",
+                            "||",
+                            "=",
+                            "*=",
+                            "/=",
+                            "%=",
+                            "+=",
+                            "-=",
+                            "<<=",
+                            ">>=",
+                            "&=",
+                            "^=",
+                            "|="
+            };
+    *punctuator_max_length = -1;
+    int symbols_amount_in_punctuators = 0;
+    int curr_length = 0;
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        curr_length = strlen(punctuators_arr[i]);
+        symbols_amount_in_punctuators += curr_length;
+        if (curr_length > *punctuator_max_length) {
+            *punctuator_max_length = curr_length;
+        }
+    }
+    char **punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(char));
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        punctuators[i] = punctuators_arr[i];
+    }
+    return punctuators;
 }
