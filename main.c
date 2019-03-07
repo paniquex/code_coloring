@@ -2,26 +2,14 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
+#include <uuid/uuid.h>
+#include <stdlib.h>
 
 /* Keywords array for keyword_colorer func */
 enum {KEYWORDS_AMOUNT = 14, KEYWORD_MAX_LENGTH = 14};
-const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH] = {
-        {'u', 'n', 's', 'i', 'g', 'n', 'e', 'd', '0', '0', '0', '0', '0', '0'},
-        {'v', 'o', 'i', 'd', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
-        {'v', 'o', 'l', 'o', 't', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0'},
-        {'w', 'h', 'i', 'l', 'e', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
-        {'_', 'A', 'l', 'i', 'g', 'n', 'a', 's', '0', '0', '0', '0', '0', '0'},
-        {'_', 'A', 'l', 'i', 'g', 'n', 'o', 'f', '0', '0', '0', '0', '0', '0'},
-        {'_', 'A', 't', 'o', 'm', 'i', 'c', '0', '0', '0', '0', '0', '0', '0'},
-        {'_', 'B', 'o', 'o', 'l', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
-        {'_', 'C', 'o', 'm', 'p', 'l', 'e', 'x', '0', '0', '0', '0', '0', '0'},
-        {'_', 'G', 'e', 'n', 'e', 'r', 'i', 'c', '0', '0', '0', '0', '0', '0'},
-        {'_', 'I', 'm', 'a', 'g', 'i', 'n', 'a', 'r', 'y', '0', '0', '0', '0'},
-        {'_', 'N', 'o', 'r', 'e', 't', 'u', 'r', 'n', '0', '0', '0', '0', '0'},
-        {'_', 'S', 't', 'a', 't', 'i', 'c', '_', 'a', 's', 's', 'e', 'r', 't'},
-        {'_', 'T', 'h', 'r', 'e', 'a', 'd', '_', 'l', 'o', 'c', 'a', 'l', '0'},
-};
+
 
 /* Punctuators array for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
@@ -107,7 +95,7 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
 
 
 int
-keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]);
+keyword_colorer(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
 /* DESCRIPTION:
     * keyword_colorer() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
@@ -249,18 +237,35 @@ coloring_stage();
     * 2, if some of colorers occurs an error
  */
 
+
+char **
+keywords_array_init(int *keyword_max_length);
+
+
 int main() {
+
+
+//    uuid_t binuuid;
+//    uuid_generate_random(binuuid);
+//    char *uuid = malloc(37);
+//    uuid_unparse_upper(binuuid, uuid);
+//    printf("%s1", uuid);
+    int keyword_max_length = 0;
+    char **keywords;
+    keywords = keywords_array_init(&keyword_max_length); //keywords initializer
     if (preparing_for_coloring() != 0) {
         perror("Preparing for coloring stage error: ");
         return 1;
     }
-    if (coloring_stage() != 0) {
+    if (coloring_stage(keywords, keyword_max_length) != 0) {
         perror("Coloring stage error: ");
         return 1;
     }
     unlink("input.txt");
-    return 0;
+
 }
+
+
 
 
 /* COMPONENT-FUNCTIONS BLOCK */
@@ -351,6 +356,7 @@ comment_colorer() {
         if (state2 == 2) {
             if (curr_symb == '*') {
                 state2 = 3;
+                state1 = -1;
             }
             putchar(curr_symb);
             continue;
@@ -433,14 +439,14 @@ punctuator_colorer(const char PUNCTUATORS[PUNCTUATORS_AMOUNT][PUNCTUATOR_MAX_LEN
 
 
 int
-keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
+keyword_colorer(char **KEYWORDS, int keyword_max_length) {
     short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
                                                     0, else*/
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
-    int keyword_to_print[KEYWORD_MAX_LENGTH];
-    for (int i=0; i < KEYWORD_MAX_LENGTH; i++) {
+    int keyword_to_print[keyword_max_length];
+    for (int i=0; i < keyword_max_length; i++) {
         keyword_to_print[i] = 0;
     }
     int curr_symb;
@@ -450,7 +456,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
     int amount_symb_was_read = 0;
     int length_of_current_keyword = 0;
     int is_indexes_array_of_zeros = 0;
-    for (amount_symb_was_read; amount_symb_was_read < KEYWORD_MAX_LENGTH; amount_symb_was_read++) {
+    for (amount_symb_was_read; amount_symb_was_read < keyword_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
         for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
             if (indexes[i] != 0) {
@@ -480,7 +486,8 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
             return 1;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
-            if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (KEYWORDS[i][amount_symb_was_read] != '0') && (indexes[i] == 1)) {
+            int curr_length = strlen(KEYWORDS[i]);
+            if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
                     printf("\033[0;34m");
@@ -491,7 +498,7 @@ keyword_colorer(const char KEYWORDS[KEYWORDS_AMOUNT][KEYWORD_MAX_LENGTH]) {
                     was_printed = 1;
                 }
             } else {
-                if ((is_white_space(curr_symb)) && (KEYWORDS[i][amount_symb_was_read] == '0') && (indexes[i] != 0)) {
+                if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
                     for (int k = 0; k < length_of_current_keyword; k++) {
                         putchar(keyword_to_print[k]);
                     }
@@ -766,7 +773,12 @@ string_literal_colorer() {
                 putchar(curr_symb);
                 state = 2;
                 continue;
-            } else {
+            } else if (curr_symb == '\"') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            }
+            else {
                 putchar(curr_symb);
                 state = 1;
                 continue;
@@ -876,7 +888,7 @@ preparing_for_coloring() {
 
 
 int
-coloring_stage() {
+coloring_stage(char **keywords, int keyword_max_length) {
     int flag;
     int symb;
     while (getchar() != EOF) {
@@ -913,7 +925,7 @@ coloring_stage() {
             return 2;
         }
 
-        flag = keyword_colorer(KEYWORDS);
+        flag = keyword_colorer(keywords, keyword_max_length);
         if (flag == 0) {
             continue;
         } else if (flag == 2) {
@@ -960,4 +972,41 @@ coloring_stage() {
         putchar(symb);
     }
     return 0;
+}
+
+
+char **
+keywords_array_init(int *keyword_max_length) {
+    char *keywords_arr[KEYWORDS_AMOUNT] =
+            {
+                    "unsigned",
+                    "void",
+                    "volatile",
+                    "while",
+                    "_Alignas",
+                    "_Alignof",
+                    "_Atomic",
+                    "_Bool",
+                    "_Complex",
+                    "_Generic",
+                    "_Imaginary",
+                    "_Noreturn",
+                    "_Static_assert",
+                    "_Thread_local"
+            };
+    *keyword_max_length = -1;
+    int symbols_amount_in_keywords = 0;
+    int curr_length = 0;
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        curr_length = strlen(keywords_arr[i]);
+        symbols_amount_in_keywords += curr_length;
+        if (curr_length > *keyword_max_length) {
+            *keyword_max_length = curr_length;
+        }
+    }
+    char **keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        keywords[i] = keywords_arr[i];
+    }
+    return keywords;
 }
