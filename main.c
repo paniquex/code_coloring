@@ -14,6 +14,9 @@ enum {KEYWORDS_AMOUNT = 14};
 /* punctuators_amount for punctuator_colorer func */
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
 
+FILE *input_file;
+
+
 int
 number_colorer();
 /*
@@ -173,8 +176,8 @@ char_consts_colorer();
     * 3, if no char_consts was found
  * */
 
-int
-preparing_for_coloring();
+FILE *
+preparing_for_coloring(char *random_file_name);
 /* DESCRIPTION:
     * preparing_for_coloring takes pointer to file descriptor fd
     * then reassings fd with stdin, close fd.
@@ -198,7 +201,7 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
     * 8) just putchar(curr_symb), if symbol don't match any pattern
  * RETURN VALUES:
     * 0, if everything was correct
-    * 1, if getchar() occurs an error
+    * 1, if fgetc(input_file) occurs an error
     * 2, if some of colorers occurs an error
  */
 
@@ -215,13 +218,8 @@ char **
 punctuators_array_init(int *punctuator_max_length);
 
 
-int main() {
+int main(void) {
 
-//    uuid_t binuuid;
-//    uuid_generate_random(binuuid);
-//    char *uuid = malloc(37);
-//    uuid_unparse_upper(binuuid, uuid);
-//    printf("%s1", uuid);
 
     int keyword_max_length = 0;
     char **keywords;
@@ -231,7 +229,11 @@ int main() {
     char **punctuators;
     punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initializer
 
-    if (preparing_for_coloring() != 0) {
+    int file_name_size = 37;
+    char *random_file_name = calloc(file_name_size, sizeof(char));
+
+    input_file = preparing_for_coloring(random_file_name);
+    if (input_file == NULL) {
         perror("Preparing for coloring stage error: ");
         return 1;
     }
@@ -239,7 +241,13 @@ int main() {
         perror("Coloring stage error: ");
         return 1;
     }
-    unlink("input.txt");
+    fclose(input_file);
+    unlink(random_file_name);
+    free(random_file_name);
+    free(keywords);
+    free(punctuators);
+    return 0;
+//    unlink("input.txt");
 
 }
 
@@ -251,7 +259,7 @@ int main() {
 int
 number_colorer() {
     int curr_symb, is_first_digit = 1;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
                 printf("\033[1;36m");
@@ -261,12 +269,12 @@ number_colorer() {
         } else {
             if (!is_first_digit) {
                 printf("\033[0m");
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 0;
             }
-            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+            if (fseek(input_file, -1, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
@@ -280,13 +288,13 @@ int
 comment_colorer() {
     int curr_symb;
     int state1 = 0, state2 = 0;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         if ((curr_symb == '/') && (state1 == 0)) {
             state1 = 1;
             state2 = 1;
             continue;
         } else if ((state1 == 0) && (state2 == 0)) {
-            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+            if (fseek(input_file, -1, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
@@ -295,7 +303,7 @@ comment_colorer() {
             if ((curr_symb != '/') && (curr_symb != '*')) {
                 state1 = 0;
                 state2 = 0;
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 3;
@@ -320,7 +328,7 @@ comment_colorer() {
             if (curr_symb == '\n') {
                 state1 = 0;
                 printf("\033[0m");
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 0;
@@ -357,7 +365,7 @@ comment_colorer() {
             putchar(curr_symb);
             continue;
         }
-        if (fseek(stdin, -1, SEEK_CUR) == -1) {
+        if (fseek(input_file, -1, SEEK_CUR) == -1) {
             return 2;
         }
         return 0;
@@ -395,13 +403,13 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
         }
         if (is_indexes_array_of_zeros) {
             printf("\033[0m");
-            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
         }
         was_printed = 0;
-        if ((curr_symb = getchar()) == EOF) {
+        if ((curr_symb = fgetc(input_file)) == EOF) {
             if (is_at_least_one_full_punctuator) {
                 for (int i = 0; i < length_of_current_punctuator; i++) {
                     printf("%c", punctuator_to_print[i]);
@@ -409,7 +417,7 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
             } else {
                 printf("\033[0m");
             }
-            if (fseek(stdin, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
+            if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
                 return 2;
             }
             if (!is_first_punctuator) printf("\033[0m");
@@ -440,7 +448,7 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
             }
         }
     }
-    if (fseek(stdin, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
+    if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
 }
@@ -473,13 +481,13 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
         }
         if (is_indexes_array_of_zeros) {
             printf("\033[0m");
-            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
         }
         was_printed = 0;
-        if ((curr_symb = getchar()) == EOF) {
+        if ((curr_symb = fgetc(input_file)) == EOF) {
             if (is_at_least_one_full_keyword) {
                 for (int i = 0; i < length_of_current_keyword; i++) {
                     printf("%c", keyword_to_print[i]);
@@ -487,7 +495,7 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
             } else {
                 printf("\033[0m");
             }
-            if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
+            if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
                 return 2;
             }
             if (!is_first_keyword) printf("\033[0m");
@@ -518,7 +526,7 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
             }
         }
     }
-    if (fseek(stdin, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
+    if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
         return 2;
     }
 }
@@ -531,14 +539,14 @@ identifier_colorer() {
     int curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         amount_symb_was_read++;
         if (state1 == 0) {
             if (is_nondigit(curr_symb)) {
                 state1 = 1;
                 continue;
             } else {
-                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 3;
@@ -548,19 +556,19 @@ identifier_colorer() {
             if ((is_nondigit(curr_symb)) || (isdigit(curr_symb)))  {
 
             } else {
-                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                     return 2;
                 }
                 printf("\033[0;95m");
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
-                    putchar(getchar());
+                    putchar(fgetc(input_file));
                 }
                 printf("\033[0m");
                 return 0;
             }
         }
     }
-    if (fseek(stdin, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
+    if (fseek(input_file, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
         return 2;
     }
     return 1;
@@ -589,14 +597,14 @@ ucn_colorer() {
     int amount_symb_was_read = 0;
     int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
     int state1 = 0;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         amount_symb_was_read++;
         if (state1 == 0) {
             if (curr_symb == '\\') {
                 state1 = 1;
                 continue;
             } else {
-                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 3;
@@ -613,7 +621,7 @@ ucn_colorer() {
                 state1 = 2;
                 continue;
             }
-            if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
@@ -627,7 +635,7 @@ ucn_colorer() {
                 state1 = 3;
                 continue;
             } else {
-                if (fseek(stdin, -amount_symb_was_read, SEEK_CUR) == -1) {
+                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 3;
@@ -637,7 +645,7 @@ ucn_colorer() {
             if (is_hexadecimal_digit(curr_symb)) {
                 putchar(curr_symb);
             } else {
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 0;
@@ -670,9 +678,9 @@ white_space_print_skip() {
      * 2, if some kind of error was found
      * 3, if symb is not white_space*/
     int curr_symb;
-    if ((curr_symb = getchar()) != EOF) {
+    if ((curr_symb = fgetc(input_file)) != EOF) {
         if (!is_white_space(curr_symb)) {
-            if (fseek(stdin, -1, SEEK_CUR) == -1) {
+            if (fseek(input_file, -1, SEEK_CUR) == -1) {
                 return 2;
             }
             return 3;
@@ -694,7 +702,7 @@ int
 string_literal_colorer() {
     int curr_symb;
     int state = 0;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         if (state == 0) {
             if (curr_symb == '\"') {
                 printf("\033[0;32m");
@@ -704,9 +712,9 @@ string_literal_colorer() {
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
                 if ((curr_symb == 'L') || (curr_symb == 'U')) {
-                    curr_symb = getchar();
+                    curr_symb = fgetc(input_file);
                     if (curr_symb != '\"') {
-                        if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                        if (fseek(input_file, -2, SEEK_CUR) == -1) {
                             return 2;
                         }
                         printf("\033[0m");
@@ -718,9 +726,9 @@ string_literal_colorer() {
                         continue;
                     }
                 } else { //curr_symb == u
-                    curr_symb = getchar();
+                    curr_symb = fgetc(input_file);
                     if ((curr_symb != '8') && (curr_symb != '\"')) {
-                        if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                        if (fseek(input_file, -2, SEEK_CUR) == -1) {
                             return 2;
                         }
                         printf("\033[0m");
@@ -733,14 +741,14 @@ string_literal_colorer() {
                             continue;
                         }
                         if (curr_symb == '8') {
-                            curr_symb = getchar();
+                            curr_symb = fgetc(input_file);
                             if (curr_symb == '\"') {
                                 printf("\033[0;32m");
                                 printf("%c8\"", curr_prefix);
                                 state = 1;
                                 continue;
                             } else {
-                                if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                                if (fseek(input_file, -2, SEEK_CUR) == -1) {
                                     return 2;
                                 }
                                 printf("\033[0m");
@@ -750,7 +758,7 @@ string_literal_colorer() {
                     }
                 }
             } else {
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 printf("\033[0m");
@@ -807,7 +815,7 @@ char_consts_colorer() {
     int curr_symb;
     int backslash_counter = 0;
     int state = 0;
-    while ((curr_symb = getchar()) != EOF) {
+    while ((curr_symb = fgetc(input_file)) != EOF) {
         if (state == 0) {
             if (curr_symb == '\'') {
                 printf("\033[1;33m");
@@ -816,20 +824,20 @@ char_consts_colorer() {
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
-                curr_symb = getchar();
+                curr_symb = fgetc(input_file);
                 if (curr_symb == '\'') {
                     printf("\033[1;33m");
                     printf("%c\'", curr_prefix);
                     state = 1;
                     continue;
                 } else {
-                    if (fseek(stdin, -2, SEEK_CUR) == -1) {
+                    if (fseek(input_file, -2, SEEK_CUR) == -1) {
                         return 2;
                     }
                     return 3;
                 }
             } else {
-                if (fseek(stdin, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     return 2;
                 }
                 return 3;
@@ -864,40 +872,38 @@ char_consts_colorer() {
 }
 
 
-int
-preparing_for_coloring() {
-    unlink("input.txt");
-    int fd = open("input.txt", O_CREAT | O_RDWR | 0600);
-    if (fd == -1) {
+FILE *
+preparing_for_coloring(char *random_file_name) {
+    uuid_t binuuid;
+    uuid_generate_random(binuuid);
+    uuid_unparse_upper(binuuid, random_file_name);
+    unlink(random_file_name);
+
+    FILE *input_file = fopen(random_file_name, "w+");
+    if (input_file == NULL) {
         perror("File didn't open: ");
-        return 1;
+        return NULL;
     }
     int curr_symb;
     while ((curr_symb = getchar()) != EOF) {
-        if (write(fd, &curr_symb, sizeof(char)) == -1) {
-            close(fd);
+        if (fprintf(input_file, "%c", curr_symb) <= 0) {
+            fclose(input_file);
             perror("Cannot write to file: ");
-            return 1;
+            return NULL;
         }
     }
     char space = ' ';
-    if (write(fd, &space, sizeof(space)) == -1) {
-        close(fd);
+    if (fprintf(input_file, "%c", space) <= 0) {
+        fclose(input_file);
         perror("Cannot write to file: ");
-        return 1;
+        return NULL;
     }
-    if (lseek(fd, 0, SEEK_SET) == -1) {
-        close(fd);
-        perror("lseek error: ");
-        return 1;
+    if (fseek(input_file, 0, SEEK_SET) == -1) {
+        fclose(input_file);
+        perror("fseek error: ");
+        return NULL;
     }
-    if (dup2(fd, 0) == -1) {
-        close(fd);
-        perror("Dup2 didn't work.");
-        return 1;
-    }
-    close(fd);
-    return 0;
+    return input_file;
 }
 
 
@@ -905,8 +911,8 @@ int
 coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
     int flag;
     int symb;
-    while (getchar() != EOF) {
-        if (fseek(stdin, -1, SEEK_CUR) == -1) {
+    while (fgetc(input_file) != EOF) {
+        if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
             return 2;
         }
@@ -979,7 +985,7 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
             return 2;
         }
         /* if not of the 7 patterns, then print without color */
-        if ((symb = getchar()) == -1) {
+        if ((symb = fgetc(input_file)) <= 0) {
             perror("getchar error: ");
             return 1;
         }
@@ -1018,7 +1024,8 @@ keywords_array_init(int *keyword_max_length) {
             *keyword_max_length = curr_length;
         }
     }
-    char **keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
+    char **keywords;
+    keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
     for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
         keywords[i] = keywords_arr[i];
     }
@@ -1068,15 +1075,19 @@ punctuators_array_init(int *punctuator_max_length) {
     *punctuator_max_length = -1;
     int symbols_amount_in_punctuators = 0;
     int curr_length = 0;
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
         curr_length = strlen(punctuators_arr[i]);
         symbols_amount_in_punctuators += curr_length;
         if (curr_length > *punctuator_max_length) {
             *punctuator_max_length = curr_length;
         }
     }
-    char **punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(char));
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+    char **punctuators;
+    punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(int));
+    if (punctuators == NULL) {
+        perror("Punc init");
+    }
+    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
         punctuators[i] = punctuators_arr[i];
     }
     return punctuators;
