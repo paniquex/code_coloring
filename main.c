@@ -179,8 +179,8 @@ char_consts_colorer();
 FILE *
 preparing_for_coloring(char *random_file_name);
 /* DESCRIPTION:
-    * preparing_for_coloring takes pointer to file descriptor fd
-    * then reassings fd with stdin, close fd.
+    * preparing_for_coloring takes name of file, then create and open with "w+" mode,
+    * writing to it all symbols from stdin.
  * RETURN VALUES:
     * 0, if there were no errors
     * 1, else
@@ -189,6 +189,7 @@ preparing_for_coloring(char *random_file_name);
 int
 coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
 /* DESCRIPTION:
+    * сoloring_stage takes 4 parameters, which are needed for punctuator_colorer and keyword_colorer functions.
     * coloring_stage() contains all colorer functions:
     * 0) white_space_print_skip()
     * 1) comment_colorer()
@@ -209,13 +210,23 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
 char **
 keywords_array_init(int *keyword_max_length);
 /* DESCRIPTION:
- * keywords_array_init takes pointer to int and
- *
+    * keywords_array_init takes pointer to int and changes it to
+    * max length of keywords
+ * RETURN VALUES:
+    * pointer to array of keywords
+    * NULL, if somekind of error was found
  */
 
 
 char **
 punctuators_array_init(int *punctuator_max_length);
+/* DESCRIPTION:
+    * punctuator_array_init takes pointer to int and changes it to
+    * max length of punctuators
+ * RETURN VALUES:
+    * pointer to array of punctuators
+    * NULL, if somekind of error was found
+*/
 
 
 int main(void) {
@@ -378,9 +389,9 @@ comment_colorer() {
 
 int
 punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
-    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of punctuator matches with KEYWORDS i-th row
+    short int indexes[PUNCTUATORS_AMOUNT];          /* 1, if start of punctuator matches with KEYWORDS i-th row
                                                     0, else*/
-    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
+    for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
         indexes[i] = 1;
     }
     int punctuator_to_print[punctuator_max_length];
@@ -396,7 +407,7 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
     int is_indexes_array_of_zeros = 0;
     for (amount_symb_was_read; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
-        for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
             if (indexes[i] != 0) {
                 is_indexes_array_of_zeros = 0;
             }
@@ -428,7 +439,7 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
             if ((PUNCTUATORS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_punctuator)) {
                     is_first_punctuator = 0;
-                    printf("\033[0;34m");
+                    printf("\033[0;31m");
                 }
                 if (!was_printed) {
                     punctuator_to_print[length_of_current_punctuator] = curr_symb;
