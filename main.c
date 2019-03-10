@@ -15,7 +15,7 @@ enum {KEYWORDS_AMOUNT = 14};
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
 
 FILE *input_file;
-
+char *file_name;
 
 int
 number_colorer();
@@ -229,8 +229,30 @@ punctuators_array_init(int *punctuator_max_length);
 */
 
 
-int main(void) {
+FILE *
+input_stage(char *input_type, char *input_file_name);
+    /* DESCRIPTION:
+        * input_stage takes:
+        * 1) input_type, which indicates type of input..
+        * 2) input_file_name. It is name of input file..
+     * RETURN VALUES:
+        * pointer to working file - if function works correctly
+        * NULL - if somekind of error was found
+    */
 
+
+int main(int argc, char *argv[]) {
+    /* argv[1] - input type:
+        * 0 - program takes input from stdin;
+        * 1 - program takes input from file
+     * argv[2] - input_file_name:
+        * if agrv[1] == 1, then this is name of input file
+    */
+
+    if (argc <= 1) {
+        printf("Not enough program parametrs.\n");
+        return 1;
+    }
 
     int keyword_max_length = 0;
     char **keywords;
@@ -238,14 +260,14 @@ int main(void) {
 
     int punctuator_max_length = 0;
     char **punctuators;
-    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initializer
+    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
+    if (argv[2] != NULL) {
+        file_name = argv[2];
+    }
 
-    int file_name_size = 37;
-    char *random_file_name = calloc(file_name_size, sizeof(char));
-
-    input_file = preparing_for_coloring(random_file_name);
+    input_file = input_stage(argv[1], file_name);
     if (input_file == NULL) {
-        perror("Preparing for coloring stage error: ");
+        perror("input_stage error: ");
         return 1;
     }
     if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
@@ -253,13 +275,12 @@ int main(void) {
         return 1;
     }
     fclose(input_file);
-    unlink(random_file_name);
-    free(random_file_name);
+    unlink(file_name);
+    free(file_name);
     free(keywords);
     free(punctuators);
-    return 0;
-//    unlink("input.txt");
 
+    return 0;
 }
 
 
@@ -462,6 +483,7 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
     if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
         return 2;
     }
+    return 0;
 }
 
 
@@ -540,6 +562,7 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
     if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
         return 2;
     }
+    return 0;
 }
 
 
@@ -824,7 +847,6 @@ string_literal_colorer() {
 int
 char_consts_colorer() {
     int curr_symb;
-    int backslash_counter = 0;
     int state = 0;
     while ((curr_symb = fgetc(input_file)) != EOF) {
         if (state == 0) {
@@ -1102,4 +1124,25 @@ punctuators_array_init(int *punctuator_max_length) {
         punctuators[i] = punctuators_arr[i];
     }
     return punctuators;
+}
+
+
+FILE *
+input_stage(char *input_type, char *input_file_name) {
+    if ((int) input_type[0] == '0') {
+        size_t file_name_size = 37;
+        file_name = calloc(file_name_size, sizeof(char));
+        return preparing_for_coloring(file_name);
+    } else if ((int) input_type[0] == '1') {
+        FILE *input_file = fopen(file_name, "r+");
+        if (input_file == NULL) {
+            perror("input_stage error: ");
+            return NULL;
+        }
+        return input_file;
+    }
+
+
+
+    return 0;
 }
