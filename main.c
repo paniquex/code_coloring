@@ -234,11 +234,17 @@ input_stage(char *input_type, char *input_file_name);
     /* DESCRIPTION:
         * input_stage takes:
         * 1) input_type, which indicates type of input..
+            * if input_type == 0, then preparing_for_coloring func will work
+            * if input_type == 1, then program will read symbols from file with name input_file_name
         * 2) input_file_name. It is name of input file..
      * RETURN VALUES:
         * pointer to working file - if function works correctly
         * NULL - if somekind of error was found
     */
+
+
+    
+
 
 
 int main(int argc, char *argv[]) {
@@ -267,7 +273,6 @@ int main(int argc, char *argv[]) {
 
     input_file = input_stage(argv[1], file_name);
     if (input_file == NULL) {
-        perror("input_stage error: ");
         return 1;
     }
     if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
@@ -1136,7 +1141,6 @@ input_stage(char *input_type, char *input_file_name) {
     } else if ((int) input_type[0] == '1') {
         FILE *input_file = fopen(file_name, "r+");
         if (input_file == NULL) {
-            perror("input_stage error: ");
             return NULL;
         }
         return input_file;
