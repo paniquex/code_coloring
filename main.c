@@ -259,6 +259,12 @@ int main(int argc, char *argv[]) {
         printf("Not enough program parametrs.\n");
         return 1;
     }
+    if (argv[2] != NULL) {
+        file_name = argv[2];
+    } else if ((int) argv[1][0] == '1') {
+        fprintf(stderr, "You need to write file name in mode 1");
+        return 1;
+    }
 
     int keyword_max_length = 0;
     char **keywords;
@@ -267,12 +273,10 @@ int main(int argc, char *argv[]) {
     int punctuator_max_length = 0;
     char **punctuators;
     punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
-    if (argv[2] != NULL) {
-        file_name = argv[2];
-    }
 
     input_file = input_stage(argv[1], file_name);
     if (input_file == NULL) {
+        perror("Input stage error: ");
         return 1;
     }
     if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
@@ -280,7 +284,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     fclose(input_file);
-    unlink(file_name);
+    if ((int) argv[1][0] == '0') {
+        unlink(file_name);
+    }
     free(file_name);
     free(keywords);
     free(punctuators);
@@ -607,8 +613,16 @@ identifier_colorer() {
             }
         }
     }
-    if (fseek(input_file, -amount_symb_was_read - 1, SEEK_CUR) == -1) {
+    if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
         return 2;
+    }
+    if (state1 == 1) {
+        for (int i = 0; i < amount_symb_was_read; i++) {
+            printf("\033[0;95m");
+            putchar(fgetc(input_file));
+            printf("\033[0m");
+        }
+        return 0;
     }
     return 1;
 }
@@ -1134,11 +1148,15 @@ punctuators_array_init(int *punctuator_max_length) {
 
 FILE *
 input_stage(char *input_type, char *input_file_name) {
+    size_t file_name_size;
     if ((int) input_type[0] == '0') {
-        size_t file_name_size = 37;
+        file_name_size = 37;
         file_name = calloc(file_name_size, sizeof(char));
         return preparing_for_coloring(file_name);
     } else if ((int) input_type[0] == '1') {
+        file_name_size = strlen(input_file_name) + 1;
+        file_name = calloc(file_name_size, sizeof(char));
+        strncpy(file_name, input_file_name, file_name_size);
         FILE *input_file = fopen(file_name, "r+");
         if (input_file == NULL) {
             return NULL;
