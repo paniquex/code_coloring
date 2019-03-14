@@ -243,26 +243,28 @@ input_stage(char *input_type, char *input_file_name);
     */
 
 
-    
-
-
 
 int main(int argc, char *argv[]) {
     /* argv[1] - input type:
         * 0 - program takes input from stdin;
         * 1 - program takes input from file
      * argv[2] - input_file_name:
-        * if agrv[1] == 1, then this is name of input file
+        * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
     */
 
     if (argc <= 1) {
         printf("Not enough program parametrs.\n");
         return 1;
     }
+
     if (argv[2] != NULL) {
         file_name = argv[2];
-    } else if ((int) argv[1][0] == '1') {
+    } else if (strcmp(argv[1], "1") == 0) {
         fprintf(stderr, "You need to write file name in mode 1");
+        return 1;
+    }
+    if ((strcmp(argv[1], "0") != 0) && (strcmp(argv[1], "1") != 0)) {
+        fprintf(stderr, "First argument of program must be 0 or 1");
         return 1;
     }
 
@@ -944,17 +946,17 @@ preparing_for_coloring(char *random_file_name) {
             return NULL;
         }
     }
-    char space = ' ';
-    if (fprintf(input_file, "%c", space) <= 0) {
-        fclose(input_file);
-        perror("Cannot write to file: ");
-        return NULL;
-    }
-    if (fseek(input_file, 0, SEEK_SET) == -1) {
-        fclose(input_file);
-        perror("fseek error: ");
-        return NULL;
-    }
+//    char space = ' ';
+//    if (fprintf(input_file, "%c", space) <= 0) {
+//        fclose(input_file);
+//        perror("Cannot write to file: ");
+//        return NULL;
+//    }
+//    if (fseek(input_file, 0, SEEK_SET) == -1) {
+//        fclose(input_file);
+//        perror("fseek error: ");
+//        return NULL;
+//    }
     return input_file;
 }
 
@@ -1157,14 +1159,11 @@ input_stage(char *input_type, char *input_file_name) {
         file_name_size = strlen(input_file_name) + 1;
         file_name = calloc(file_name_size, sizeof(char));
         strncpy(file_name, input_file_name, file_name_size);
-        FILE *input_file = fopen(file_name, "r+");
+        FILE *input_file = fopen(file_name, "w+");
         if (input_file == NULL) {
             return NULL;
         }
         return input_file;
     }
-
-
-
     return 0;
 }
