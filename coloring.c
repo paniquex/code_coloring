@@ -1,5 +1,5 @@
 #include "coloring.h"
-
+#include "input.h"
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
@@ -636,40 +636,6 @@ char_consts_colorer() {
     return 1;
 }
 
-
-FILE *
-preparing_for_coloring(char *random_file_name) {
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
-    uuid_unparse_upper(binuuid, random_file_name);
-    unlink(random_file_name);
-
-    FILE *input_file = fopen(random_file_name, "w+");
-    if (input_file == NULL) {
-        perror("File didn't open: ");
-        return NULL;
-    }
-    int curr_symb;
-    while ((curr_symb = getchar()) != EOF) {
-        if (fprintf(input_file, "%c", curr_symb) <= 0) {
-            fclose(input_file);
-            perror("Cannot write to file: ");
-            return NULL;
-        }
-    }
-    char space = ' ';
-    if (fprintf(input_file, "%c", space) <= 0) {
-        fclose(input_file);
-        perror("Cannot write to file: ");
-        return NULL;
-    }
-    if (fseek(input_file, 0, SEEK_SET) == -1) {
-        fclose(input_file);
-        perror("fseek error: ");
-        return NULL;
-    }
-    return input_file;
-}
 
 
 int

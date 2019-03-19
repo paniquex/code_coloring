@@ -11,3 +11,6 @@ input.o: input.c
 
 coloring.o: coloring.c
 	gcc coloring.c -c
+
+clean:
+	-rm *.o main.out

@@ -1,5 +1,12 @@
 #include <stdio.h>
+#include <uuid/uuid.h>
+#include <string.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <stdlib.h>
 
+FILE *input_file;
+char *file_name;
 
 FILE *
 input_stage(char *input_type, char *input_file_name);
@@ -13,3 +20,14 @@ input_stage(char *input_type, char *input_file_name);
        * pointer to working file - if function works correctly
        * NULL - if somekind of error was found
    */
+
+
+FILE *
+prep_input(char *random_file_name);
+/* DESCRIPTION:
+    * prep_input takes name of file, then create and open with "w+" mode,
+    * writing to it all symbols from stdin.
+ * RETURN VALUES:
+    * 0, if there were no errors
+    * 1, else
+ */

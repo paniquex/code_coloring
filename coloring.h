@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <uuid/uuid.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <sys/types.h>
 
-FILE *input_file;
-char *file_name;
 
  /* keywords_amount for keyword_colorer func */
 enum {KEYWORDS_AMOUNT = 14};
@@ -179,17 +176,6 @@ char_consts_colorer();
     * 2, if somekind of error was found
     * 3, if no char_consts was found
  * */
-
-
-FILE *
-preparing_for_coloring(char *random_file_name);
-/* DESCRIPTION:
-    * preparing_for_coloring takes name of file, then create and open with "w+" mode,
-    * writing to it all symbols from stdin.
- * RETURN VALUES:
-    * 0, if there were no errors
-    * 1, else
- */
 
 
 int
