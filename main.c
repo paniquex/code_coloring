@@ -40,10 +40,16 @@ int main(int argc, char *argv[]) {
 
     input_file = input_stage(argv[1], file_name);
     if (input_file == NULL) {
+        free(keywords);
+        free(punctuators);
+        free(file_name);
         perror("Input stage error: ");
         return 1;
     }
     if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+        free(keywords);
+        free(punctuators);
+        free(file_name);
         perror("Coloring stage error: ");
         return 1;
     }
