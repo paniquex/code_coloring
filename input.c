@@ -65,3 +65,11 @@ prep_input(char *random_file_name) {
     }
     return input_file;
 }
+
+
+void
+free_memory_input() {
+    free(input_file);
+    free(file_name);
+
+}

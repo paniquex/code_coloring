@@ -219,3 +219,4 @@ punctuators_array_init(int *punctuator_max_length);
     * pointer to array of punctuators
     * NULL, if somekind of error was found
 */
+

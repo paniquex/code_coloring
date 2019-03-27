@@ -31,3 +31,7 @@ prep_input(char *random_file_name);
     * 0, if there were no errors
     * 1, else
  */
+
+
+void
+free_memory_input();

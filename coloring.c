@@ -534,7 +534,7 @@ string_literal_colorer() {
         if (state == 1) {
             if (curr_symb == '\\') {
                 putchar(curr_symb);
-                state = 1;
+                state = 2;
                 continue;
             } else if (curr_symb == '\"') {
                 putchar(curr_symb);
@@ -555,10 +555,6 @@ string_literal_colorer() {
                 putchar(curr_symb);
                 state = 2;
                 continue;
-            } else if (curr_symb == '\"') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
             }
             else if (curr_symb == '\n') {
                 putchar(curr_symb);
@@ -623,14 +619,26 @@ char_consts_colorer() {
                 return 0;
             } else {
                 putchar(curr_symb);
-                state = 1;
+                state = 2;
                 continue;
             }
         }
         if (state == 2) {
-            putchar(curr_symb);
-            state = 1;
-            continue;
+            if (curr_symb == '\\') {
+                putchar(curr_symb);
+                state = 2;
+                continue;
+            }
+            else if (curr_symb == '\n') {
+                putchar(curr_symb);
+                printf("\033[0m");
+                return 0;
+            }
+            else {
+                putchar(curr_symb);
+                state = 1;
+                continue;
+            }
         }
     }
     return 1;
