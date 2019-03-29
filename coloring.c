@@ -3,69 +3,109 @@
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
-int
+Token *
 number_colorer() {
     int curr_symb, is_first_digit = 1;
+    size_t buffer_size = 0;
+    char *buffer;
+    Token *number_token = calloc(1, sizeof(*number_token));
+     buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
+        buffer_size++;
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
-                printf("\033[1;36m");
+//                printf("\033[1;36m");
                 is_first_digit = 0;
             }
-            putchar(curr_symb);
+//            putchar(curr_symb);
+            buffer[buffer_size - 1] = (char) curr_symb;
         } else {
             if (!is_first_digit) {
-                printf("\033[0m");
+//                printf("\033[0m");
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    number_token->type = -2;
+                    free(buffer);
+                    return number_token;
                 }
-                return 0;
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                number_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(number_token->buffer, buffer, buffer_size);
+                free(buffer);
+                number_token->type = 3;
+                number_token->amount_in_text++;
+                return number_token;
             }
             if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                return 2;
+                number_token->type = -2;
+                free(buffer);
+                return number_token;
             }
-            return 3;
+            number_token->type = -3;
+            free(buffer);
+            return number_token;
         }
     }
-    return 1;
+    number_token->type = -1;
+    free(buffer);
+    return number_token;
 }
 
 
-int
+Token *
 comment_colorer() {
     int curr_symb;
     int state1 = 0, state2 = 0;
+    size_t buffer_size = 0;
+    char *buffer = calloc(1, sizeof(buffer));
+    Token *comment_token = calloc(1, sizeof(*comment_token));
     while ((curr_symb = fgetc(input_file)) != EOF) {
+        buffer_size++;
         if ((curr_symb == '/') && (state1 == 0)) {
             state1 = 1;
             state2 = 1;
             continue;
         } else if ((state1 == 0) && (state2 == 0)) {
             if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                return 2;
+                comment_token->type = -2;
+                free(buffer);
+                return comment_token;
             }
-            return 3;
+            comment_token->type = -3;
+            free(buffer);
+            return comment_token;
         }
         if ((state1 == 1) || (state2 == 1)) {
             if ((curr_symb != '/') && (curr_symb != '*')) {
                 state1 = 0;
                 state2 = 0;
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    comment_token->type = -2;
+                    free(buffer);
+                    return comment_token;
                 }
-                return 3;
+                comment_token->type = -3;
+                free(buffer);
+                return comment_token;
             }
             else {
-                printf("\033[4;33m");
+//                printf("\033[4;33m");
                 if (curr_symb == '/') {
                     state1 = 2;
                     state2 = 0;
-                    printf("//");
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size - 2] = '/';
+                    buffer[buffer_size - 1] = '/';
+//                    printf("//");
                 }
                 else {
                     state1 = 0;
                     state2 = 2;
-                    printf("/*");
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size - 2] = '/';
+                    buffer[buffer_size - 1] = '*';
+//                    printf("/*");
                 }
             }
             continue;
@@ -74,15 +114,27 @@ comment_colorer() {
         if (state1 == 2) {
             if (curr_symb == '\n') {
                 state1 = 0;
-                printf("\033[0m");
+//                printf("\033[0m");
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    comment_token->type = -2;
+                    free(buffer);
+                    return comment_token;
                 }
-                return 0;
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                comment_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(comment_token->buffer, buffer, buffer_size);
+                free(buffer);
+                comment_token->type = 7;
+                comment_token->amount_in_text++;
+                return comment_token;
             } else if (curr_symb == '\\') {
                 state1 = 3;
             } else {
-                putchar(curr_symb);
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size - 1] = (char) curr_symb;
+//                putchar(curr_symb);
             }
             continue;
         }
@@ -91,35 +143,65 @@ comment_colorer() {
                 state2 = 3;
                 state1 = -1;
             }
-            putchar(curr_symb);
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
+//            putchar(curr_symb);
             continue;
         }
         if (state1 == 3) {
             state1 = 2;
-            putchar(curr_symb);
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
+//            putchar(curr_symb);
             continue;
         }
         if (state2 == 3) {
             if (curr_symb == '/') {
-                printf("/");
-                printf("\033[0m");
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size - 1] = '/';
+//                printf("/");
+//                printf("\033[0m");
                 state2 = 0;
-                return 0;
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                comment_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(comment_token->buffer, buffer, buffer_size);
+                free(buffer);
+                comment_token->type = 7;
+                comment_token->amount_in_text++;
+                free(buffer);
+                return comment_token;
             }
             if (curr_symb != '*') {
                 state2 = 2;
             }
-            putchar(curr_symb);
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
+//            putchar(curr_symb);
             continue;
         }
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
-            return 2;
+            comment_token->type = -2;
+            free(buffer);
+            return comment_token;
         }
-        return 0;
-        printf("\033[0m");
+        buffer_size++;
+        buffer = realloc(buffer, buffer_size);
+        buffer[buffer_size-1] = '\0';
+        comment_token->buffer = calloc(buffer_size, sizeof(char));
+        strncpy(comment_token->buffer, buffer, buffer_size);
+        free(buffer);
+        comment_token->type = 7;
+        comment_token->amount_in_text++;
+        free(buffer);
+        return comment_token;
+//        printf("\033[0m");
     }
-    printf("\033[0m");
-    return 1;
+//    printf("\033[0m");
+    comment_token->type = -1;
+    free(buffer);
+    return comment_token;
 }
 
 
@@ -292,11 +374,13 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
 
 
 
-int
+Token *
 identifier_colorer() {
     int curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
+    Token *identifier_token = calloc(1, sizeof(*identifier_token));
+    char *buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
         amount_symb_was_read++;
         if (state1 == 0) {
@@ -305,9 +389,12 @@ identifier_colorer() {
                 continue;
             } else {
                 if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    return 2;
+                    identifier_token->type = -2;
+                    return identifier_token;
                 }
-                return 3;
+                identifier_token->type = -3;
+                free(buffer);
+                return identifier_token;
             }
         }
         if (state1 == 1) {
@@ -315,29 +402,42 @@ identifier_colorer() {
 
             } else {
                 if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    return 2;
+                    identifier_token->type = -2;
+                    free(buffer);
+                    return identifier_token;
                 }
-                printf("\033[0;95m");
+//                printf("\033[0;95m");
+                identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+                identifier_token->type = 2;
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
-                    putchar(fgetc(input_file));
+                    identifier_token->buffer[i] = (char) fgetc(input_file);
                 }
-                printf("\033[0m");
-                return 0;
+//                printf("\033[0m");
+                free(buffer);
+                return identifier_token;
             }
         }
     }
     if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-        return 2;
+        identifier_token->type = -2;
+        free(buffer);
+        return identifier_token;
     }
     if (state1 == 1) {
+        identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+        identifier_token->type = 2;
         for (int i = 0; i < amount_symb_was_read; i++) {
-            printf("\033[0;95m");
-            putchar(fgetc(input_file));
-            printf("\033[0m");
+//            printf("\033[0;95m");
+//            putchar(fgetc(input_file));
+//            printf("\033[0m");
+            identifier_token->buffer[i] = (char) fgetc(input_file);
         }
-        return 0;
+        free(buffer);
+        return identifier_token;
     }
-    return 1;
+    identifier_token->type = -1;
+    free(buffer);
+    return identifier_token;
 }
 
 
@@ -650,6 +750,7 @@ int
 coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
     int flag;
     int symb;
+    Token *current_token;
     while (fgetc(input_file) != EOF) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
@@ -660,69 +761,89 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
             break;
         }
 
-        flag = comment_colorer();
-        if (flag == 0) {
+//        current_token = comment_colorer();
+//        if (current_token->type == 7) {
+//            printf("%s", current_token->buffer);
+//            free(current_token->buffer);
+//            free(current_token);
+//            continue;
+//        } else if (current_token->type == -2) {
+//            perror("***Comment colorer***");
+//            return 2;
+//        }
+//        if (current_token != NULL) {
+//            free(current_token);
+//        }
+//
+//        flag = string_literal_colorer();
+//        if (flag == 0) {
+//            continue;
+//        } else if (flag == 2) {
+//            perror("***String literal colorer***");
+//            return 2;
+//        }
+//
+//        flag = char_consts_colorer();
+//        if (flag == 0) {
+//            continue;
+//        } else if (flag == 2) {
+//            perror("***Char consts colorer***");
+//            return 2;
+//        }
+//
+//        flag = keyword_colorer(keywords, keyword_max_length);
+//        if (flag == 0) {
+//            continue;
+//        } else if (flag == 2) {
+//            perror("***Keyword colorer***");
+//            return 2;
+//        }
+//
+//        flag = ucn_colorer();
+//        if (flag == 0) {
+//            continue;
+//        } else if (flag == 2) {
+//            perror("***Ucn colorer***");
+//            return 2;
+//        }
+//
+        current_token = identifier_colorer();
+        if (current_token->type == 2) {
+            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
             continue;
-        } else if (flag == 2) {
-            perror("***Comment colorer***");
-            return 2;
-        }
-
-        flag = string_literal_colorer();
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***String literal colorer***");
-            return 2;
-        }
-
-        flag = char_consts_colorer();
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Char consts colorer***");
-            return 2;
-        }
-
-        flag = keyword_colorer(keywords, keyword_max_length);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Keyword colorer***");
-            return 2;
-        }
-
-        flag = ucn_colorer();
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Ucn colorer***");
-            return 2;
-        }
-
-        flag = identifier_colorer();
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
+        } else if (current_token->type == -2) {
             perror("***Identifier colorer***");
             return 2;
         }
-
-        flag = number_colorer();
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Number colorer***");
-            return 2;
+        if (current_token != NULL) {
+            free(current_token);
         }
 
-        flag = punctuator_colorer(punctuators, punctuator_max_length);
-        if (flag == 0) {
-            continue;
-        } else if (flag == 2) {
-            perror("***Punctuator colorer***");
-            return 2;
-        }
+//        current_token = number_colorer();
+//        if (current_token->type == 3) {
+//            printf("%s", current_token->buffer);
+//            fflush(stdin);
+//            free(current_token->buffer);
+//            free(current_token);
+//            continue;
+//        } else if (current_token->type == -2) {
+//            perror("***Number colorer***");
+//            return 2;
+//        }
+//        if (current_token != NULL) {
+//            free(current_token);
+//        }
+//
+//        flag = punctuator_colorer(punctuators, punctuator_max_length);
+//        if (flag == 0) {
+//            continue;
+//        } else if (flag == 2) {
+//            perror("***Punctuator colorer***");
+//            return 2;
+//        }
         /* if not of the 7 patterns, then print without color */
         if ((symb = fgetc(input_file)) <= 0) {
             perror("getchar error: ");

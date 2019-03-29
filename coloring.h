@@ -6,6 +6,15 @@
 #include <sys/types.h>
 
 
+struct Token {
+    char *buffer;
+    int type;
+    int amount_in_text;
+};
+
+typedef struct Token Token;
+
+
  /* keywords_amount for keyword_colorer func */
 enum {KEYWORDS_AMOUNT = 14};
 
@@ -14,7 +23,7 @@ enum {KEYWORDS_AMOUNT = 14};
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
 
 
-int
+Token *
 number_colorer();
 /*
  * DESCRIPTION:
@@ -30,7 +39,7 @@ number_colorer();
 */
 
 
-int
+Token *
 comment_colorer();
 /*
  * DESCRIPTION:
@@ -82,7 +91,7 @@ keyword_colorer(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
  */
 
 
-int
+Token *
 identifier_colorer();
 /* DESCRIPTION:
  * identifier_colorer() attempts to read symbols from stdin until EOF
