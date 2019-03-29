@@ -564,184 +564,293 @@ int is_nondigit(int symb) {
 }
 
 
-int
+Token *
 string_literal_colorer() {
     int curr_symb;
     int state = 0;
+    size_t buffer_size = 0;
+    Token *string_literal_token = calloc(1, sizeof(*string_literal_token));
+    char *buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
+        buffer_size++;
         if (state == 0) {
             if (curr_symb == '\"') {
-                printf("\033[0;32m");
-                putchar(curr_symb);
+//                printf("\033[0;32m");
+                buffer[buffer_size - 1] = (char) curr_symb;
+//                putchar(curr_symb);
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
                 if ((curr_symb == 'L') || (curr_symb == 'U')) {
                     curr_symb = fgetc(input_file);
+                    buffer_size++;
                     if (curr_symb != '\"') {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                            return 2;
+                            string_literal_token->type = -2;
+                            return string_literal_token;
                         }
-                        printf("\033[0m");
-                        return 3;
+//                        printf("\033[0m");
+                        string_literal_token->type = -3;
+                        return string_literal_token;
                     } else {
-                        printf("\033[0;32m");
-                        printf("%c\"", curr_prefix);
+//                        printf("\033[0;32m");
+//                        printf("%c\"", curr_prefix);
+                        buffer = realloc(buffer, buffer_size);
+                        buffer[buffer_size - 2] = (char) curr_prefix;
+                        buffer[buffer_size - 1] = '\\';
                         state = 1;
                         continue;
                     }
                 } else { //curr_symb == u
                     curr_symb = fgetc(input_file);
+                    buffer_size++;
                     if ((curr_symb != '8') && (curr_symb != '\"')) {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                            return 2;
+                            string_literal_token->type = -2;
+                            return string_literal_token;
                         }
-                        printf("\033[0m");
-                        return 3;
+//                        printf("\033[0m");
+                        string_literal_token->type = -3;
+                        return string_literal_token;
                     } else {
                         if (curr_symb == '\"') {
-                            printf("\033[0;32m");
-                            printf("%c\"", curr_prefix);
+//                            printf("\033[0;32m");
+//                            printf("%c\"", curr_prefix);
+                            buffer = realloc(buffer, buffer_size);
+                            buffer[buffer_size - 2] = (char) curr_prefix;
+                            buffer[buffer_size - 1] = '\\';
                             state = 1;
                             continue;
                         }
                         if (curr_symb == '8') {
                             curr_symb = fgetc(input_file);
+                            buffer_size++;
                             if (curr_symb == '\"') {
-                                printf("\033[0;32m");
-                                printf("%c8\"", curr_prefix);
+//                                printf("\033[0;32m");
+//                                printf("%c8\"", curr_prefix);
+                                buffer = realloc(buffer, buffer_size);
+                                buffer[buffer_size - 3] = (char) curr_prefix;
+                                buffer[buffer_size - 2] = '8';
+                                buffer[buffer_size - 1] = '\\';
                                 state = 1;
                                 continue;
                             } else {
                                 if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                                    return 2;
+                                    string_literal_token->type = -2;
+                                    free(buffer);
+                                    return string_literal_token;
                                 }
-                                printf("\033[0m");
-                                return 3;
+//                                printf("\033[0m");
+                                string_literal_token->type = -3;
+                                free(buffer);
+                                return string_literal_token;
                             }
                         }
                     }
                 }
             } else {
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    string_literal_token->type = -2;
+                    free(buffer);
+                    return string_literal_token;
                 }
-                printf("\033[0m");
-                return 3;
+//                printf("\033[0m");
+                string_literal_token->type = -3;
+                free(buffer);
+                return string_literal_token;
             }
         }
         if (state == 1) {
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-                putchar(curr_symb);
+//                putchar(curr_symb);
                 state = 2;
                 continue;
             } else if (curr_symb == '\"') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+//                putchar(curr_symb);
+//                printf("\033[0m");
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(string_literal_token->buffer, buffer, buffer_size);
+                string_literal_token->type = 5;
+                string_literal_token->amount_in_text++;
+                free(buffer);
+                return string_literal_token;
             } else if (curr_symb == '\n') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+//                putchar(curr_symb);
+//                printf("\033[0m");
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(string_literal_token->buffer, buffer, buffer_size);
+                string_literal_token->type = 5;
+                string_literal_token->amount_in_text++;
+                free(buffer);
+                return string_literal_token;
             } else {
-                putchar(curr_symb);
+//                putchar(curr_symb);
                 state = 2;
                 continue;
             }
         }
         if (state == 2) {
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-                putchar(curr_symb);
                 state = 2;
                 continue;
             }
             else if (curr_symb == '\n') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+//                printf("\033[0m");
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(string_literal_token->buffer, buffer, buffer_size);
+                string_literal_token->type = 5;
+                string_literal_token->amount_in_text++;
+                free(buffer);
+                return string_literal_token;
             }
             else {
-                putchar(curr_symb);
                 state = 1;
                 continue;
             }
         }
     }
-    printf("\033[0m");
-    return 1;
+//    printf("\033[0m");
+    string_literal_token->type = -1;
+    free(buffer);
+    return string_literal_token;
 }
 
-int
+Token *
 char_consts_colorer() {
     int curr_symb;
     int state = 0;
+    size_t buffer_size = 0;
+    Token *char_consts_token = calloc(1, sizeof(*char_consts_token));
+    char *buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
+        buffer_size++;
         if (state == 0) {
             if (curr_symb == '\'') {
-                printf("\033[1;33m");
-                putchar(curr_symb);
+//                printf("\033[1;33m");
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size - 1] = (char) curr_symb;
+//                putchar(curr_symb);
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
                 curr_symb = fgetc(input_file);
+                buffer_size++;
                 if (curr_symb == '\'') {
-                    printf("\033[1;33m");
-                    printf("%c\'", curr_prefix);
+//                    printf("\033[1;33m");
+//                    printf("%c\'", curr_prefix);
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size - 2] = (char) curr_prefix;
+                    buffer[buffer_size - 1] = '\\';
                     state = 1;
                     continue;
                 } else {
                     if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                        return 2;
+                        char_consts_token->type = -2;
+                        free(buffer);
+                        return char_consts_token;
                     }
-                    return 3;
+                    char_consts_token->type = -3;
+                    free(buffer);
+                    return char_consts_token;
                 }
             } else {
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    char_consts_token->type = -2;
+                    free(buffer);
+                    return char_consts_token;
                 }
-                return 3;
+                char_consts_token->type = -3;
+                free(buffer);
+                return char_consts_token;
             }
         }
         if (state == 1) {
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-                putchar(curr_symb);
                 state = 2;
                 continue;
             } else if (curr_symb == '\'') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                char_consts_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(char_consts_token->buffer, buffer, buffer_size);
+                char_consts_token->type = 4;
+                char_consts_token->amount_in_text++;
+                free(buffer);
+                return char_consts_token;
             } else if (curr_symb == '\n') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+//                putchar(curr_symb);
+//                printf("\033[0m");
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                char_consts_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(char_consts_token->buffer, buffer, buffer_size);
+                char_consts_token->type = 4;
+                char_consts_token->amount_in_text++;
+                free(buffer);
+                return char_consts_token;
             } else {
-                putchar(curr_symb);
                 state = 2;
                 continue;
             }
         }
         if (state == 2) {
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-                putchar(curr_symb);
+//                putchar(curr_symb);
                 state = 2;
                 continue;
             }
             else if (curr_symb == '\n') {
-                putchar(curr_symb);
-                printf("\033[0m");
-                return 0;
+//                putchar(curr_symb);
+//                printf("\033[0m");
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size-1] = '\0';
+                char_consts_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(char_consts_token->buffer, buffer, buffer_size);
+                char_consts_token->type = 4;
+                char_consts_token->amount_in_text++;
+                free(buffer);
+                return char_consts_token;
             }
             else {
-                putchar(curr_symb);
+//                putchar(curr_symb);
                 state = 1;
                 continue;
             }
         }
     }
-    return 1;
+    //EOF
+    char_consts_token->type = 4;
+    buffer_size++;
+    buffer = realloc(buffer, buffer_size);
+    buffer[buffer_size-1] = '\0';
+    char_consts_token->buffer = calloc(buffer_size, sizeof(char));
+    strncpy(char_consts_token->buffer, buffer, buffer_size);
+    char_consts_token->type = 4;
+    char_consts_token->amount_in_text++;
+    free(buffer);
+    return char_consts_token;
 }
 
 
@@ -775,21 +884,37 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
 //            free(current_token);
 //        }
 //
-//        flag = string_literal_colorer();
-//        if (flag == 0) {
-//            continue;
-//        } else if (flag == 2) {
-//            perror("***String literal colorer***");
-//            return 2;
-//        }
+        current_token = string_literal_colorer();
+        if (current_token->type == 5) {
+            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***String literal colorer***");
+            return 2;
+        }
+        if (current_token != NULL) {
+
+            free(current_token);
+        }
 //
-//        flag = char_consts_colorer();
-//        if (flag == 0) {
-//            continue;
-//        } else if (flag == 2) {
-//            perror("***Char consts colorer***");
-//            return 2;
-//        }
+        current_token = char_consts_colorer();
+        if (current_token->type == 4) {
+            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Char consts colorer***");
+            return 2;
+        }
+        if (current_token != NULL) {
+
+            free(current_token);
+        }
 //
 //        flag = keyword_colorer(keywords, keyword_max_length);
 //        if (flag == 0) {

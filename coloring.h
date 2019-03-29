@@ -161,7 +161,7 @@ is_nondigit(int symb);
  */
 
 
-int
+Token *
 string_literal_colorer();
 /* DESCRIPTION:
     * string_literal_colorer() attempts to read symbols from stdin until EOF
@@ -174,7 +174,7 @@ string_literal_colorer();
  * */
 
 
-int
+Token *
 char_consts_colorer();
 /* DESCRIPTION:
     * char_consts_colorer() attempts to read symbols from stdin until EOF
