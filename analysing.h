@@ -105,7 +105,7 @@ identifier_analyser();
 */
 
 
-int
+static int
 is_hexadecimal_digit(int symb);
 /* DESCRIPTION:
  * is_hexadecimal_digit checks symb, if it is hexadecimal digit or not
@@ -152,7 +152,7 @@ white_space_print_skip();
 */
 
 
-int
+static int
 is_nondigit(int symb);
 /*
  * RETURN VALUES:

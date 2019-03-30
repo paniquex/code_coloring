@@ -1,3 +1,5 @@
+#ifndef INPUT
+#define INPUT
 #include "input.h"
 
 FILE *
@@ -73,3 +75,5 @@ free_memory_input() {
     free(file_name);
 
 }
+
+#endif

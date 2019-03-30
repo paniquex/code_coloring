@@ -529,7 +529,7 @@ identifier_analyser() {
 }
 
 
-int
+static int
 is_hexadecimal_digit(int symb) {
     enum {HEXADECIMAL_DIGITS_AMOUNT = 22};
     const char HEXADECIMAL_DIGITS[HEXADECIMAL_DIGITS_AMOUNT] = {
@@ -683,7 +683,8 @@ white_space_print_skip() {
 }
 
 
-int is_nondigit(int symb) {
+static int
+is_nondigit(int symb) {
     if ((isalpha(symb)) || (symb == '_')) return 1;
     else return 0;
 }
@@ -717,8 +718,6 @@ string_literal_analyser() {
                         string_literal_token->type = -3;
                         return string_literal_token;
                     } else {
-//                        printf("\033[0;32m");
-//                        printf("%c\"", curr_prefix);
                         buffer = realloc(buffer, buffer_size);
                         buffer[buffer_size - 2] = (char) curr_prefix;
                         buffer[buffer_size - 1] = '\\';
@@ -733,13 +732,10 @@ string_literal_analyser() {
                             string_literal_token->type = -2;
                             return string_literal_token;
                         }
-//                        printf("\033[0m");
                         string_literal_token->type = -3;
                         return string_literal_token;
                     } else {
                         if (curr_symb == '\"') {
-//                            printf("\033[0;32m");
-//                            printf("%c\"", curr_prefix);
                             buffer = realloc(buffer, buffer_size);
                             buffer[buffer_size - 2] = (char) curr_prefix;
                             buffer[buffer_size - 1] = '\"';
@@ -750,8 +746,6 @@ string_literal_analyser() {
                             curr_symb = fgetc(input_file);
                             buffer_size++;
                             if (curr_symb == '\"') {
-//                                printf("\033[0;32m");
-//                                printf("%c8\"", curr_prefix);
                                 buffer = realloc(buffer, buffer_size);
                                 buffer[buffer_size - 3] = (char) curr_prefix;
                                 buffer[buffer_size - 2] = '8';
@@ -764,7 +758,6 @@ string_literal_analyser() {
                                     free(buffer);
                                     return string_literal_token;
                                 }
-//                                printf("\033[0m");
                                 string_literal_token->type = -3;
                                 free(buffer);
                                 return string_literal_token;
@@ -778,7 +771,6 @@ string_literal_analyser() {
                     free(buffer);
                     return string_literal_token;
                 }
-//                printf("\033[0m");
                 string_literal_token->type = -3;
                 free(buffer);
                 return string_literal_token;
@@ -788,12 +780,9 @@ string_literal_analyser() {
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-//                putchar(curr_symb);
                 state = 2;
                 continue;
             } else if (curr_symb == '\"') {
-//                putchar(curr_symb);
-//                printf("\033[0m");
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
@@ -804,8 +793,6 @@ string_literal_analyser() {
                 free(buffer);
                 return string_literal_token;
             } else if (curr_symb == '\n') {
-//                putchar(curr_symb);
-//                printf("\033[0m");
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
@@ -816,7 +803,6 @@ string_literal_analyser() {
                 free(buffer);
                 return string_literal_token;
             } else {
-//                putchar(curr_symb);
                 state = 1;
                 continue;
             }
@@ -829,7 +815,6 @@ string_literal_analyser() {
                 continue;
             }
             else if (curr_symb == '\n') {
-//                printf("\033[0m");
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
@@ -846,7 +831,6 @@ string_literal_analyser() {
             }
         }
     }
-//    printf("\033[0m");
     string_literal_token->type = 5;
     buffer_size++;
     buffer = realloc(buffer, buffer_size);
@@ -871,10 +855,8 @@ char_consts_analyser() {
         buffer_size++;
         if (state == 0) {
             if (curr_symb == '\'') {
-//                printf("\033[1;33m");
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size - 1] = (char) curr_symb;
-//                putchar(curr_symb);
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
@@ -882,8 +864,6 @@ char_consts_analyser() {
                 curr_symb = fgetc(input_file);
                 buffer_size++;
                 if (curr_symb == '\'') {
-//                    printf("\033[1;33m");
-//                    printf("%c\'", curr_prefix);
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size - 2] = (char) curr_prefix;
                     buffer[buffer_size - 1] = '\'';
@@ -927,8 +907,6 @@ char_consts_analyser() {
                 free(buffer);
                 return char_consts_token;
             } else if (curr_symb == '\n') {
-//                putchar(curr_symb);
-//                printf("\033[0m");
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
@@ -947,13 +925,10 @@ char_consts_analyser() {
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
             if (curr_symb == '\\') {
-//                putchar(curr_symb);
                 state = 2;
                 continue;
             }
             else if (curr_symb == '\n') {
-//                putchar(curr_symb);
-//                printf("\033[0m");
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
@@ -965,7 +940,6 @@ char_consts_analyser() {
                 return char_consts_token;
             }
             else {
-//                putchar(curr_symb);
                 state = 1;
                 continue;
             }
@@ -1006,7 +980,6 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
             printf("%s - %d\n", current_token->buffer, current_token->type);
         }
         if (current_token->type == 7) {
-//            printf("%s - %d", current_token->buffer, current_token->type);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1023,7 +996,6 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
             printf("%s - %d\n", current_token->buffer, current_token->type);
         }
         if (current_token->type == 5) {
-//            printf("%s", current_token->buffer);
             fflush(stdin);
             free(current_token->buffer);
             free(current_token);
@@ -1042,7 +1014,6 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
             printf("%s - %d\n", current_token->buffer, current_token->type);
         }
         if (current_token->type == 4) {
-//            printf("%s", current_token->buffer);
             fflush(stdin);
             free(current_token->buffer);
             free(current_token);

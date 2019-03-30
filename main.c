@@ -14,7 +14,6 @@ int main(int argc, char *argv[]) {
      * argv[2] - input_file_name:
         * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
     */
-    token_coloring(1, BLUE);
     if (argc <= 1) {
         printf("Not enough program parametrs.\n");
         return 1;
@@ -47,7 +46,7 @@ int main(int argc, char *argv[]) {
         perror("Input stage error: ");
         return 1;
     }
-    if (analysing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+    if (processing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
         free(keywords);
         free(punctuators);
         free(file_name);
