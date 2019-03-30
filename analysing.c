@@ -1,5 +1,7 @@
 #include "analysing.h"
 #include "input.h"
+#include "coloring.h"
+#include "output.h"
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
@@ -7,9 +9,8 @@ Token *
 number_analyser() {
     int curr_symb, is_first_digit = 1;
     size_t buffer_size = 0;
-    char *buffer;
     Token *number_token = calloc(1, sizeof(*number_token));
-     buffer = calloc(1, sizeof(*buffer));
+    char *buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
         buffer_size++;
         if (isdigit(curr_symb)) {
@@ -18,6 +19,7 @@ number_analyser() {
                 is_first_digit = 0;
             }
 //            putchar(curr_symb);
+            buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
         } else {
             if (!is_first_digit) {
@@ -27,14 +29,13 @@ number_analyser() {
                     free(buffer);
                     return number_token;
                 }
-                buffer_size++;
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size-1] = '\0';
                 number_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(number_token->buffer, buffer, buffer_size);
-                free(buffer);
                 number_token->type = 3;
                 number_token->amount_in_text++;
+                free(buffer);
                 return number_token;
             }
             if (fseek(input_file, -1, SEEK_CUR) == -1) {
@@ -131,6 +132,8 @@ comment_analyser() {
                 return comment_token;
             } else if (curr_symb == '\\') {
                 state1 = 3;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size - 1] = (char) curr_symb;
             } else {
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size - 1] = (char) curr_symb;
@@ -167,7 +170,6 @@ comment_analyser() {
                 buffer[buffer_size-1] = '\0';
                 comment_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(comment_token->buffer, buffer, buffer_size);
-                free(buffer);
                 comment_token->type = 7;
                 comment_token->amount_in_text++;
                 free(buffer);
@@ -186,7 +188,6 @@ comment_analyser() {
             free(buffer);
             return comment_token;
         }
-        buffer_size++;
         buffer = realloc(buffer, buffer_size);
         buffer[buffer_size-1] = '\0';
         comment_token->buffer = calloc(buffer_size, sizeof(char));
@@ -199,7 +200,17 @@ comment_analyser() {
 //        printf("\033[0m");
     }
 //    printf("\033[0m");
-    comment_token->type = -1;
+    if (buffer_size == 0) {
+        comment_token->type = -3;
+        return comment_token;
+    }
+    buffer_size++;
+    buffer = realloc(buffer, buffer_size);
+    buffer[buffer_size-1] = '\0';
+    comment_token->buffer = calloc(buffer_size, sizeof(char));
+    strncpy(comment_token->buffer, buffer, buffer_size);
+    comment_token->type = 7;
+    comment_token->amount_in_text++;
     free(buffer);
     return comment_token;
 }
@@ -333,6 +344,10 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
         punctuator_token->type = -2;
         return punctuator_token;
     }
+    if (buffer_size == 0) {
+        punctuator_token->type = -3;
+        return punctuator_token;
+    }
     buffer_size++;
     buffer = realloc(buffer, buffer_size);
     buffer[buffer_size-1] = '\0';
@@ -448,6 +463,10 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
         free(buffer);
         return keyword_token;
     }
+    if (buffer_size == 0) {
+        keyword_token->type = -3;
+        return keyword_token;
+    }
     buffer_size++;
     buffer = realloc(buffer, buffer_size);
     buffer[buffer_size-1] = '\0';
@@ -523,7 +542,17 @@ identifier_analyser() {
         free(buffer);
         return identifier_token;
     }
-    identifier_token->type = -1;
+    if (amount_symb_was_read == 0) {
+        identifier_token->type = -3;
+        return identifier_token;
+    }
+    amount_symb_was_read++;
+    buffer = realloc(buffer, amount_symb_was_read);
+    buffer[amount_symb_was_read - 1] = '\0';
+    identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+    strncpy(identifier_token->buffer, buffer, amount_symb_was_read);
+    identifier_token->type = 2;
+    identifier_token->amount_in_text++;
     free(buffer);
     return identifier_token;
 }
@@ -713,9 +742,11 @@ string_literal_analyser() {
                     if (curr_symb != '\"') {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
                             string_literal_token->type = -2;
+                            free(buffer);
                             return string_literal_token;
                         }
                         string_literal_token->type = -3;
+                        free(buffer);
                         return string_literal_token;
                     } else {
                         buffer = realloc(buffer, buffer_size);
@@ -730,9 +761,11 @@ string_literal_analyser() {
                     if ((curr_symb != '8') && (curr_symb != '\"')) {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
                             string_literal_token->type = -2;
+                            free(buffer);
                             return string_literal_token;
                         }
                         string_literal_token->type = -3;
+                        free(buffer);
                         return string_literal_token;
                     } else {
                         if (curr_symb == '\"') {
@@ -839,7 +872,6 @@ string_literal_analyser() {
     strncpy(string_literal_token->buffer, buffer, buffer_size);
     string_literal_token->type = 4;
     string_literal_token->amount_in_text++;
-    free(buffer);
     free(buffer);
     return string_literal_token;
 }
@@ -961,8 +993,7 @@ char_consts_analyser() {
 
 
 int
-analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
-    int flag;
+processing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
     int symb;
     Token *current_token;
     while (fgetc(input_file) != EOF) {
@@ -976,10 +1007,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = comment_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 7) {
+            token_coloring(current_token, DARKGRAY);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -992,11 +1022,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = string_literal_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 5) {
-            fflush(stdin);
+            token_coloring(current_token, LIGHTGREEN);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1005,16 +1033,13 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
             return 2;
         }
         if (current_token != NULL) {
-
             free(current_token);
         }
 
         current_token = char_consts_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 4) {
-            fflush(stdin);
+            token_coloring(current_token, YELLOW);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1028,12 +1053,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = keyword_analyser(keywords, keyword_max_length);
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 1) {
-//            printf("%s", current_token->buffer);
-            fflush(stdin);
+            token_coloring(current_token, BLUE);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1046,12 +1068,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = ucn_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 8) {
-//            printf("%s", current_token->buffer);
-            fflush(stdin);
+            token_coloring(current_token, LIGHTPURPLE);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1065,12 +1084,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = identifier_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 2) {
-//            printf("%s", current_token->buffer);
-            fflush(stdin);
+            token_coloring(current_token, LIGHTPURPLE);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1083,12 +1099,9 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 //
         current_token = number_analyser();
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 3) {
-//            printf("%s", current_token->buffer);
-            fflush(stdin);
+            token_coloring(current_token, LIGHTBLUE);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -1101,15 +1114,11 @@ analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, 
         }
 
         current_token = punctuator_analyser(punctuators, punctuator_max_length);
-        if (current_token != NULL) {
-            printf("%s - %d\n", current_token->buffer, current_token->type);
-        }
         if (current_token->type == 6) {
-//            printf("%s", current_token->buffer);
-            fflush(stdin);
+            token_coloring(current_token, RED);
+            output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
-            continue;
             continue;
         } else if (current_token->type == -2) {
             perror("***Punctuator analyser***");

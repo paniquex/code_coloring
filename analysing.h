@@ -1,3 +1,8 @@
+#ifndef ANALYSING
+#define ANALYSING
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,8 +33,8 @@ number_analyser();
 /*
  * DESCRIPTION:
  * number_analyser() attempts to read symbols from stdin until EOF
- * if first digit has reached, then it prints to stdout "color key"
- * after first digit was found, if current symbol != digit, then prints to stdout
+ * if first digit has reached, then saves it in Token->buffer, and changes Token->type
+ * after first digit was found, if current symbol != digit, then saves it in Token->buffer, and changes Token->type
  * "standard color key".
  * RETURN VALUES:
      * 0 - if digit was found
@@ -44,7 +49,7 @@ comment_analyser();
 /*
  * DESCRIPTION:
     * comment_analyser() attempts to read symbols from stdin until EOF
-    * if it has found "comment token(or pattern)", then prints it with brown(yellow) color
+    * if it has found "comment token(or pattern)", then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
     * 0, if somekind of comment was found
     * 1, if EOF was reached
@@ -59,7 +64,7 @@ punctuator_analyser(char *PUNCTUATORS[PUNCTUATORS_AMOUNT], int punctuator_max_le
  * DESCRIPTION:
     * punctuator_analyser() attempts to read symbols from stdin until EOF
     * it uses PUNCTUATORS array, which contains all available pattern of punctuators
-    * if it has found "punctuator token(or pattern)" then it prints it with red color
+    * if it has found "punctuator token(or pattern)" then saved it in Token->buffer, and changes Token->type
  * RETURN VALUES:
      * 0, if punctuator was found and printed
      * 1, if EOF was reached
@@ -73,7 +78,7 @@ keyword_analyser(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
 /* DESCRIPTION:
     * keyword_analyser() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
-    * if it has found "keyword token(or pattern)" then it prints it with blue color
+    * if it has found "keyword token(or pattern)" then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
      * 0, if keyword was found and printed
      * 1, if EOF was reached
@@ -95,7 +100,7 @@ Token *
 identifier_analyser();
 /* DESCRIPTION:
  * identifier_analyser() attempts to read symbols from stdin until EOF
- * if it has found "identifier token(or pattern)" then it prints it with pink color
+ * if it has found "identifier token(or pattern)" then saves it in Token->buffer, and changes Token->type
  *
  * RETURN VALUES:
     * 0, if identifier was found and printed
@@ -119,7 +124,7 @@ Token *
 ucn_analyser();
 /* DESCRIPTION:
  * ucn_analyser() attempts to read symbols from stdin until EOF
- * if it has found "universal character token(or pattern)" then it prints it with pink color
+ * if it has found "universal character token(or pattern)" then saves it in Token->buffer, and changes Token->type
  *
  * RETURN VALUES:
     * 0, if Universal character name was found and printed
@@ -165,7 +170,7 @@ Token *
 string_literal_analyser();
 /* DESCRIPTION:
     * string_literal_analyser() attempts to read symbols from stdin until EOF
-    * if it has found "string_literal token(or pattern)" then it prints it with green color
+    * if it has found "string_literal token(or pattern)" then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
     * 0, if string_literal was found and printed
     * 1, if EOF was reached
@@ -178,7 +183,7 @@ Token *
 char_consts_analyser();
 /* DESCRIPTION:
     * char_consts_analyser() attempts to read symbols from stdin until EOF
-    * if it has found "char_consts token(or pattern)" then it prints it with green color
+    * if it has found "char_consts token(or pattern)" then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
     * 0, if char_consts was found and printed
     * 1, if EOF was reached
@@ -188,7 +193,7 @@ char_consts_analyser();
 
 
 int
-analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
+processing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
 /* DESCRIPTION:
     * сoloring_stage takes 4 parameters, which are needed for punctuator_analyser and keyword_analyser functions.
     * analysing_stage() contains all analyser functions:
@@ -229,3 +234,4 @@ punctuators_array_init(int *punctuator_max_length);
     * NULL, if somekind of error was found
 */
 
+#endif        
