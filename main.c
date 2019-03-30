@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "input.h"
 #include "analysing.h"
+#include "coloring.h"
 
 
 int main(int argc, char *argv[]) {
@@ -13,7 +14,7 @@ int main(int argc, char *argv[]) {
      * argv[2] - input_file_name:
         * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
     */
-
+    token_coloring(1, BLUE);
     if (argc <= 1) {
         printf("Not enough program parametrs.\n");
         return 1;
@@ -60,6 +61,5 @@ int main(int argc, char *argv[]) {
     free(file_name);
     free(keywords);
     free(punctuators);
-
     return 0;
 }
