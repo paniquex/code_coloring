@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "input.h"
-#include "coloring.h"
+#include "analysing.h"
 
 
 int main(int argc, char *argv[]) {
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
         perror("Input stage error: ");
         return 1;
     }
-    if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+    if (analysing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
         free(keywords);
         free(punctuators);
         free(file_name);

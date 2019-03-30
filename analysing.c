@@ -1,10 +1,10 @@
-#include "coloring.h"
+#include "analysing.h"
 #include "input.h"
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
 Token *
-number_colorer() {
+number_analyser() {
     int curr_symb, is_first_digit = 1;
     size_t buffer_size = 0;
     char *buffer;
@@ -54,7 +54,7 @@ number_colorer() {
 
 
 Token *
-comment_colorer() {
+comment_analyser() {
     int curr_symb;
     int state1 = 0, state2 = 0;
     size_t buffer_size = 0;
@@ -205,8 +205,8 @@ comment_colorer() {
 }
 
 
-int
-punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
+Token *
+punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
     short int indexes[PUNCTUATORS_AMOUNT];          /* 1, if start of punctuator matches with KEYWORDS i-th row
                                                     0, else*/
     for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
@@ -223,6 +223,9 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
     int amount_symb_was_read = 0;
     int length_of_current_punctuator = 0;
     int is_indexes_array_of_zeros = 0;
+    size_t buffer_size = 0;
+    char *buffer = calloc(1, sizeof(buffer));
+    Token *punctuator_token = calloc(1, sizeof(*punctuator_token));
     for (amount_symb_was_read; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at least one 1
         for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
@@ -231,33 +234,49 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
             }
         }
         if (is_indexes_array_of_zeros) {
-            printf("\033[0m");
+//            printf("\033[0m");
             if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                return 2;
+                punctuator_token->type = -2;
+                free(buffer);
+                return punctuator_token;
             }
-            return 3;
+            punctuator_token->type = -3;
+            free(buffer);
+            return punctuator_token;
         }
         was_printed = 0;
         if ((curr_symb = fgetc(input_file)) == EOF) {
             if (is_at_least_one_full_punctuator) {
+                buffer_size = length_of_current_punctuator;
+                buffer = realloc(buffer, length_of_current_punctuator);
                 for (int i = 0; i < length_of_current_punctuator; i++) {
-                    printf("%c", punctuator_to_print[i]);
+                    buffer[i] = (char) punctuator_to_print[i];
                 }
             } else {
-                printf("\033[0m");
+//                printf("\033[0m");
             }
             if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
-                return 2;
+                punctuator_token->type = -2;
+                free(buffer);
+                return punctuator_token;
             }
             if (!is_first_punctuator) printf("\033[0m");
-            return 1;
+            buffer_size++;
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size-1] = '\0';
+            punctuator_token->buffer = calloc(buffer_size, sizeof(char));
+            strncpy(punctuator_token->buffer, buffer, buffer_size);
+            punctuator_token->type = 6;
+            punctuator_token->amount_in_text++;
+            free(buffer);
+            return punctuator_token;
         }
         for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
             int curr_length = strlen(PUNCTUATORS[i]);
             if ((PUNCTUATORS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_punctuator)) {
                     is_first_punctuator = 0;
-                    printf("\033[0;31m");
+//                    printf("\033[0;31m");
                 }
                 if (!was_printed) {
                     punctuator_to_print[length_of_current_punctuator] = curr_symb;
@@ -266,35 +285,68 @@ punctuator_colorer(char **PUNCTUATORS, int punctuator_max_length) {
                 }
             } else {
                 if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
+                    buffer_size = length_of_current_punctuator;
+                    buffer = realloc(buffer, buffer_size);
                     for (int k = 0; k < length_of_current_punctuator; k++) {
-                        putchar(punctuator_to_print[k]);
+                        buffer[k] = (char) punctuator_to_print[k];
                     }
                     if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                        return 2;
+                        punctuator_token->type = -2;
+                        free(buffer);
+                        return punctuator_token;
                     }
                     if (!is_first_punctuator) printf("\033[0m");
-                    return 0;
+                    buffer_size++;
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size-1] = '\0';
+                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));
+                    strncpy(punctuator_token->buffer, buffer, buffer_size);
+                    punctuator_token->type = 6;
+                    punctuator_token->amount_in_text++;
+                    free(buffer);
+                    return punctuator_token;
                 } else if ((curr_length == amount_symb_was_read) && (indexes[i] != 0)) {
-                    printf("%s", PUNCTUATORS[i]);
+                    buffer_size = strlen(PUNCTUATORS[i]);
+                    buffer = realloc(buffer, buffer_size);
+                    strncpy(buffer, PUNCTUATORS[i], buffer_size);
                     if (!is_first_punctuator) printf("\033[0m");
                     if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                        return 2;
+                        punctuator_token->type = -2;
+                        free(buffer);
+                        return punctuator_token;
                     }
-                    return 0;
+                    buffer_size++;
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size-1] = '\0';
+                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));      // ТУТ ОШИБКА!!!!! ПОСМОТРЕТЬ
+                    strncpy(punctuator_token->buffer, buffer, buffer_size);
+                    punctuator_token->type = 6;
+                    punctuator_token->amount_in_text++;
+                    free(buffer);
+                    return punctuator_token;
                 }
                 indexes[i] = 0;
             }
         }
     }
     if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
-        return 2;
+        punctuator_token->type = -2;
+        return punctuator_token;
     }
-    return 0;
+    buffer_size++;
+    buffer = realloc(buffer, buffer_size);
+    buffer[buffer_size-1] = '\0';
+    punctuator_token->buffer = calloc(buffer_size, sizeof(char));
+    strncpy(punctuator_token->buffer, buffer, buffer_size);
+    punctuator_token->type = 6;
+    punctuator_token->amount_in_text++;
+    free(buffer);
+    return punctuator_token;
 }
 
 
-int
-keyword_colorer(char **KEYWORDS, int keyword_max_length) {
+Token *
+keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
                                                     0, else*/
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
@@ -311,6 +363,9 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
     int amount_symb_was_read = 0;
     int length_of_current_keyword = 0;
     int is_indexes_array_of_zeros = 0;
+    size_t buffer_size = 0;
+    char *buffer = calloc(1, sizeof(buffer));
+    Token *keyword_token = calloc(1, sizeof(*keyword_token));
     for (amount_symb_was_read; amount_symb_was_read < keyword_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
         for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
@@ -319,33 +374,42 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
             }
         }
         if (is_indexes_array_of_zeros) {
-            printf("\033[0m");
+//            printf("\033[0m");
             if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                return 2;
+                keyword_token->type = -2;
+                free(buffer);
+                return keyword_token;
             }
-            return 3;
+            keyword_token->type = -3;
+            free(buffer);
+            return keyword_token;
         }
         was_printed = 0;
         if ((curr_symb = fgetc(input_file)) == EOF) {
             if (is_at_least_one_full_keyword) {
+                buffer_size = length_of_current_keyword;
+                buffer = realloc(buffer, length_of_current_keyword);
                 for (int i = 0; i < length_of_current_keyword; i++) {
-                    printf("%c", keyword_to_print[i]);
+                    buffer[i] = (char) keyword_to_print[i];
                 }
             } else {
-                printf("\033[0m");
+//                printf("\033[0m");
             }
             if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
-                return 2;
+                keyword_token->type = -2;
+                free(buffer);
+                return keyword_token;
             }
             if (!is_first_keyword) printf("\033[0m");
-            return 1;
+            keyword_token->type = -3;
+            return keyword_token;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
             int curr_length = strlen(KEYWORDS[i]);
             if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
-                    printf("\033[0;34m");
+//                    printf("\033[0;34m");
                 }
                 if (!was_printed) {
                     keyword_to_print[length_of_current_keyword] = curr_symb;
@@ -354,28 +418,52 @@ keyword_colorer(char **KEYWORDS, int keyword_max_length) {
                 }
             } else {
                 if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
+                    buffer_size = length_of_current_keyword;
+                    buffer = realloc(buffer, buffer_size);
                     for (int k = 0; k < length_of_current_keyword; k++) {
-                        putchar(keyword_to_print[k]);
+                        buffer[k] = (char) keyword_to_print[k];
                     }
-                    putchar(curr_symb);
+                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
+                        keyword_token->type = -2;
+                        free(buffer);
+                        return keyword_token;
+                    }
                     if (!is_first_keyword) printf("\033[0m");
-                    return 0;
+                    buffer_size++;
+                    buffer = realloc(buffer, buffer_size);
+                    buffer[buffer_size-1] = '\0';
+                    keyword_token->buffer = calloc(buffer_size, sizeof(char));
+                    strncpy(keyword_token->buffer, buffer, buffer_size);
+                    keyword_token->type = 1;
+                    keyword_token->amount_in_text++;
+                    free(buffer);
+                    return keyword_token;
                 }
                 indexes[i] = 0;
             }
         }
     }
     if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
-        return 2;
+        keyword_token->type = -2;
+        free(buffer);
+        return keyword_token;
     }
-    return 0;
+    buffer_size++;
+    buffer = realloc(buffer, buffer_size);
+    buffer[buffer_size-1] = '\0';
+    keyword_token->buffer = calloc(buffer_size, sizeof(char));
+    strncpy(keyword_token->buffer, buffer, buffer_size);
+    keyword_token->type = 1;
+    keyword_token->amount_in_text++;
+    free(buffer);
+    return keyword_token;
 }
 
 
 
 
 Token *
-identifier_colorer() {
+identifier_analyser() {
     int curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
@@ -457,12 +545,14 @@ is_hexadecimal_digit(int symb) {
 }
 
 
-int
-ucn_colorer() {
+Token *
+ucn_analyser() {
     int curr_symb;
     int amount_symb_was_read = 0;
     int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
     int state1 = 0;
+    Token *ucn_token = calloc(1, sizeof(*ucn_token));
+    char *buffer = calloc(1, sizeof(*buffer));
     while ((curr_symb = fgetc(input_file)) != EOF) {
         amount_symb_was_read++;
         if (state1 == 0) {
@@ -471,9 +561,13 @@ ucn_colorer() {
                 continue;
             } else {
                 if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    return 2;
+                    ucn_token->type = -2;
+                    free(buffer);
+                    return ucn_token;
                 }
-                return 3;
+                ucn_token->type = -3;
+                free(buffer);
+                return ucn_token;
             }
         }
         if (state1 == 1) {
@@ -488,37 +582,68 @@ ucn_colorer() {
                 continue;
             }
             if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                return 2;
+                ucn_token->type = -2;
+                free(buffer);
+                return ucn_token;
             }
-            return 3;
+            ucn_token->type = -3;
+            free(buffer);
+            return ucn_token;
         }
         if (state1 == 2) {
             if (is_hexadecimal_digit(curr_symb)) {
-                printf("\033[0;95m");
-                putchar('\\');
-                putchar(print_u_or_U);
-                putchar(curr_symb);
+//                printf("\033[0;95m");
+//                putchar('\\');
+//                putchar(print_u_or_U);
+//                putchar(curr_symb);
+                buffer = realloc(buffer, amount_symb_was_read);
+                buffer[amount_symb_was_read - 3] = '\\';
+                buffer[amount_symb_was_read - 2] = (char) print_u_or_U;
+                buffer[amount_symb_was_read - 1] = (char) curr_symb;
                 state1 = 3;
                 continue;
             } else {
                 if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    return 2;
+                    ucn_token->type = -2;
+                    free(buffer);
+                    return ucn_token;
                 }
-                return 3;
+                ucn_token->type = -3;
+                free(buffer);
+                return ucn_token;
             }
         }
         if (state1 == 3) {
             if (is_hexadecimal_digit(curr_symb)) {
-                putchar(curr_symb);
+                buffer = realloc(buffer, amount_symb_was_read);
+                buffer[amount_symb_was_read - 1] = (char) curr_symb;
             } else {
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    return 2;
+                    ucn_token->type = -2;
+                    free(buffer);
+                    return ucn_token;
                 }
-                return 0;
+                amount_symb_was_read++;
+                buffer = realloc(buffer, amount_symb_was_read);
+                buffer[amount_symb_was_read - 1] = '\0';
+                ucn_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+                strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
+                ucn_token->type = 8;
+                ucn_token->amount_in_text++;
+                free(buffer);
+                return ucn_token;
             }
         }
     }
-    return 1;
+    amount_symb_was_read++;
+    buffer = realloc(buffer, amount_symb_was_read);
+    buffer[amount_symb_was_read - 1] = '\0';
+    ucn_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+    strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
+    ucn_token->type = 8;
+    ucn_token->amount_in_text++;
+    free(buffer);
+    return ucn_token;
 }
 
 
@@ -565,7 +690,7 @@ int is_nondigit(int symb) {
 
 
 Token *
-string_literal_colorer() {
+string_literal_analyser() {
     int curr_symb;
     int state = 0;
     size_t buffer_size = 0;
@@ -575,9 +700,8 @@ string_literal_colorer() {
         buffer_size++;
         if (state == 0) {
             if (curr_symb == '\"') {
-//                printf("\033[0;32m");
                 buffer[buffer_size - 1] = (char) curr_symb;
-//                putchar(curr_symb);
+
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
@@ -590,7 +714,6 @@ string_literal_colorer() {
                             string_literal_token->type = -2;
                             return string_literal_token;
                         }
-//                        printf("\033[0m");
                         string_literal_token->type = -3;
                         return string_literal_token;
                     } else {
@@ -619,7 +742,7 @@ string_literal_colorer() {
 //                            printf("%c\"", curr_prefix);
                             buffer = realloc(buffer, buffer_size);
                             buffer[buffer_size - 2] = (char) curr_prefix;
-                            buffer[buffer_size - 1] = '\\';
+                            buffer[buffer_size - 1] = '\"';
                             state = 1;
                             continue;
                         }
@@ -694,7 +817,7 @@ string_literal_colorer() {
                 return string_literal_token;
             } else {
 //                putchar(curr_symb);
-                state = 2;
+                state = 1;
                 continue;
             }
         }
@@ -724,13 +847,21 @@ string_literal_colorer() {
         }
     }
 //    printf("\033[0m");
-    string_literal_token->type = -1;
+    string_literal_token->type = 5;
+    buffer_size++;
+    buffer = realloc(buffer, buffer_size);
+    buffer[buffer_size-1] = '\0';
+    string_literal_token->buffer = calloc(buffer_size, sizeof(char));
+    strncpy(string_literal_token->buffer, buffer, buffer_size);
+    string_literal_token->type = 4;
+    string_literal_token->amount_in_text++;
+    free(buffer);
     free(buffer);
     return string_literal_token;
 }
 
 Token *
-char_consts_colorer() {
+char_consts_analyser() {
     int curr_symb;
     int state = 0;
     size_t buffer_size = 0;
@@ -755,7 +886,7 @@ char_consts_colorer() {
 //                    printf("%c\'", curr_prefix);
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size - 2] = (char) curr_prefix;
-                    buffer[buffer_size - 1] = '\\';
+                    buffer[buffer_size - 1] = '\'';
                     state = 1;
                     continue;
                 } else {
@@ -808,7 +939,7 @@ char_consts_colorer() {
                 free(buffer);
                 return char_consts_token;
             } else {
-                state = 2;
+                state = 1;
                 continue;
             }
         }
@@ -856,7 +987,7 @@ char_consts_colorer() {
 
 
 int
-coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
+analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
     int flag;
     int symb;
     Token *current_token;
@@ -870,105 +1001,153 @@ coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, i
             break;
         }
 
-//        current_token = comment_colorer();
-//        if (current_token->type == 7) {
-//            printf("%s", current_token->buffer);
-//            free(current_token->buffer);
-//            free(current_token);
-//            continue;
-//        } else if (current_token->type == -2) {
-//            perror("***Comment colorer***");
-//            return 2;
-//        }
-//        if (current_token != NULL) {
-//            free(current_token);
-//        }
-//
-        current_token = string_literal_colorer();
+        current_token = comment_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 7) {
+//            printf("%s - %d", current_token->buffer, current_token->type);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Comment analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+            free(current_token);
+        }
+
+        current_token = string_literal_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
         if (current_token->type == 5) {
-            printf("%s", current_token->buffer);
-            fflush(stdin);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
-        } else if (current_token->type == -2) {
-            perror("***String literal colorer***");
-            return 2;
-        }
-        if (current_token != NULL) {
-
-            free(current_token);
-        }
-//
-        current_token = char_consts_colorer();
-        if (current_token->type == 4) {
-            printf("%s", current_token->buffer);
-            fflush(stdin);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
-        } else if (current_token->type == -2) {
-            perror("***Char consts colorer***");
-            return 2;
-        }
-        if (current_token != NULL) {
-
-            free(current_token);
-        }
-//
-//        flag = keyword_colorer(keywords, keyword_max_length);
-//        if (flag == 0) {
-//            continue;
-//        } else if (flag == 2) {
-//            perror("***Keyword colorer***");
-//            return 2;
-//        }
-//
-//        flag = ucn_colorer();
-//        if (flag == 0) {
-//            continue;
-//        } else if (flag == 2) {
-//            perror("***Ucn colorer***");
-//            return 2;
-//        }
-//
-        current_token = identifier_colorer();
-        if (current_token->type == 2) {
-            printf("%s", current_token->buffer);
-            fflush(stdin);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
-        } else if (current_token->type == -2) {
-            perror("***Identifier colorer***");
-            return 2;
-        }
-        if (current_token != NULL) {
-            free(current_token);
-        }
-
-//        current_token = number_colorer();
-//        if (current_token->type == 3) {
 //            printf("%s", current_token->buffer);
-//            fflush(stdin);
-//            free(current_token->buffer);
-//            free(current_token);
-//            continue;
-//        } else if (current_token->type == -2) {
-//            perror("***Number colorer***");
-//            return 2;
-//        }
-//        if (current_token != NULL) {
-//            free(current_token);
-//        }
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***String literal analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+
+            free(current_token);
+        }
+
+        current_token = char_consts_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 4) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Char consts analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+
+            free(current_token);
+        }
+
+        current_token = keyword_analyser(keywords, keyword_max_length);
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 1) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Keyword analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+            free(current_token);
+        }
+
+        current_token = ucn_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 8) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Ucn analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+
+            free(current_token);
+        }
+
+        current_token = identifier_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 2) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Identifier analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+            free(current_token);
+        }
 //
-//        flag = punctuator_colorer(punctuators, punctuator_max_length);
-//        if (flag == 0) {
-//            continue;
-//        } else if (flag == 2) {
-//            perror("***Punctuator colorer***");
-//            return 2;
-//        }
+        current_token = number_analyser();
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 3) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Number analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+            free(current_token);
+        }
+
+        current_token = punctuator_analyser(punctuators, punctuator_max_length);
+        if (current_token != NULL) {
+            printf("%s - %d\n", current_token->buffer, current_token->type);
+        }
+        if (current_token->type == 6) {
+//            printf("%s", current_token->buffer);
+            fflush(stdin);
+            free(current_token->buffer);
+            free(current_token);
+            continue;
+            continue;
+        } else if (current_token->type == -2) {
+            perror("***Punctuator analyser***");
+            return 2;
+        }
+        if (current_token != NULL) {
+            free(current_token);
+        }
+
         /* if not of the 7 patterns, then print without color */
         if ((symb = fgetc(input_file)) <= 0) {
             perror("getchar error: ");

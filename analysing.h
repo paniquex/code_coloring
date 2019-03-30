@@ -15,19 +15,19 @@ struct Token {
 typedef struct Token Token;
 
 
- /* keywords_amount for keyword_colorer func */
+ /* keywords_amount for keyword_analyser func */
 enum {KEYWORDS_AMOUNT = 14};
 
 
-/* punctuators_amount for punctuator_colorer func */
+/* punctuators_amount for punctuator_analyser func */
 enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
 
 
 Token *
-number_colorer();
+number_analyser();
 /*
  * DESCRIPTION:
- * number_colorer() attempts to read symbols from stdin until EOF
+ * number_analyser() attempts to read symbols from stdin until EOF
  * if first digit has reached, then it prints to stdout "color key"
  * after first digit was found, if current symbol != digit, then prints to stdout
  * "standard color key".
@@ -40,10 +40,10 @@ number_colorer();
 
 
 Token *
-comment_colorer();
+comment_analyser();
 /*
  * DESCRIPTION:
-    * comment_colorer() attempts to read symbols from stdin until EOF
+    * comment_analyser() attempts to read symbols from stdin until EOF
     * if it has found "comment token(or pattern)", then prints it with brown(yellow) color
  * RETURN VALUES:
     * 0, if somekind of comment was found
@@ -53,11 +53,11 @@ comment_colorer();
 */
 
 
-int
-punctuator_colorer(char *PUNCTUATORS[PUNCTUATORS_AMOUNT], int punctuator_max_length);
+Token *
+punctuator_analyser(char *PUNCTUATORS[PUNCTUATORS_AMOUNT], int punctuator_max_length);
 /*
  * DESCRIPTION:
-    * punctuator_colorer() attempts to read symbols from stdin until EOF
+    * punctuator_analyser() attempts to read symbols from stdin until EOF
     * it uses PUNCTUATORS array, which contains all available pattern of punctuators
     * if it has found "punctuator token(or pattern)" then it prints it with red color
  * RETURN VALUES:
@@ -68,10 +68,10 @@ punctuator_colorer(char *PUNCTUATORS[PUNCTUATORS_AMOUNT], int punctuator_max_len
 */
 
 
-int
-keyword_colorer(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
+Token *
+keyword_analyser(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
 /* DESCRIPTION:
-    * keyword_colorer() attempts to read symbols from stdin until EOF
+    * keyword_analyser() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
     * if it has found "keyword token(or pattern)" then it prints it with blue color
  * RETURN VALUES:
@@ -92,9 +92,9 @@ keyword_colorer(char *KEYWORDS[KEYWORDS_AMOUNT], int keyword_max_length);
 
 
 Token *
-identifier_colorer();
+identifier_analyser();
 /* DESCRIPTION:
- * identifier_colorer() attempts to read symbols from stdin until EOF
+ * identifier_analyser() attempts to read symbols from stdin until EOF
  * if it has found "identifier token(or pattern)" then it prints it with pink color
  *
  * RETURN VALUES:
@@ -115,10 +115,10 @@ is_hexadecimal_digit(int symb);
 */
 
 
-int
-ucn_colorer();
+Token *
+ucn_analyser();
 /* DESCRIPTION:
- * ucn_colorer() attempts to read symbols from stdin until EOF
+ * ucn_analyser() attempts to read symbols from stdin until EOF
  * if it has found "universal character token(or pattern)" then it prints it with pink color
  *
  * RETURN VALUES:
@@ -162,9 +162,9 @@ is_nondigit(int symb);
 
 
 Token *
-string_literal_colorer();
+string_literal_analyser();
 /* DESCRIPTION:
-    * string_literal_colorer() attempts to read symbols from stdin until EOF
+    * string_literal_analyser() attempts to read symbols from stdin until EOF
     * if it has found "string_literal token(or pattern)" then it prints it with green color
  * RETURN VALUES:
     * 0, if string_literal was found and printed
@@ -175,9 +175,9 @@ string_literal_colorer();
 
 
 Token *
-char_consts_colorer();
+char_consts_analyser();
 /* DESCRIPTION:
-    * char_consts_colorer() attempts to read symbols from stdin until EOF
+    * char_consts_analyser() attempts to read symbols from stdin until EOF
     * if it has found "char_consts token(or pattern)" then it prints it with green color
  * RETURN VALUES:
     * 0, if char_consts was found and printed
@@ -188,23 +188,23 @@ char_consts_colorer();
 
 
 int
-coloring_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
+analysing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length);
 /* DESCRIPTION:
-    * сoloring_stage takes 4 parameters, which are needed for punctuator_colorer and keyword_colorer functions.
-    * coloring_stage() contains all colorer functions:
+    * сoloring_stage takes 4 parameters, which are needed for punctuator_analyser and keyword_analyser functions.
+    * analysing_stage() contains all analyser functions:
     * 0) white_space_print_skip()
-    * 1) comment_colorer()
-    * 2) sting_literal_colorer()
-    * 3) char_consts_colorer()
-    * 4) keyword_colorer()
-    * 5) identifier_colorer()
-    * 6) number_colorer()
-    * 7) punctuator_colorer()
+    * 1) comment_analyser()
+    * 2) sting_literal_analyser()
+    * 3) char_consts_analyser()
+    * 4) keyword_analyser()
+    * 5) identifier_analyser()
+    * 6) number_analyser()
+    * 7) punctuator_analyser()
     * 8) just putchar(curr_symb), if symbol don't match any pattern
  * RETURN VALUES:
     * 0, if everything was correct
     * 1, if fgetc(input_file) occurs an error
-    * 2, if some of colorers occurs an error
+    * 2, if some of analysers occurs an error
  */
 
 
