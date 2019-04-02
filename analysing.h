@@ -14,7 +14,7 @@
 struct Token {
     char *buffer;
     int type;
-    int amount_in_text;
+    int buffer_size;
 };
 
 typedef struct Token Token;
@@ -110,16 +110,6 @@ identifier_analyser();
 */
 
 
-static int
-is_hexadecimal_digit(int symb);
-/* DESCRIPTION:
- * is_hexadecimal_digit checks symb, if it is hexadecimal digit or not
- * RETURN VALUES:
-    * 0, if it is not white_space
-    * 1,  else
-*/
-
-
 Token *
 ucn_analyser();
 /* DESCRIPTION:
@@ -157,7 +147,7 @@ white_space_print_skip();
 */
 
 
-static int
+int
 is_nondigit(int symb);
 /*
  * RETURN VALUES:

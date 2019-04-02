@@ -2,6 +2,7 @@
 #define INPUT
 #include "input.h"
 
+
 FILE *
 input_stage(char *input_type, char *input_file_name) {
     size_t file_name_size;
@@ -15,12 +16,6 @@ input_stage(char *input_type, char *input_file_name) {
         strncpy(file_name, input_file_name, file_name_size);
         FILE *input_file = fopen(file_name, "a+");
         if (input_file == NULL) {
-            return NULL;
-        }
-        char space = ' ';
-        if (fprintf(input_file, "%c", space) <= 0) {
-            fclose(input_file);
-            perror("Cannot write to file: ");
             return NULL;
         }
         if (fseek(input_file, 0, SEEK_SET) == -1) {
@@ -53,13 +48,6 @@ prep_input(char *random_file_name) {
             perror("Cannot write to file: ");
             return NULL;
         }
-    }
-    char space = ' ';
-    if (fprintf(input_file, "%c", space) <= 0) {
-        fclose(input_file);
-        perror("Cannot write to file: ");
-        return NULL;
-    }
     if (fseek(input_file, 0, SEEK_SET) == -1) {
         fclose(input_file);
         perror("fseek error: ");

@@ -15,15 +15,12 @@ number_analyser() {
         buffer_size++;
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
-//                printf("\033[1;36m");
                 is_first_digit = 0;
             }
-//            putchar(curr_symb);
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
         } else {
             if (!is_first_digit) {
-//                printf("\033[0m");
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     number_token->type = -2;
                     free(buffer);
@@ -91,14 +88,12 @@ comment_analyser() {
                 return comment_token;
             }
             else {
-//                printf("\033[4;33m");
                 if (curr_symb == '/') {
                     state1 = 2;
                     state2 = 0;
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size - 2] = '/';
                     buffer[buffer_size - 1] = '/';
-//                    printf("//");
                 }
                 else {
                     state1 = 0;
@@ -106,7 +101,6 @@ comment_analyser() {
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size - 2] = '/';
                     buffer[buffer_size - 1] = '*';
-//                    printf("/*");
                 }
             }
             continue;
@@ -115,7 +109,6 @@ comment_analyser() {
         if (state1 == 2) {
             if (curr_symb == '\n') {
                 state1 = 0;
-//                printf("\033[0m");
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     comment_token->type = -2;
                     free(buffer);
@@ -137,7 +130,6 @@ comment_analyser() {
             } else {
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size - 1] = (char) curr_symb;
-//                putchar(curr_symb);
             }
             continue;
         }
@@ -148,22 +140,18 @@ comment_analyser() {
             }
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
-//            putchar(curr_symb);
             continue;
         }
         if (state1 == 3) {
             state1 = 2;
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
-//            putchar(curr_symb);
             continue;
         }
         if (state2 == 3) {
             if (curr_symb == '/') {
                 buffer = realloc(buffer, buffer_size);
                 buffer[buffer_size - 1] = '/';
-//                printf("/");
-//                printf("\033[0m");
                 state2 = 0;
                 buffer_size++;
                 buffer = realloc(buffer, buffer_size);
@@ -180,7 +168,6 @@ comment_analyser() {
             }
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size - 1] = (char) curr_symb;
-//            putchar(curr_symb);
             continue;
         }
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
@@ -197,9 +184,7 @@ comment_analyser() {
         comment_token->amount_in_text++;
         free(buffer);
         return comment_token;
-//        printf("\033[0m");
     }
-//    printf("\033[0m");
     if (buffer_size == 0) {
         comment_token->type = -3;
         return comment_token;
@@ -237,7 +222,7 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
     size_t buffer_size = 0;
     char *buffer = calloc(1, sizeof(buffer));
     Token *punctuator_token = calloc(1, sizeof(*punctuator_token));
-    for (amount_symb_was_read; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
+    for (; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at least one 1
         for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
             if (indexes[i] != 0) {
@@ -245,7 +230,6 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
             }
         }
         if (is_indexes_array_of_zeros) {
-//            printf("\033[0m");
             if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                 punctuator_token->type = -2;
                 free(buffer);
@@ -264,14 +248,12 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
                     buffer[i] = (char) punctuator_to_print[i];
                 }
             } else {
-//                printf("\033[0m");
             }
             if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
                 punctuator_token->type = -2;
                 free(buffer);
                 return punctuator_token;
             }
-            if (!is_first_punctuator) printf("\033[0m");
             buffer_size++;
             buffer = realloc(buffer, buffer_size);
             buffer[buffer_size-1] = '\0';
@@ -287,7 +269,9 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
             if ((PUNCTUATORS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_punctuator)) {
                     is_first_punctuator = 0;
-//                    printf("\033[0;31m");
+                }
+                if (strlen(PUNCTUATORS[i]) == (amount_symb_was_read + 1)) {
+                    is_at_least_one_full_punctuator = 1;
                 }
                 if (!was_printed) {
                     punctuator_to_print[length_of_current_punctuator] = curr_symb;
@@ -306,7 +290,6 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
                         free(buffer);
                         return punctuator_token;
                     }
-                    if (!is_first_punctuator) printf("\033[0m");
                     buffer_size++;
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size-1] = '\0';
@@ -320,7 +303,6 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
                     buffer_size = strlen(PUNCTUATORS[i]);
                     buffer = realloc(buffer, buffer_size);
                     strncpy(buffer, PUNCTUATORS[i], buffer_size);
-                    if (!is_first_punctuator) printf("\033[0m");
                     if (fseek(input_file, -1, SEEK_CUR) == -1) {
                         punctuator_token->type = -2;
                         free(buffer);
@@ -329,7 +311,7 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
                     buffer_size++;
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size-1] = '\0';
-                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));      // ТУТ ОШИБКА!!!!! ПОСМОТРЕТЬ
+                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));
                     strncpy(punctuator_token->buffer, buffer, buffer_size);
                     punctuator_token->type = 6;
                     punctuator_token->amount_in_text++;
@@ -381,7 +363,7 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     size_t buffer_size = 0;
     char *buffer = calloc(1, sizeof(buffer));
     Token *keyword_token = calloc(1, sizeof(*keyword_token));
-    for (amount_symb_was_read; amount_symb_was_read < keyword_max_length; amount_symb_was_read++) {
+    for (; amount_symb_was_read < keyword_max_length; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
         for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
             if (indexes[i] != 0) {
@@ -389,7 +371,6 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
             }
         }
         if (is_indexes_array_of_zeros) {
-//            printf("\033[0m");
             if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                 keyword_token->type = -2;
                 free(buffer);
@@ -408,15 +389,21 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
                     buffer[i] = (char) keyword_to_print[i];
                 }
             } else {
-//                printf("\033[0m");
+
             }
             if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
                 keyword_token->type = -2;
                 free(buffer);
                 return keyword_token;
             }
-            if (!is_first_keyword) printf("\033[0m");
-            keyword_token->type = -3;
+            buffer_size++;
+            buffer = realloc(buffer, buffer_size);
+            buffer[buffer_size-1] = '\0';
+            keyword_token->buffer = calloc(buffer_size, sizeof(char));
+            strncpy(keyword_token->buffer, buffer, buffer_size);
+            keyword_token->type = 1;
+            keyword_token->amount_in_text++;
+            free(buffer);
             return keyword_token;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
@@ -424,7 +411,9 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
             if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
-//                    printf("\033[0;34m");
+                }
+                if (strlen(KEYWORDS[i]) == (amount_symb_was_read + 1)) {
+                    is_at_least_one_full_keyword = 1;
                 }
                 if (!was_printed) {
                     keyword_to_print[length_of_current_keyword] = curr_symb;
@@ -443,7 +432,6 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
                         free(buffer);
                         return keyword_token;
                     }
-                    if (!is_first_keyword) printf("\033[0m");
                     buffer_size++;
                     buffer = realloc(buffer, buffer_size);
                     buffer[buffer_size-1] = '\0';
@@ -513,13 +501,11 @@ identifier_analyser() {
                     free(buffer);
                     return identifier_token;
                 }
-//                printf("\033[0;95m");
                 identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
                 identifier_token->type = 2;
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
                     identifier_token->buffer[i] = (char) fgetc(input_file);
                 }
-//                printf("\033[0m");
                 free(buffer);
                 return identifier_token;
             }
@@ -531,14 +517,12 @@ identifier_analyser() {
         return identifier_token;
     }
     if (state1 == 1) {
-        identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+        identifier_token->buffer = calloc((size_t) amount_symb_was_read + 1, sizeof(char));
         identifier_token->type = 2;
         for (int i = 0; i < amount_symb_was_read; i++) {
-//            printf("\033[0;95m");
-//            putchar(fgetc(input_file));
-//            printf("\033[0m");
             identifier_token->buffer[i] = (char) fgetc(input_file);
         }
+        identifier_token->buffer[amount_symb_was_read] = '\0';
         free(buffer);
         return identifier_token;
     }
@@ -560,6 +544,12 @@ identifier_analyser() {
 
 static int
 is_hexadecimal_digit(int symb) {
+    /* DESCRIPTION:
+        * is_hexadecimal_digit checks symb, if it is hexadecimal digit or not
+    * RETURN VALUES:
+        * 0, if it is not white_space
+        * 1,  else
+    */
     enum {HEXADECIMAL_DIGITS_AMOUNT = 22};
     const char HEXADECIMAL_DIGITS[HEXADECIMAL_DIGITS_AMOUNT] = {
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a',
@@ -621,10 +611,6 @@ ucn_analyser() {
         }
         if (state1 == 2) {
             if (is_hexadecimal_digit(curr_symb)) {
-//                printf("\033[0;95m");
-//                putchar('\\');
-//                putchar(print_u_or_U);
-//                putchar(curr_symb);
                 buffer = realloc(buffer, amount_symb_was_read);
                 buffer[amount_symb_was_read - 3] = '\\';
                 buffer[amount_symb_was_read - 2] = (char) print_u_or_U;
@@ -712,7 +698,7 @@ white_space_print_skip() {
 }
 
 
-static int
+int
 is_nondigit(int symb) {
     if ((isalpha(symb)) || (symb == '_')) return 1;
     else return 0;
@@ -1097,7 +1083,6 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
         if (current_token != NULL) {
             free(current_token);
         }
-//
         current_token = number_analyser();
         if (current_token->type == 3) {
             token_coloring(current_token, LIGHTBLUE);
