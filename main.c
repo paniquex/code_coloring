@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "input.h"
+#include "analysing.h"
 #include "coloring.h"
 
 
@@ -13,7 +14,6 @@ int main(int argc, char *argv[]) {
      * argv[2] - input_file_name:
         * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
     */
-
     if (argc <= 1) {
         printf("Not enough program parametrs.\n");
         return 1;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
         perror("Input stage error: ");
         return 1;
     }
-    if (coloring_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+    if (processing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
         free(keywords);
         free(punctuators);
         free(file_name);
@@ -60,6 +60,5 @@ int main(int argc, char *argv[]) {
     free(file_name);
     free(keywords);
     free(punctuators);
-
     return 0;
 }

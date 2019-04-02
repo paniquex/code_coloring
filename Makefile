@@ -1,16 +1,25 @@
 all: main
 
-main: main.o coloring.o input.o
-	gcc main.o coloring.o input.o -luuid -o main.out
+main: main.o analysing.o coloring.o input.o output.o
+	gcc -Wall main.o analysing.o coloring.o input.o output.o -luuid -o main.out
+
+debug: main.o analysing.o coloring.o input.o output.o
+	gcc main.o analysing.o coloring.o input.o output.o -luuid -o main.out -g
 
 main.o: main.c
-	gcc main.c -c
+	gcc -Wall  main.c -c
 
 input.o: input.c
-	gcc input.c -c
+	gcc -Wall  input.c -c
+
+analysing.o: analysing.c
+	gcc -Wall  analysing.c -c
 
 coloring.o: coloring.c
-	gcc coloring.c -c
+	gcc -Wall  coloring.c -c
+
+output.o: output.c
+	gcc -Wall  output.c -c
 
 clean:
 	-rm *.o main.out
