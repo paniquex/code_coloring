@@ -7,11 +7,11 @@
 
 Token *
 number_analyser() {
-    int curr_symb, is_first_digit = 1;
+    char curr_symb, is_first_digit = 1;
     size_t buffer_size = 0;
     Token *number_token = calloc(1, sizeof(*number_token));
     char *buffer = calloc(1, sizeof(*buffer));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         buffer_size++;
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
@@ -45,20 +45,26 @@ number_analyser() {
             return number_token;
         }
     }
-    number_token->type = -1;
-    free(buffer);
+     buffer_size++;
+     buffer = realloc(buffer, buffer_size);
+     buffer[buffer_size-1] = '\0';
+     number_token->buffer = calloc(buffer_size, sizeof(char));
+     strncpy(number_token->buffer, buffer, buffer_size);
+     number_token->type = 3;
+     number_token->amount_in_text++;
+     free(buffer);
     return number_token;
 }
 
 
 Token *
 comment_analyser() {
-    int curr_symb;
+    char curr_symb;
     int state1 = 0, state2 = 0;
     size_t buffer_size = 0;
     char *buffer = calloc(1, sizeof(buffer));
     Token *comment_token = calloc(1, sizeof(*comment_token));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         buffer_size++;
         if ((curr_symb == '/') && (state1 == 0)) {
             state1 = 1;
@@ -212,7 +218,7 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
     for (int i=0; i < punctuator_max_length; i++) {
         punctuator_to_print[i] = 0;
     }
-    int curr_symb;
+    char curr_symb;
     char is_first_punctuator = 1;
     char is_at_least_one_full_punctuator = 0;
     char was_printed = 0; // if on symb_was_read-step one symbol of punctuator was printed
@@ -240,7 +246,7 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
             return punctuator_token;
         }
         was_printed = 0;
-        if ((curr_symb = fgetc(input_file)) == EOF) {
+        if ((fread(&curr_symb, 1, sizeof(char), input_file)) == 0) {
             if (is_at_least_one_full_punctuator) {
                 buffer_size = length_of_current_punctuator;
                 buffer = realloc(buffer, length_of_current_punctuator);
@@ -324,10 +330,12 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
     }
     if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
         punctuator_token->type = -2;
+        free(buffer);
         return punctuator_token;
     }
     if (buffer_size == 0) {
         punctuator_token->type = -3;
+        free(buffer);
         return punctuator_token;
     }
     buffer_size++;
@@ -353,7 +361,7 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     for (int i=0; i < keyword_max_length; i++) {
         keyword_to_print[i] = 0;
     }
-    int curr_symb;
+    char curr_symb;
     char is_first_keyword = 1;
     char is_at_least_one_full_keyword = 0;
     char was_printed = 0; // if on symb_was_read-step one symbol of keyword was printed
@@ -381,7 +389,7 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
             return keyword_token;
         }
         was_printed = 0;
-        if ((curr_symb = fgetc(input_file)) == EOF) {
+        if ((fread(&curr_symb, 1, sizeof(char), input_file)) == 0) {
             if (is_at_least_one_full_keyword) {
                 buffer_size = length_of_current_keyword;
                 buffer = realloc(buffer, length_of_current_keyword);
@@ -453,6 +461,7 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     }
     if (buffer_size == 0) {
         keyword_token->type = -3;
+        free(buffer);
         return keyword_token;
     }
     buffer_size++;
@@ -471,12 +480,12 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
 
 Token *
 identifier_analyser() {
-    int curr_symb;
+    char curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
     Token *identifier_token = calloc(1, sizeof(*identifier_token));
     char *buffer = calloc(1, sizeof(*buffer));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         amount_symb_was_read++;
         if (state1 == 0) {
             if (is_nondigit(curr_symb)) {
@@ -485,6 +494,7 @@ identifier_analyser() {
             } else {
                 if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
                     identifier_token->type = -2;
+                    free(buffer);
                     return identifier_token;
                 }
                 identifier_token->type = -3;
@@ -504,7 +514,7 @@ identifier_analyser() {
                 identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
                 identifier_token->type = 2;
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
-                    identifier_token->buffer[i] = (char) fgetc(input_file);
+                    fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
                 }
                 free(buffer);
                 return identifier_token;
@@ -520,7 +530,7 @@ identifier_analyser() {
         identifier_token->buffer = calloc((size_t) amount_symb_was_read + 1, sizeof(char));
         identifier_token->type = 2;
         for (int i = 0; i < amount_symb_was_read; i++) {
-            identifier_token->buffer[i] = (char) fgetc(input_file);
+            fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
         }
         identifier_token->buffer[amount_symb_was_read] = '\0';
         free(buffer);
@@ -528,6 +538,7 @@ identifier_analyser() {
     }
     if (amount_symb_was_read == 0) {
         identifier_token->type = -3;
+        free(buffer);
         return identifier_token;
     }
     amount_symb_was_read++;
@@ -566,13 +577,13 @@ is_hexadecimal_digit(int symb) {
 
 Token *
 ucn_analyser() {
-    int curr_symb;
+    char curr_symb;
     int amount_symb_was_read = 0;
     int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
     int state1 = 0;
     Token *ucn_token = calloc(1, sizeof(*ucn_token));
-    char *buffer = calloc(1, sizeof(*buffer));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    char *buffer = calloc(1, sizeof(char));
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         amount_symb_was_read++;
         if (state1 == 0) {
             if (curr_symb == '\\') {
@@ -614,7 +625,7 @@ ucn_analyser() {
                 buffer = realloc(buffer, amount_symb_was_read);
                 buffer[amount_symb_was_read - 3] = '\\';
                 buffer[amount_symb_was_read - 2] = (char) print_u_or_U;
-                buffer[amount_symb_was_read - 1] = (char) curr_symb;
+                buffer[amount_symb_was_read - 1] = curr_symb;
                 state1 = 3;
                 continue;
             } else {
@@ -631,7 +642,7 @@ ucn_analyser() {
         if (state1 == 3) {
             if (is_hexadecimal_digit(curr_symb)) {
                 buffer = realloc(buffer, amount_symb_was_read);
-                buffer[amount_symb_was_read - 1] = (char) curr_symb;
+                buffer[amount_symb_was_read - 1] = curr_symb;
             } else {
                 if (fseek(input_file, -1, SEEK_CUR) == -1) {
                     ucn_token->type = -2;
@@ -653,7 +664,7 @@ ucn_analyser() {
     amount_symb_was_read++;
     buffer = realloc(buffer, amount_symb_was_read);
     buffer[amount_symb_was_read - 1] = '\0';
-    ucn_token->buffer = calloc(amount_symb_was_read, sizeof(char));
+    ucn_token->buffer = calloc((size_t) amount_symb_was_read, sizeof(char));
     strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
     ucn_token->type = 8;
     ucn_token->amount_in_text++;
@@ -683,8 +694,8 @@ white_space_print_skip() {
      * 1, if EOF
      * 2, if some kind of error was found
      * 3, if symb is not white_space*/
-    int curr_symb;
-    if ((curr_symb = fgetc(input_file)) != EOF) {
+    char curr_symb;
+    if ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         if (!is_white_space(curr_symb)) {
             if (fseek(input_file, -1, SEEK_CUR) == -1) {
                 return 2;
@@ -707,12 +718,12 @@ is_nondigit(int symb) {
 
 Token *
 string_literal_analyser() {
-    int curr_symb;
+    char curr_symb;
     int state = 0;
     size_t buffer_size = 0;
     Token *string_literal_token = calloc(1, sizeof(*string_literal_token));
     char *buffer = calloc(1, sizeof(*buffer));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         buffer_size++;
         if (state == 0) {
             if (curr_symb == '\"') {
@@ -723,7 +734,7 @@ string_literal_analyser() {
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
                 if ((curr_symb == 'L') || (curr_symb == 'U')) {
-                    curr_symb = fgetc(input_file);
+                    fread(&curr_symb, 1, sizeof(char), input_file);
                     buffer_size++;
                     if (curr_symb != '\"') {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
@@ -742,7 +753,7 @@ string_literal_analyser() {
                         continue;
                     }
                 } else { //curr_symb == u
-                    curr_symb = fgetc(input_file);
+                    fread(&curr_symb, 1, sizeof(char), input_file);
                     buffer_size++;
                     if ((curr_symb != '8') && (curr_symb != '\"')) {
                         if (fseek(input_file, -2, SEEK_CUR) == -1) {
@@ -762,7 +773,7 @@ string_literal_analyser() {
                             continue;
                         }
                         if (curr_symb == '8') {
-                            curr_symb = fgetc(input_file);
+                            fread(&curr_symb, 1, sizeof(char), input_file);
                             buffer_size++;
                             if (curr_symb == '\"') {
                                 buffer = realloc(buffer, buffer_size);
@@ -856,7 +867,6 @@ string_literal_analyser() {
     buffer[buffer_size-1] = '\0';
     string_literal_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(string_literal_token->buffer, buffer, buffer_size);
-    string_literal_token->type = 4;
     string_literal_token->amount_in_text++;
     free(buffer);
     return string_literal_token;
@@ -864,12 +874,12 @@ string_literal_analyser() {
 
 Token *
 char_consts_analyser() {
-    int curr_symb;
+    char curr_symb;
     int state = 0;
     size_t buffer_size = 0;
     Token *char_consts_token = calloc(1, sizeof(*char_consts_token));
     char *buffer = calloc(1, sizeof(*buffer));
-    while ((curr_symb = fgetc(input_file)) != EOF) {
+    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
         buffer_size++;
         if (state == 0) {
             if (curr_symb == '\'') {
@@ -879,7 +889,7 @@ char_consts_analyser() {
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
-                curr_symb = fgetc(input_file);
+                fread(&curr_symb, 1, sizeof(char), input_file);
                 buffer_size++;
                 if (curr_symb == '\'') {
                     buffer = realloc(buffer, buffer_size);
@@ -980,9 +990,10 @@ char_consts_analyser() {
 
 int
 processing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
-    int symb;
+    char symb;
+    int check;
     Token *current_token;
-    while (fgetc(input_file) != EOF) {
+    while (fread(&check, 1, sizeof(char), input_file) > 0) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
             return 2;
@@ -1015,6 +1026,7 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
+            free(current_token);
             perror("***String literal analyser***");
             return 2;
         }
@@ -1114,7 +1126,7 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
         }
 
         /* if not of the 7 patterns, then print without color */
-        if ((symb = fgetc(input_file)) <= 0) {
+        if ((fread(&symb, 1, sizeof(char), input_file)) == 0) {
             perror("getchar error: ");
             return 1;
         }
