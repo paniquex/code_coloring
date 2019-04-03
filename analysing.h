@@ -14,7 +14,7 @@
 struct Token {
     char *buffer;
     int type;
-    int buffer_size;
+    int amount_in_text;
 };
 
 typedef struct Token Token;
