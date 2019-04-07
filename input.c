@@ -48,13 +48,13 @@ prep_input(char *random_file_name) {
             perror("Cannot write to file: ");
             return NULL;
         }
-        if (fseek(input_file, 0, SEEK_SET) == -1) {
+    }
+    if (fseek(input_file, 0, SEEK_SET) == -1) {
             fclose(input_file);
             perror("fseek error: ");
             return NULL;
-        }
-        return input_file;
     }
+    return input_file;
 }
 
 #endif
