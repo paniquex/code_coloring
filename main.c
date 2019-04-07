@@ -40,6 +40,9 @@ int main(int argc, char *argv[]) {
 
     input_file = input_stage(argv[1], file_name);
     if (input_file == NULL) {
+        if ((int) argv[1][0] == '0') {
+            unlink(file_name);
+        }
         free(keywords);
         free(punctuators);
         free(file_name);
@@ -47,8 +50,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     if (processing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+        if ((int) argv[1][0] == '0') {
+            unlink(file_name);
+        }
         free(keywords);
         free(punctuators);
+        fclose(input_file);
         free(file_name);
         perror("Coloring stage error: ");
         return 1;
