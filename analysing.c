@@ -202,138 +202,47 @@ comment_analyser() {
 
 Token *
 punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
-    short int indexes[PUNCTUATORS_AMOUNT];          /* 1, if start of punctuator matches with PUNCTUATOR i-th row
-                                                    0, else*/
-    for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
-        indexes[i] = 1;
-    }
-    int punctuator_to_print[punctuator_max_length];
-    for (int i=0; i < punctuator_max_length; i++) {
-        punctuator_to_print[i] = 0;
-    }
-    char curr_symb;
-    char is_first_punctuator = 1;
-    char is_at_least_one_full_punctuator = 0;
-    char was_printed = 0; // if on symb_was_read-step one symbol of punctuator was printed
-    int amount_symb_was_read = 0;
-    int length_of_current_punctuator = 0;
-    int is_indexes_array_of_zeros = 0;
     size_t buffer_size = 0;
-    char *buffer = calloc(1, sizeof(buffer));
+    char *buffer = calloc(punctuator_max_length, sizeof(buffer));
     Token *punctuator_token = calloc(1, sizeof(*punctuator_token));
-    for (; amount_symb_was_read < punctuator_max_length; amount_symb_was_read++) {
-        is_indexes_array_of_zeros = 1; // for check if there is at least one 1
-        for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
-            if (indexes[i] != 0) {
-                is_indexes_array_of_zeros = 0;
-            }
-        }
-        if (is_indexes_array_of_zeros) {
-            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                punctuator_token->type = -2;
-                free(buffer);
-                return punctuator_token;
-            }
-            punctuator_token->type = -3;
-            free(buffer);
-            return punctuator_token;
-        }
-        was_printed = 0;
-        if ((fread(&curr_symb, 1, sizeof(char), input_file)) == 0) {
-            if (is_at_least_one_full_punctuator) {
-                buffer_size = length_of_current_punctuator;
-                buffer = realloc(buffer, length_of_current_punctuator);
-                for (int i = 0; i < length_of_current_punctuator; i++) {
-                    buffer[i] = (char) punctuator_to_print[i];
-                }
-            } else {
-            }
-            if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
-                punctuator_token->type = -2;
-                free(buffer);
-                return punctuator_token;
-            }
-            buffer_size++;
-            buffer = realloc(buffer, buffer_size);
-            buffer[buffer_size-1] = '\0';
-            punctuator_token->buffer = calloc(buffer_size, sizeof(char));
-            strncpy(punctuator_token->buffer, buffer, buffer_size);
-            punctuator_token->type = 6;
-            punctuator_token->amount_in_text++;
-            free(buffer);
-            return punctuator_token;
-        }
-        for (int i=0; i < PUNCTUATORS_AMOUNT; i++) {
-            int curr_length = strlen(PUNCTUATORS[i]);
-            if ((PUNCTUATORS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
-                if ((amount_symb_was_read == 0) && (is_first_punctuator)) {
-                    is_first_punctuator = 0;
-                }
-                if (strlen(PUNCTUATORS[i]) == (amount_symb_was_read + 1)) {
-                    is_at_least_one_full_punctuator = 1;
-                }
-                if (!was_printed) {
-                    punctuator_to_print[length_of_current_punctuator] = curr_symb;
-                    length_of_current_punctuator++;
-                    was_printed = 1;
-                }
-            } else {
-                if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
-                    buffer_size = length_of_current_punctuator;
-                    buffer = realloc(buffer, buffer_size);
-                    for (int k = 0; k < length_of_current_punctuator; k++) {
-                        buffer[k] = (char) punctuator_to_print[k];
-                    }
-                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                        punctuator_token->type = -2;
-                        free(buffer);
-                        return punctuator_token;
-                    }
-                    buffer_size++;
-                    buffer = realloc(buffer, buffer_size);
-                    buffer[buffer_size-1] = '\0';
-                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));
-                    strncpy(punctuator_token->buffer, buffer, buffer_size);
-                    punctuator_token->type = 6;
-                    punctuator_token->amount_in_text++;
-                    free(buffer);
-                    return punctuator_token;
-                } else if ((curr_length == amount_symb_was_read) && (indexes[i] != 0)) {
-                    buffer_size = strlen(PUNCTUATORS[i]);
-                    buffer = realloc(buffer, buffer_size);
-                    strncpy(buffer, PUNCTUATORS[i], buffer_size);
-                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                        punctuator_token->type = -2;
-                        free(buffer);
-                        return punctuator_token;
-                    }
-                    buffer_size++;
-                    buffer = realloc(buffer, buffer_size);
-                    buffer[buffer_size-1] = '\0';
-                    punctuator_token->buffer = calloc(buffer_size, sizeof(char));
-                    strncpy(punctuator_token->buffer, buffer, buffer_size);
-                    punctuator_token->type = 6;
-                    punctuator_token->amount_in_text++;
-                    free(buffer);
-                    return punctuator_token;
-                }
-                indexes[i] = 0;
-            }
-        }
-    }
-    if (fseek(input_file, -amount_symb_was_read + length_of_current_punctuator, SEEK_CUR) == -1) {
-        punctuator_token->type = -2;
-        free(buffer);
-        return punctuator_token;
-    }
+    buffer_size = fread(buffer, sizeof(char), punctuator_max_length, input_file);
     if (buffer_size == 0) {
         punctuator_token->type = -3;
         free(buffer);
+        if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
+            punctuator_token->type = -2;
+            return punctuator_token;
+        }
         return punctuator_token;
     }
-    punctuator_token->type = -3;
-    free(buffer);
-    return punctuator_token;
+    int punctuator_curr_length = buffer_size;
+    for (int i = 0; i < punctuator_curr_length; i++) {
+        for (int k = 0; k < PUNCTUATORS_AMOUNT; k++) {
+            if (strncmp(PUNCTUATORS[k], buffer, (size_t) punctuator_curr_length - i) == 0) {
+                buffer_size = punctuator_curr_length - i;
+                if (fseek(input_file, -punctuator_curr_length + buffer_size, SEEK_CUR) == -1) {
+                    punctuator_token->type = -2;
+                    return punctuator_token;
+                }
+                buffer_size++;
+                buffer = realloc(buffer, buffer_size);
+                buffer[buffer_size - 1] = '\0';
+                punctuator_token->buffer = calloc(buffer_size, sizeof(char));
+                strncpy(punctuator_token->buffer, buffer, buffer_size);
+                punctuator_token->type = 6;
+                punctuator_token->amount_in_text++;
+                free(buffer);
+                return punctuator_token;
+            }
+        }
+    }
+        punctuator_token->type = -3;
+        free(buffer);
+        if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
+            punctuator_token->type = -2;
+            return punctuator_token;
+        }
+        return punctuator_token;
 }
 
 
@@ -1184,39 +1093,39 @@ char **
 punctuators_array_init(int *punctuator_max_length) {
     char *punctuators_arr[PUNCTUATORS_AMOUNT] =
             {
+                    "<",
                     "<<",
-                    ">>",
                     "<=",
-                    ">=",
-                    "==",
-                    "!=",
-                    "^",
-                    "|",
-                    "&&",
-                    "||",
-                    "*=",
-                    "/=",
-                    "%=",
-                    "+=",
-                    "-=",
                     "<<=",
+                    ">",
+                    ">>",
+                    ">=",
                     ">>=",
-                    "&=",
-                    "^=",
+                    "=",
+                    "==",
+                    "|",
+                    "||",
                     "|=",
-                    "--",
                     "&",
+                    "&&",
+                    "&=",
+                    "!",
+                    "!=",
                     "*",
+                    "*=",
                     "+",
                     "++",
-                    "-",
-                    "~",
-                    "!",
+                    "+=",
+                    "^",
+                    "^=",
                     "/",
+                    "/=",
                     "%",
-                    "<",
-                    ">",
-                    "=",
+                    "%=",
+                    "-",
+                    "--",
+                    "-=",
+                    "~",
             };
     *punctuator_max_length = -1;
     int symbols_amount_in_punctuators = 0;
