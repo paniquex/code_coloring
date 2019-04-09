@@ -84,7 +84,7 @@ comment_analyser() {
             if ((curr_symb != '/') && (curr_symb != '*')) {
                 state1 = 0;
                 state2 = 0;
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
+                if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
                     comment_token->type = -2;
                     free(buffer);
                     return comment_token;
@@ -186,6 +186,16 @@ comment_analyser() {
     }
     if (buffer_size == 0) {
         comment_token->type = -3;
+        return comment_token;
+    }
+    if (buffer_size < 2) {
+        if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
+            comment_token->type = -2;
+            free(buffer);
+            return comment_token;
+        }
+        comment_token->type = -3;
+        free(buffer);
         return comment_token;
     }
     buffer_size++;
@@ -404,6 +414,7 @@ identifier_analyser() {
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
                     fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
                 }
+                identifier_token->buffer[amount_symb_was_read-1] = '\0';
                 free(buffer);
                 return identifier_token;
             }
