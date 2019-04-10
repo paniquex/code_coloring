@@ -5,6 +5,9 @@
 #include "input.h"
 #include "analysing.h"
 #include "coloring.h"
+#include "counting.h"
+#include "input_file.h"
+#include "input_stdin_type.h"
 
 
 int main(int argc, char *argv[]) {
@@ -25,36 +28,52 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "You need to write file name in mode 1");
         return 1;
     }
+    if (strcmp(argv[1], "1") == 0) {
+        if (argv[3] == NULL) {
+            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in third parametr(input type - 1)");
+            return 1;
+        }
+        if ((strcmp(argv[3], "coloring") != 0) && (strcmp(argv[3], "counting") != 0)) {
+            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in third parametr(input type - 1)");
+            return 1;
+        }
+    } else if (strcmp(argv[1], "0") == 0) {
+        if (argv[2] == NULL) {
+            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in second parametr(input type - 0)");
+            return 1;
+        }
+        if ((strcmp(argv[2], "coloring") != 0) && (strcmp(argv[2], "counting") != 0)) {
+            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in second parametr(input type - 0)");
+            return 1;
+        }
+    }
     if ((strcmp(argv[1], "0") != 0) && (strcmp(argv[1], "1") != 0)) {
         fprintf(stderr, "First argument of program must be 0 or 1");
         return 1;
     }
 
-    int keyword_max_length = 0;
-    char **keywords;
-    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
+    char *processing_type;
+    if (strcmp(argv[1], "0") == 0) {
+        processing_type = argv[2];
+        input_stage = input_stdin_type;
+    } else {
+        processing_type = argv[3];
+        input_stage = input_file_type;
+    }
 
-    int punctuator_max_length = 0;
-    char **punctuators;
-    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
-
-    input_file = input_stage(argv[1], file_name);
+    input_file = input_stage(file_name);
     if (input_file == NULL) {
         if ((int) argv[1][0] == '0') {
             unlink(file_name);
         }
-        free(keywords);
-        free(punctuators);
         free(file_name);
         perror("Input stage error: ");
         return 1;
     }
-    if (processing_stage(punctuators, punctuator_max_length, keywords, keyword_max_length) != 0) {
+    if (processing_stage(processing_type) != 0) {
         if ((int) argv[1][0] == '0') {
             unlink(file_name);
         }
-        free(keywords);
-        free(punctuators);
         fclose(input_file);
         free(file_name);
         perror("Coloring stage error: ");
@@ -65,7 +84,5 @@ int main(int argc, char *argv[]) {
         unlink(file_name);
     }
     free(file_name);
-    free(keywords);
-    free(punctuators);
     return 0;
 }
