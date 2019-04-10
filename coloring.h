@@ -21,7 +21,7 @@ const char *WHITE;
 const char *NOCOLOR;
 
 Token *
-token_coloring(Token *token, const char *color);
+token_coloring(Token *token);
 /* DESCRIPTION:
     * token_coloring takes 2 parameters, first - Token struct, second - color in which we need to color our Token
     *
@@ -30,4 +30,10 @@ token_coloring(Token *token, const char *color);
     * NULL, if buffer or token is NULL
  */
 
-#endif 
+#endif
+
+int
+token_init_color();
+
+int
+token_destruct_color();
