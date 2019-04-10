@@ -9,7 +9,7 @@ FILE *input_file;
 char *file_name;
 
 FILE *
-input_stage(char *input_type, char *input_file_name);
+(* input_stage)(char *);
 /* DESCRIPTION:
        * input_stage takes:
        * 1) input_type, which indicates type of input..
@@ -20,18 +20,3 @@ input_stage(char *input_type, char *input_file_name);
        * pointer to working file - if function works correctly
        * NULL - if somekind of error was found
    */
-
-
-FILE *
-prep_input(char *random_file_name);
-/* DESCRIPTION:
-    * prep_input takes name of file, then create and open with "w+" mode,
-    * writing to it all symbols from stdin.
- * RETURN VALUES:
-    * 0, if there were no errors
-    * 1, else
- */
-
-
-void
-free_memory_input();
