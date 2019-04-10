@@ -2,11 +2,172 @@
 #include "input.h"
 #include "coloring.h"
 #include "output.h"
+#include "token_processing.h"
+#include "counting.h"
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
-Token *
+ static int
+ is_white_space(int symb) {
+     /* DESCRIPTION:
+  * is_white_space() checks symb, if it is white_space character or not
+  * RETURN VALUES:
+     * 0, if it is not white_space
+     * 1  else
+ */
+     /* 0, if it is not white_space
+      * 1  else
+      */
+     enum { WHITE_SPACE_AMOUNT = 6 };
+     const char WHITE_SPACE_ARRAY[WHITE_SPACE_AMOUNT] = {' ', '\t', '\n', '\v', '\f', '\r'};
+     for (int i=0; i < WHITE_SPACE_AMOUNT; i++) {
+         if (symb == WHITE_SPACE_ARRAY[i]) {
+             return 1;
+         }
+     }
+     return 0;
+ }
+
+static int
+is_nondigit(int symb) {
+    /*
+* RETURN VALUES:
+   * 1, if symb is nondigit
+   * 0, else
+*/
+    if ((isalpha(symb)) || (symb == '_')) return 1;
+    else return 0;
+}
+
+
+static char **
+keywords_array_init(int *keyword_max_length) {
+/* DESCRIPTION:
+    * keywords_array_init takes pointer to int and changes it to
+    * max length of keywords
+ * RETURN VALUES:
+    * pointer to array of keywords
+    * NULL, if somekind of error was found
+ */
+
+    char *keywords_arr[KEYWORDS_AMOUNT] =
+            {
+                    "unsigned",
+                    "void",
+                    "volatile",
+                    "while",
+                    "_Alignas",
+                    "_Alignof",
+                    "_Atomic",
+                    "_Bool",
+                    "_Complex",
+                    "_Generic",
+                    "_Imaginary",
+                    "_Noreturn",
+                    "_Static_assert",
+                    "_Thread_local"
+            };
+    *keyword_max_length = -1;
+    int symbols_amount_in_keywords = 0;
+    int curr_length = 0;
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        curr_length = strlen(keywords_arr[i]);
+        symbols_amount_in_keywords += curr_length;
+        if (curr_length > *keyword_max_length) {
+            *keyword_max_length = curr_length;
+        }
+    }
+    char **keywords;
+    keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
+    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
+        keywords[i] = keywords_arr[i];
+    }
+    return keywords;
+}
+
+
+static char **
+punctuators_array_init(int *punctuator_max_length) {
+    /* DESCRIPTION:
+   * punctuator_array_init takes pointer to int and changes it to
+   * max length of punctuators
+* RETURN VALUES:
+   * pointer to array of punctuators
+   * NULL, if somekind of error was found
+*/
+
+    char *punctuators_arr[PUNCTUATORS_AMOUNT] =
+            {
+                    "<",
+                    "<<",
+                    "<=",
+                    "<<=",
+                    ">",
+                    ">>",
+                    ">=",
+                    ">>=",
+                    "=",
+                    "==",
+                    "|",
+                    "||",
+                    "|=",
+                    "&",
+                    "&&",
+                    "&=",
+                    "!",
+                    "!=",
+                    "*",
+                    "*=",
+                    "+",
+                    "++",
+                    "+=",
+                    "^",
+                    "^=",
+                    "/",
+                    "/=",
+                    "%",
+                    "%=",
+                    "-",
+                    "--",
+                    "-=",
+                    "~",
+            };
+    *punctuator_max_length = -1;
+    int symbols_amount_in_punctuators = 0;
+    int curr_length = 0;
+    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
+        curr_length = strlen(punctuators_arr[i]);
+        symbols_amount_in_punctuators += curr_length;
+        if (curr_length > *punctuator_max_length) {
+            *punctuator_max_length = curr_length;
+        }
+    }
+    char **punctuators;
+    punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(int));
+    if (punctuators == NULL) {
+        perror("Punc init");
+    }
+    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
+        punctuators[i] = punctuators_arr[i];
+    }
+    return punctuators;
+}
+
+
+static Token *
 number_analyser() {
+    /*
+ * DESCRIPTION:
+ * number_analyser() attempts to read symbols from stdin until EOF
+ * if first digit has reached, then saves it in Token->buffer, and changes Token->type
+ * after first digit was found, if current symbol != digit, then saves it in Token->buffer, and changes Token->type
+ * "standard color key".
+ * RETURN VALUES:
+     * 0 - if digit was found
+     * 1 - if EOF was found
+     * 2 - if some kind of error was found
+     * 3 - if digit was not found
+*/
     char curr_symb, is_first_digit = 1;
     size_t buffer_size = 0;
     Token *number_token = calloc(1, sizeof(*number_token));
@@ -31,7 +192,6 @@ number_analyser() {
                 number_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(number_token->buffer, buffer, buffer_size);
                 number_token->type = 3;
-                number_token->amount_in_text++;
                 free(buffer);
                 return number_token;
             }
@@ -51,14 +211,24 @@ number_analyser() {
      number_token->buffer = calloc(buffer_size, sizeof(char));
      strncpy(number_token->buffer, buffer, buffer_size);
      number_token->type = 3;
-     number_token->amount_in_text++;
      free(buffer);
     return number_token;
 }
 
 
-Token *
+static Token *
 comment_analyser() {
+    /*
+ * DESCRIPTION:
+    * comment_analyser() attempts to read symbols from stdin until EOF
+    * if it has found "comment token(or pattern)", then saves it in Token->buffer, and changes Token->type
+ * RETURN VALUES:
+    * 0, if somekind of comment was found
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if comment was not found
+*/
+
     char curr_symb;
     int state1 = 0, state2 = 0;
     size_t buffer_size = 0;
@@ -126,7 +296,6 @@ comment_analyser() {
                 strncpy(comment_token->buffer, buffer, buffer_size);
                 free(buffer);
                 comment_token->type = 7;
-                comment_token->amount_in_text++;
                 return comment_token;
             } else if (curr_symb == '\\') {
                 state1 = 3;
@@ -164,7 +333,6 @@ comment_analyser() {
                 comment_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(comment_token->buffer, buffer, buffer_size);
                 comment_token->type = 7;
-                comment_token->amount_in_text++;
                 free(buffer);
                 return comment_token;
             }
@@ -204,14 +372,24 @@ comment_analyser() {
     comment_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(comment_token->buffer, buffer, buffer_size);
     comment_token->type = 7;
-    comment_token->amount_in_text++;
     free(buffer);
     return comment_token;
 }
 
 
-Token *
+static Token *
 punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
+    /*
+ * DESCRIPTION:
+    * punctuator_analyser() attempts to read symbols from stdin until EOF
+    * it uses PUNCTUATORS array, which contains all available pattern of punctuators
+    * if it has found "punctuator token(or pattern)" then saved it in Token->buffer, and changes Token->type
+ * RETURN VALUES:
+     * 0, if punctuator was found and printed
+     * 1, if EOF was reached
+     * 2, if somekind of error was found
+     * 3, if no punctuator was found
+*/
     size_t buffer_size = 0;
     char *buffer = calloc(punctuator_max_length, sizeof(buffer));
     Token *punctuator_token = calloc(1, sizeof(*punctuator_token));
@@ -240,7 +418,6 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
                 punctuator_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(punctuator_token->buffer, buffer, buffer_size);
                 punctuator_token->type = 6;
-                punctuator_token->amount_in_text++;
                 free(buffer);
                 return punctuator_token;
             }
@@ -256,8 +433,28 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
 }
 
 
-Token *
+static Token *
 keyword_analyser(char **KEYWORDS, int keyword_max_length) {
+    /* DESCRIPTION:
+    * keyword_analyser() attempts to read symbols from stdin until EOF
+    * it uses KEYWORDS array, which contains all available pattern of punctuators
+    * if it has found "keyword token(or pattern)" then saves it in Token->buffer, and changes Token->type
+ * RETURN VALUES:
+     * 0, if keyword was found and printed
+     * 1, if EOF was reached
+     * 2, if somekind of error was found
+     * 3, if no keyword was found
+  Important:
+    * at the end of keyword must be at least one white space, if keyword ends without white spaces - don't print
+  EXAMPLE:
+     * 1)*EOF* - end of file
+     * input:_Imaginary*EOF*
+     * output:
+     * 2)*WHITESPACE* - white space symbol
+     * input:_Imaginary*WHITESPACE**EOF*
+     * output:_Imaginary*WHITESPACE*
+ */
+
     short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
                                                     0, else*/
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
@@ -316,7 +513,6 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
             keyword_token->buffer = calloc(buffer_size, sizeof(char));
             strncpy(keyword_token->buffer, buffer, buffer_size);
             keyword_token->type = 1;
-            keyword_token->amount_in_text++;
             free(buffer);
             return keyword_token;
         }
@@ -352,7 +548,6 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
                     keyword_token->buffer = calloc(buffer_size, sizeof(char));
                     strncpy(keyword_token->buffer, buffer, buffer_size);
                     keyword_token->type = 1;
-                    keyword_token->amount_in_text++;
                     free(buffer);
                     return keyword_token;
                 }
@@ -376,8 +571,19 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
 
 
 
-Token *
+static Token *
 identifier_analyser() {
+    /* DESCRIPTION:
+ * identifier_analyser() attempts to read symbols from stdin until EOF
+ * if it has found "identifier token(or pattern)" then saves it in Token->buffer, and changes Token->type
+ *
+ * RETURN VALUES:
+    * 0, if identifier was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no identifier was found
+*/
+
     char curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
@@ -468,8 +674,18 @@ is_hexadecimal_digit(int symb) {
 }
 
 
-Token *
+static Token *
 ucn_analyser() {
+    /* DESCRIPTION:
+ * ucn_analyser() attempts to read symbols from stdin until EOF
+ * if it has found "universal character token(or pattern)" then saves it in Token->buffer, and changes Token->type
+ *
+ * RETURN VALUES:
+    * 0, if Universal character name was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no Universal character name was found
+*/
     char curr_symb;
     int amount_symb_was_read = 0;
     int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
@@ -547,7 +763,6 @@ ucn_analyser() {
                 ucn_token->buffer = calloc(amount_symb_was_read, sizeof(char));
                 strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
                 ucn_token->type = 8;
-                ucn_token->amount_in_text++;
                 free(buffer);
                 return ucn_token;
             }
@@ -559,29 +774,22 @@ ucn_analyser() {
     ucn_token->buffer = calloc((size_t) amount_symb_was_read, sizeof(char));
     strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
     ucn_token->type = -3;
-    ucn_token->amount_in_text++;
     free(buffer);
     return ucn_token;
 }
 
 
-int
-is_white_space(int symb) {
-    /* 0, if it is not white_space
-     * 1  else
-     */
-    enum { WHITE_SPACE_AMOUNT = 6 };
-    const char WHITE_SPACE_ARRAY[WHITE_SPACE_AMOUNT] = {' ', '\t', '\n', '\v', '\f', '\r'};
-    for (int i=0; i < WHITE_SPACE_AMOUNT; i++) {
-        if (symb == WHITE_SPACE_ARRAY[i]) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-int
+static int
 white_space_print_skip() {
+    /* DESCRIPTION:
+ * white_space_print_skip() attempts to read one symbol from stdin
+ * and checks if it is white_space character, then prints it
+ * RETURN VALUES:
+    * 0, if this symb is white_space
+    * 1, if EOF
+    * 2, if some kind of error was found
+    * 3, if symb is not white_space
+*/
     /* 0, if this symb is white_space
      * 1, if EOF
      * 2, if some kind of error was found
@@ -601,15 +809,19 @@ white_space_print_skip() {
 }
 
 
-int
-is_nondigit(int symb) {
-    if ((isalpha(symb)) || (symb == '_')) return 1;
-    else return 0;
-}
 
-
-Token *
+static Token *
 string_literal_analyser() {
+    /* DESCRIPTION:
+    * string_literal_analyser() attempts to read symbols from stdin until EOF
+    * if it has found "string_literal token(or pattern)" then saves it in Token->buffer, and changes Token->type
+ * RETURN VALUES:
+    * 0, if string_literal was found and printed
+    * 1, if EOF was reached
+    * 2, if somekind of error was found
+    * 3, if no string_literal was found
+ * */
+
     char curr_symb;
     int state = 0;
     size_t buffer_size = 0;
@@ -711,7 +923,6 @@ string_literal_analyser() {
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
                 string_literal_token->type = 5;
-                string_literal_token->amount_in_text++;
                 free(buffer);
                 return string_literal_token;
             } else if (curr_symb == '\n') {
@@ -721,7 +932,6 @@ string_literal_analyser() {
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
                 string_literal_token->type = 5;
-                string_literal_token->amount_in_text++;
                 free(buffer);
                 return string_literal_token;
             } else {
@@ -743,7 +953,6 @@ string_literal_analyser() {
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
                 string_literal_token->type = 5;
-                string_literal_token->amount_in_text++;
                 free(buffer);
                 return string_literal_token;
             }
@@ -759,13 +968,21 @@ string_literal_analyser() {
     buffer[buffer_size-1] = '\0';
     string_literal_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(string_literal_token->buffer, buffer, buffer_size);
-    string_literal_token->amount_in_text++;
     free(buffer);
     return string_literal_token;
 }
 
-Token *
+static Token *
 char_consts_analyser() {
+    /* DESCRIPTION:
+   * char_consts_analyser() attempts to read symbols from stdin until EOF
+   * if it has found "char_consts token(or pattern)" then saves it in Token->buffer, and changes Token->type
+* RETURN VALUES:
+   * 0, if char_consts was found and printed
+   * 1, if EOF was reached
+   * 2, if somekind of error was found
+   * 3, if no char_consts was found
+* */
     char curr_symb;
     int state = 0;
     size_t buffer_size = 0;
@@ -823,7 +1040,6 @@ char_consts_analyser() {
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
                 char_consts_token->type = 4;
-                char_consts_token->amount_in_text++;
                 free(buffer);
                 return char_consts_token;
             } else if (curr_symb == '\n') {
@@ -833,7 +1049,6 @@ char_consts_analyser() {
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
                 char_consts_token->type = 4;
-                char_consts_token->amount_in_text++;
                 free(buffer);
                 return char_consts_token;
             } else {
@@ -855,7 +1070,6 @@ char_consts_analyser() {
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
                 char_consts_token->type = 4;
-                char_consts_token->amount_in_text++;
                 free(buffer);
                 return char_consts_token;
             }
@@ -873,7 +1087,6 @@ char_consts_analyser() {
     char_consts_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(char_consts_token->buffer, buffer, buffer_size);
     char_consts_token->type = 4;
-    char_consts_token->amount_in_text++;
     free(buffer);
     return char_consts_token;
 }
@@ -881,13 +1094,37 @@ char_consts_analyser() {
 
 
 int
-processing_stage(char **punctuators, int punctuator_max_length, char **keywords, int keyword_max_length) {
+processing_stage(char *type_of_processing) {
     char symb;
     int check;
     Token *current_token;
+
+    if (strcmp(type_of_processing, "coloring") == 0) {
+        token_processing_type = token_coloring;
+        token_init = token_init_color;
+        token_destruct = token_destruct_color;
+    } else if (strcmp(type_of_processing, "counting") == 0) {
+        token_processing_type = token_counting;
+        token_init = token_init_count;
+        token_destruct = token_destruct_count;
+    }
+    token_init();
+
+    int keyword_max_length = 0;
+    char **keywords;
+    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
+
+    int punctuator_max_length = 0;
+    char **punctuators;
+    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
+
+
     while (fread(&check, 1, sizeof(char), input_file) > 0) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         while (white_space_print_skip() == 0);
@@ -897,14 +1134,18 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = comment_analyser();
         if (current_token->type == 7) {
-            token_coloring(current_token, DARKGRAY);
-            output_stage(*current_token);
+            comment_token->buffer = current_token->buffer;
+            token_processing_type(comment_token);
+            output_stage(*comment_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Comment analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -916,8 +1157,9 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = string_literal_analyser();
         if (current_token->type == 5) {
-            token_coloring(current_token, LIGHTGREEN);
-            output_stage(*current_token);
+            string_literal_token->buffer = current_token->buffer;
+            token_processing_type(string_literal_token);
+            output_stage(*string_literal_token);
             free(current_token->buffer);
             free(current_token);
             continue;
@@ -927,6 +1169,9 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
             }
             free(current_token);
             perror("***String literal analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -938,14 +1183,19 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = char_consts_analyser();
         if (current_token->type == 4) {
-            token_coloring(current_token, YELLOW);
-            output_stage(*current_token);
+//            token_coloring(current_token, YELLOW);
+            char_consts_token->buffer = current_token->buffer;
+            token_processing_type(char_consts_token);
+            output_stage(*char_consts_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {\
             free(current_token);
             perror("***Char consts analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -957,14 +1207,19 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = keyword_analyser(keywords, keyword_max_length);
         if (current_token->type == 1) {
-            token_coloring(current_token, BLUE);
-            output_stage(*current_token);
+//            token_coloring(current_token, BLUE);
+            keyword_token->buffer = current_token->buffer;
+            token_processing_type(keyword_token);
+            output_stage(*keyword_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Keyword analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -976,7 +1231,6 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = ucn_analyser();
         if (current_token->type == 8) {
-            token_coloring(current_token, LIGHTPURPLE);
             output_stage(*current_token);
             free(current_token->buffer);
             free(current_token);
@@ -984,6 +1238,9 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Ucn analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -995,14 +1252,18 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = identifier_analyser();
         if (current_token->type == 2) {
-            token_coloring(current_token, LIGHTPURPLE);
-            output_stage(*current_token);
+            identifier_token->buffer = current_token->buffer;
+            token_processing_type(identifier_token);
+            output_stage(*identifier_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Identifier analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -1014,14 +1275,18 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = number_analyser();
         if (current_token->type == 3) {
-            token_coloring(current_token, LIGHTBLUE);
-            output_stage(*current_token);
+            number_token->buffer = current_token->buffer;
+            token_processing_type(number_token);
+            output_stage(*number_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Number analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -1033,14 +1298,18 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
 
         current_token = punctuator_analyser(punctuators, punctuator_max_length);
         if (current_token->type == 6) {
-            token_coloring(current_token, RED);
-            output_stage(*current_token);
+            punctuator_token->buffer = current_token->buffer;
+            token_processing_type(punctuator_token);
+            output_stage(*punctuator_token);
             free(current_token->buffer);
             free(current_token);
             continue;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Punctuator analyser***");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 2;
         }
         if (current_token != NULL) {
@@ -1053,108 +1322,25 @@ processing_stage(char **punctuators, int punctuator_max_length, char **keywords,
         /* if not of the 7 patterns, then print without color */
         if ((fread(&symb, 1, sizeof(char), input_file)) == 0) {
             perror("getchar error: ");
+            token_destruct();
+            free(punctuators);
+            free(keywords);
             return 1;
         }
         putchar(symb);
     }
+    if (strcmp(type_of_processing, "counting") == 0) {
+        printf("\n\nSTATISTICS:");
+        printf("\nComments amount: %d\n", comment_token->amount_in_text);
+        printf("Keywords amount: %d\n", keyword_token->amount_in_text);
+        printf("Identifiers amount: %d\n", identifier_token->amount_in_text);
+        printf("Numbers amount: %d\n", number_token->amount_in_text);
+        printf("Char consts amount: %d\n", char_consts_token->amount_in_text);
+        printf("Punctuators amount: %d\n", punctuator_token->amount_in_text);
+    }
+    free(punctuators);
+    free(keywords);
+    token_destruct();
+
     return 0;
-}
-
-
-char **
-keywords_array_init(int *keyword_max_length) {
-    char *keywords_arr[KEYWORDS_AMOUNT] =
-            {
-                    "unsigned",
-                    "void",
-                    "volatile",
-                    "while",
-                    "_Alignas",
-                    "_Alignof",
-                    "_Atomic",
-                    "_Bool",
-                    "_Complex",
-                    "_Generic",
-                    "_Imaginary",
-                    "_Noreturn",
-                    "_Static_assert",
-                    "_Thread_local"
-            };
-    *keyword_max_length = -1;
-    int symbols_amount_in_keywords = 0;
-    int curr_length = 0;
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
-        curr_length = strlen(keywords_arr[i]);
-        symbols_amount_in_keywords += curr_length;
-        if (curr_length > *keyword_max_length) {
-            *keyword_max_length = curr_length;
-        }
-    }
-    char **keywords;
-    keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
-        keywords[i] = keywords_arr[i];
-    }
-    return keywords;
-}
-
-
-
-char **
-punctuators_array_init(int *punctuator_max_length) {
-    char *punctuators_arr[PUNCTUATORS_AMOUNT] =
-            {
-                    "<",
-                    "<<",
-                    "<=",
-                    "<<=",
-                    ">",
-                    ">>",
-                    ">=",
-                    ">>=",
-                    "=",
-                    "==",
-                    "|",
-                    "||",
-                    "|=",
-                    "&",
-                    "&&",
-                    "&=",
-                    "!",
-                    "!=",
-                    "*",
-                    "*=",
-                    "+",
-                    "++",
-                    "+=",
-                    "^",
-                    "^=",
-                    "/",
-                    "/=",
-                    "%",
-                    "%=",
-                    "-",
-                    "--",
-                    "-=",
-                    "~",
-            };
-    *punctuator_max_length = -1;
-    int symbols_amount_in_punctuators = 0;
-    int curr_length = 0;
-    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
-        curr_length = strlen(punctuators_arr[i]);
-        symbols_amount_in_punctuators += curr_length;
-        if (curr_length > *punctuator_max_length) {
-            *punctuator_max_length = curr_length;
-        }
-    }
-    char **punctuators;
-    punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(int));
-    if (punctuators == NULL) {
-        perror("Punc init");
-    }
-    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
-        punctuators[i] = punctuators_arr[i];
-    }
-    return punctuators;
 }
