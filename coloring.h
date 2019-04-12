@@ -1,24 +1,11 @@
 #ifndef COLORING
 #define COLORING
 #include "analysing.h"
+#include "token.h"
 
-const char *BLACK;
-const char *DARKGRAY;
-const char *RED;
-const char *LIGHTRED;
-const char *GREEN;
-const char *LIGHTGREEN;
-const char *BROWN;
-const char *YELLOW;
-const char *BLUE;
-const char *LIGHTBLUE;
-const char *PURPLE;
-const char *LIGHTPURPLE;
-const char *CYAN;
-const char *LIGTHCYAN;
-const char *LIGHTGRAY;
-const char *WHITE;
-const char *NOCOLOR;
+typedef struct Token_processing_coloring Token_processing_coloring;
+
+struct Token_processing_coloring;
 
 Token *
 token_coloring(Token *token);
@@ -33,7 +20,7 @@ token_coloring(Token *token);
 #endif
 
 int
-token_init_color();
+token_init_color(struct Token_processing_coloring **);
 
 int
-token_destruct_color();
+token_destruct_color(struct Token_processing_coloring *);
