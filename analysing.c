@@ -4,6 +4,72 @@
 #include "output.h"
 #include "token_processing.h"
 #include "counting.h"
+#include "token.h"
+
+
+/* keywords_amount for keyword_analyser func */
+enum {KEYWORDS_AMOUNT = 14, KEYWORDS_MAX_LENGTH = 14};
+
+char *keywords[KEYWORDS_AMOUNT] =
+        {
+                "unsigned",
+                "void",
+                "volatile",
+                "while",
+                "_Alignas",
+                "_Alignof",
+                "_Atomic",
+                "_Bool",
+                "_Complex",
+                "_Generic",
+                "_Imaginary",
+                "_Noreturn",
+                "_Static_assert",
+                "_Thread_local"
+        };
+
+
+/* punctuators_amount for punctuator_analyser func */
+enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
+
+char *punctuators[PUNCTUATORS_AMOUNT] =
+        {
+                "<",
+                "<<",
+                "<=",
+                "<<=",
+                ">",
+                ">>",
+                ">=",
+                ">>=",
+                "=",
+                "==",
+                "|",
+                "||",
+                "|=",
+                "&",
+                "&&",
+                "&=",
+                "!",
+                "!=",
+                "*",
+                "*=",
+                "+",
+                "++",
+                "+=",
+                "^",
+                "^=",
+                "/",
+                "/=",
+                "%",
+                "%=",
+                "-",
+                "--",
+                "-=",
+                "~",
+        };
+
+
 
  /* COMPONENT-FUNCTIONS BLOCK */
 
@@ -40,7 +106,7 @@ is_nondigit(int symb) {
 }
 
 
-static char **
+char **
 keywords_array_init(int *keyword_max_length) {
 /* DESCRIPTION:
     * keywords_array_init takes pointer to int and changes it to
@@ -86,7 +152,7 @@ keywords_array_init(int *keyword_max_length) {
 }
 
 
-static char **
+char **
 punctuators_array_init(int *punctuator_max_length) {
     /* DESCRIPTION:
    * punctuator_array_init takes pointer to int and changes it to
@@ -1093,39 +1159,28 @@ char_consts_analyser() {
 
 
 
-int
-processing_stage(char *type_of_processing) {
+Token *
+analysing_stage() {
     char symb;
     int check;
     Token *current_token;
 
-    if (strcmp(type_of_processing, "coloring") == 0) {
-        token_processing_type = token_coloring;
-        token_init = token_init_color;
-        token_destruct = token_destruct_color;
-    } else if (strcmp(type_of_processing, "counting") == 0) {
-        token_processing_type = token_counting;
-        token_init = token_init_count;
-        token_destruct = token_destruct_count;
-    }
-    token_init();
+    int keyword_max_length = KEYWORDS_MAX_LENGTH;
+//    char **keywords;
+//    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
 
-    int keyword_max_length = 0;
-    char **keywords;
-    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
-
-    int punctuator_max_length = 0;
-    char **punctuators;
-    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
+    int punctuator_max_length = PUNCTUATOR_MAX_LENGTH;
+//    char **punctuators;
+//    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
 
 
     while (fread(&check, 1, sizeof(char), input_file) > 0) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         while (white_space_print_skip() == 0);
         if (white_space_print_skip() == 1) {
@@ -1134,19 +1189,15 @@ processing_stage(char *type_of_processing) {
 
         current_token = comment_analyser();
         if (current_token->type == 7) {
-            comment_token->buffer = current_token->buffer;
-            token_processing_type(comment_token);
-            output_stage(*comment_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            comment_token->buffer = current_token->buffer;
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Comment analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1157,22 +1208,18 @@ processing_stage(char *type_of_processing) {
 
         current_token = string_literal_analyser();
         if (current_token->type == 5) {
-            string_literal_token->buffer = current_token->buffer;
-            token_processing_type(string_literal_token);
-            output_stage(*string_literal_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            string_literal_token->buffer = current_token->buffer;
+            return current_token;
         } else if (current_token->type == -2) {
             if (current_token->buffer != NULL) {
                 free(current_token->buffer);
             }
             free(current_token);
             perror("***String literal analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1184,19 +1231,19 @@ processing_stage(char *type_of_processing) {
         current_token = char_consts_analyser();
         if (current_token->type == 4) {
 //            token_coloring(current_token, YELLOW);
-            char_consts_token->buffer = current_token->buffer;
-            token_processing_type(char_consts_token);
-            output_stage(*char_consts_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            char_consts_token->buffer = current_token->buffer;
+//            token_processing_type(current_token);
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+            return current_token;
         } else if (current_token->type == -2) {\
             free(current_token);
             perror("***Char consts analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1208,19 +1255,19 @@ processing_stage(char *type_of_processing) {
         current_token = keyword_analyser(keywords, keyword_max_length);
         if (current_token->type == 1) {
 //            token_coloring(current_token, BLUE);
-            keyword_token->buffer = current_token->buffer;
-            token_processing_type(keyword_token);
-            output_stage(*keyword_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            keyword_token->buffer = current_token->buffer;
+//            token_processing_type(current_token);
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Keyword analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1231,17 +1278,17 @@ processing_stage(char *type_of_processing) {
 
         current_token = ucn_analyser();
         if (current_token->type == 8) {
-            output_stage(*current_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Ucn analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1252,19 +1299,19 @@ processing_stage(char *type_of_processing) {
 
         current_token = identifier_analyser();
         if (current_token->type == 2) {
-            identifier_token->buffer = current_token->buffer;
-            token_processing_type(identifier_token);
-            output_stage(*identifier_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            identifier_token->buffer = current_token->buffer;
+//            token_processing_type(current_token);
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Identifier analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1275,19 +1322,19 @@ processing_stage(char *type_of_processing) {
 
         current_token = number_analyser();
         if (current_token->type == 3) {
-            number_token->buffer = current_token->buffer;
-            token_processing_type(number_token);
-            output_stage(*number_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            number_token->buffer = current_token->buffer;
+//            token_processing_type(current_token);
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Number analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1298,19 +1345,20 @@ processing_stage(char *type_of_processing) {
 
         current_token = punctuator_analyser(punctuators, punctuator_max_length);
         if (current_token->type == 6) {
-            punctuator_token->buffer = current_token->buffer;
-            token_processing_type(punctuator_token);
-            output_stage(*punctuator_token);
-            free(current_token->buffer);
-            free(current_token);
-            continue;
+//            punctuator_token->buffer = current_token->buffer;
+//            token_processing_type(current_token);
+//            output_stage(*current_token);
+//            free(current_token->buffer);
+//            free(current_token);
+//            continue;
+            return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Punctuator analyser***");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 2;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         if (current_token != NULL) {
             if (current_token->buffer != NULL) {
@@ -1322,25 +1370,16 @@ processing_stage(char *type_of_processing) {
         /* if not of the 7 patterns, then print without color */
         if ((fread(&symb, 1, sizeof(char), input_file)) == 0) {
             perror("getchar error: ");
-            token_destruct();
-            free(punctuators);
-            free(keywords);
-            return 1;
+//            token_destruct();
+//            free(punctuators);
+//            free(keywords);
+            return NULL;
         }
         putchar(symb);
     }
-    if (strcmp(type_of_processing, "counting") == 0) {
-        printf("\n\nSTATISTICS:");
-        printf("\nComments amount: %d\n", comment_token->amount_in_text);
-        printf("Keywords amount: %d\n", keyword_token->amount_in_text);
-        printf("Identifiers amount: %d\n", identifier_token->amount_in_text);
-        printf("Numbers amount: %d\n", number_token->amount_in_text);
-        printf("Char consts amount: %d\n", char_consts_token->amount_in_text);
-        printf("Punctuators amount: %d\n", punctuator_token->amount_in_text);
-    }
-    free(punctuators);
-    free(keywords);
-    token_destruct();
-
-    return 0;
+//    free(punctuators);
+//    free(keywords);
+    current_token = calloc(1, sizeof(*current_token));
+    current_token->type = 0;
+    return current_token;
 }

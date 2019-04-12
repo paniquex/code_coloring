@@ -36,7 +36,6 @@ prep_input(char *random_file_name) {
     return input_file;
 }
 
-
 FILE *
 input_stdin_type(char *input_file_name) {
     size_t file_name_size;

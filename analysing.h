@@ -8,27 +8,18 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include "token.h"
 
 
-struct Token {
-    char *buffer;
-    int type;
-    char *color;
-    int amount_in_text;
-};
 
-typedef struct Token Token;
+char **
+keywords_array_init(int *keyword_max_length);
 
+char **
+punctuators_array_init(int *punctuator_max_length);
 
- /* keywords_amount for keyword_analyser func */
-enum {KEYWORDS_AMOUNT = 14};
-
-
-/* punctuators_amount for punctuator_analyser func */
-enum {PUNCTUATORS_AMOUNT = 33, PUNCTUATOR_MAX_LENGTH = 4};
-
-int
-processing_stage(char *type_of_processing);
+Token *
+analysing_stage();
 /* DESCRIPTION:
     * сoloring_stage takes 4 parameters, which are needed for punctuator_analyser and keyword_analyser functions.
     * analysing_stage() contains all analyser functions:

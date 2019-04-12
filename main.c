@@ -3,10 +3,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "input.h"
+#include "output.h"
 #include "analysing.h"
 #include "coloring.h"
 #include "counting.h"
 #include "input_file.h"
+#include "token_processing.h"
 #include "input_stdin_type.h"
 
 
@@ -60,6 +62,17 @@ int main(int argc, char *argv[]) {
         processing_type = argv[3];
         input_stage = input_file_type;
     }
+    if (strcmp(processing_type, "coloring") == 0) {
+//        token_processing_type = token_coloring;
+        token_init = (int (* ) (Token_processing **)) token_init_color;
+        token_destruct = (int (* ) (Token_processing *)) token_destruct_color;
+    } else if (strcmp(processing_type, "counting") == 0) {
+//        token_processing_type = token_counting;
+        token_init = (int (*) (Token_processing **)) token_init_count;
+        token_destruct = (int (*) (Token_processing *)) token_destruct_count;
+    }
+    Token_processing *token_processing_struct; //init processing func
+    token_init(&token_processing_struct);
 
     input_file = input_stage(file_name);
     if (input_file == NULL) {
@@ -70,19 +83,35 @@ int main(int argc, char *argv[]) {
         perror("Input stage error: ");
         return 1;
     }
-    if (processing_stage(processing_type) != 0) {
+    Token *current_token;
+    while ((current_token = analysing_stage()) != NULL) {
+        if (current_token->type == 0) {
+            break;
+        }
+        token_processing_struct->token_state_changer(current_token, token_processing_struct);
+        output_stage(*current_token);
+        free(current_token->buffer);
+        free(current_token);
+    }
+    if (current_token == NULL) {
         if ((int) argv[1][0] == '0') {
             unlink(file_name);
         }
         fclose(input_file);
+        token_destruct(token_processing_struct);
         free(file_name);
         perror("Coloring stage error: ");
         return 1;
+    }
+    free(current_token);
+    if (strcmp(processing_type, "counting") == 0) {
+        output_count_statistics((Token_processing_counting *) token_processing_struct);
     }
     fclose(input_file);
     if ((int) argv[1][0] == '0') {
         unlink(file_name);
     }
+    token_destruct(token_processing_struct);
     free(file_name);
     return 0;
 }
