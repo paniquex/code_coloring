@@ -12,4 +12,5 @@ output_stage(Token);
     * NULL, if buffer or token is NULL
  */
 
+
 #endif

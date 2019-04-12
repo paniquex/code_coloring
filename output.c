@@ -1,5 +1,6 @@
 #include "output.h"
-
+#include "token_processing.h"
+#include "counting.h"
 
 int
 output_stage(Token token) {
