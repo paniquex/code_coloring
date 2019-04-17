@@ -106,118 +106,6 @@ is_nondigit(int symb) {
 }
 
 
-char **
-keywords_array_init(int *keyword_max_length) {
-/* DESCRIPTION:
-    * keywords_array_init takes pointer to int and changes it to
-    * max length of keywords
- * RETURN VALUES:
-    * pointer to array of keywords
-    * NULL, if somekind of error was found
- */
-
-    char *keywords_arr[KEYWORDS_AMOUNT] =
-            {
-                    "unsigned",
-                    "void",
-                    "volatile",
-                    "while",
-                    "_Alignas",
-                    "_Alignof",
-                    "_Atomic",
-                    "_Bool",
-                    "_Complex",
-                    "_Generic",
-                    "_Imaginary",
-                    "_Noreturn",
-                    "_Static_assert",
-                    "_Thread_local"
-            };
-    *keyword_max_length = -1;
-    int symbols_amount_in_keywords = 0;
-    int curr_length = 0;
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
-        curr_length = strlen(keywords_arr[i]);
-        symbols_amount_in_keywords += curr_length;
-        if (curr_length > *keyword_max_length) {
-            *keyword_max_length = curr_length;
-        }
-    }
-    char **keywords;
-    keywords = calloc(symbols_amount_in_keywords + KEYWORDS_AMOUNT, sizeof(char));
-    for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
-        keywords[i] = keywords_arr[i];
-    }
-    return keywords;
-}
-
-
-char **
-punctuators_array_init(int *punctuator_max_length) {
-    /* DESCRIPTION:
-   * punctuator_array_init takes pointer to int and changes it to
-   * max length of punctuators
-* RETURN VALUES:
-   * pointer to array of punctuators
-   * NULL, if somekind of error was found
-*/
-
-    char *punctuators_arr[PUNCTUATORS_AMOUNT] =
-            {
-                    "<",
-                    "<<",
-                    "<=",
-                    "<<=",
-                    ">",
-                    ">>",
-                    ">=",
-                    ">>=",
-                    "=",
-                    "==",
-                    "|",
-                    "||",
-                    "|=",
-                    "&",
-                    "&&",
-                    "&=",
-                    "!",
-                    "!=",
-                    "*",
-                    "*=",
-                    "+",
-                    "++",
-                    "+=",
-                    "^",
-                    "^=",
-                    "/",
-                    "/=",
-                    "%",
-                    "%=",
-                    "-",
-                    "--",
-                    "-=",
-                    "~",
-            };
-    *punctuator_max_length = -1;
-    int symbols_amount_in_punctuators = 0;
-    int curr_length = 0;
-    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
-        curr_length = strlen(punctuators_arr[i]);
-        symbols_amount_in_punctuators += curr_length;
-        if (curr_length > *punctuator_max_length) {
-            *punctuator_max_length = curr_length;
-        }
-    }
-    char **punctuators;
-    punctuators = calloc(symbols_amount_in_punctuators + PUNCTUATORS_AMOUNT, sizeof(int));
-    if (punctuators == NULL) {
-        perror("Punc init");
-    }
-    for (int i = 0; i < PUNCTUATORS_AMOUNT; i++) {
-        punctuators[i] = punctuators_arr[i];
-    }
-    return punctuators;
-}
 
 
 static Token *
@@ -444,7 +332,7 @@ comment_analyser() {
 
 
 static Token *
-punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
+punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH) {
     /*
  * DESCRIPTION:
     * punctuator_analyser() attempts to read symbols from stdin until EOF
@@ -457,9 +345,9 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
      * 3, if no punctuator was found
 */
     size_t buffer_size = 0;
-    char *buffer = calloc(punctuator_max_length, sizeof(buffer));
+    char *buffer = calloc(PUNCTUATOR_MAX_LENGTH, sizeof(buffer));
     Token *punctuator_token = calloc(1, sizeof(*punctuator_token));
-    buffer_size = fread(buffer, sizeof(char), punctuator_max_length, input_file);
+    buffer_size = fread(buffer, sizeof(char), PUNCTUATOR_MAX_LENGTH, input_file);
     if (buffer_size == 0) {
         punctuator_token->type = -3;
         free(buffer);
@@ -500,7 +388,7 @@ punctuator_analyser(char **PUNCTUATORS, int punctuator_max_length) {
 
 
 static Token *
-keyword_analyser(char **KEYWORDS, int keyword_max_length) {
+keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH) {
     /* DESCRIPTION:
     * keyword_analyser() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
@@ -526,8 +414,8 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
-    int keyword_to_print[keyword_max_length];
-    for (int i=0; i < keyword_max_length; i++) {
+    int keyword_to_print[KEYWORDS_MAX_LENGTH];
+    for (int i=0; i < KEYWORDS_MAX_LENGTH; i++) {
         keyword_to_print[i] = 0;
     }
     char curr_symb;
@@ -540,7 +428,7 @@ keyword_analyser(char **KEYWORDS, int keyword_max_length) {
     size_t buffer_size = 0;
     char *buffer = calloc(1, sizeof(buffer));
     Token *keyword_token = calloc(1, sizeof(*keyword_token));
-    for (; amount_symb_was_read < keyword_max_length + 1; amount_symb_was_read++) {
+    for (; amount_symb_was_read < KEYWORDS_MAX_LENGTH + 1; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
         for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
             if (indexes[i] != 0) {
@@ -1164,16 +1052,6 @@ analysing_stage() {
     char symb;
     int check;
     Token *current_token;
-
-    int keyword_max_length = KEYWORDS_MAX_LENGTH;
-//    char **keywords;
-//    keywords = keywords_array_init(&keyword_max_length); //keywords array initializer
-
-    int punctuator_max_length = PUNCTUATOR_MAX_LENGTH;
-//    char **punctuators;
-//    punctuators = punctuators_array_init(&punctuator_max_length); //punctuators array initialize
-
-
     while (fread(&check, 1, sizeof(char), input_file) > 0) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
@@ -1252,7 +1130,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = keyword_analyser(keywords, keyword_max_length);
+        current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH);
         if (current_token->type == 1) {
 //            token_coloring(current_token, BLUE);
 //            keyword_token->buffer = current_token->buffer;
@@ -1343,7 +1221,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = punctuator_analyser(punctuators, punctuator_max_length);
+        current_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH);
         if (current_token->type == 6) {
 //            punctuator_token->buffer = current_token->buffer;
 //            token_processing_type(current_token);

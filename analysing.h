@@ -12,11 +12,6 @@
 
 
 
-char **
-keywords_array_init(int *keyword_max_length);
-
-char **
-punctuators_array_init(int *punctuator_max_length);
 
 Token *
 analysing_stage();
