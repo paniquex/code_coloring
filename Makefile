@@ -1,13 +1,13 @@
 all: main
 
-main: main.o analysing.o coloring.o input.o input_file.o input_stdin_type.o output.o counting.o
-	gcc -Wall main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o output.o -luuid -o main.out
+main: main.o analysing.o coloring.o input.o input_file.o input_stdin_type.o counting.o
+	gcc -Wall main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out
 
-debug: main.o analysing.o coloring.o input.o output.o counting.o
-	gcc main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o output.o -luuid -o main.out -g
+debug: main.o analysing.o coloring.o input.o counting.o
+	gcc main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out -g
 
-gcov: main_gcov.o analysing_gcov.o coloring_gcov.o counting_gcov.o input_gcov.o input_file.o input_stdin_type.o output_gcov.o
-	gcc -coverage -fprofile-arcs -ftest-coverage -lgcov main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o output.o -luuid -o main.out
+gcov: main_gcov.o analysing_gcov.o coloring_gcov.o counting_gcov.o input_gcov.o input_file.o input_stdin_type.o
+	gcc -coverage -fprofile-arcs -ftest-coverage -lgcov main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out
 
 main.o: main.c
 	gcc -Wall  main.c -c
@@ -30,9 +30,6 @@ coloring.o: coloring.c
 counting.o: counting.c
 	gcc -Wall counting.c -c
 
-output.o: output.c
-	gcc -Wall  output.c  -c
-
 main_gcov.o: main.c
 	gcc -Wall  main.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
@@ -53,9 +50,6 @@ coloring_gcov.o: coloring.c
 
 counting_gcov.o: counting.c
 	gcc -Wall counting.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
-
-output_gcov.o: output.c
-	gcc -Wall  output.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
 clean:
 	-rm *.o *.gcno *.gcda *.info main.out
