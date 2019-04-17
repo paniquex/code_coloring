@@ -3,9 +3,9 @@
 #include "analysing.h"
 #include "token.h"
 
-typedef struct Token_processing_coloring Token_processing_coloring;
+typedef struct TokenProcessor_coloring TokenProcessor_coloring;
 
-struct Token_processing_coloring;
+struct TokenProcessor_coloring;
 
 Token *
 token_coloring(Token *token);
@@ -20,7 +20,7 @@ token_coloring(Token *token);
 #endif
 
 int
-token_init_color(struct Token_processing_coloring **);
+token_init_color(struct TokenProcessor_coloring **);
 
 int
-token_destruct_color(struct Token_processing_coloring *);
+token_destruct_color(struct TokenProcessor_coloring *);

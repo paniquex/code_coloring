@@ -4,18 +4,18 @@
 #include "token.h"
 
 
-typedef struct Token_processing Token_processing;
+typedef struct TokenProcessor TokenProcessor;
 
-struct Token_processing {
-    int (* token_state_changer)(Token *, Token_processing *);
+struct TokenProcessor {
+    int (* process_token)(Token *, TokenProcessor *);
 };
 
 Token *
-(* token_processing_type) (Token *token, Token_processing *);
+(* token_processing_type) (Token *token, TokenProcessor *);
 
 int
-(* token_init) (Token_processing **);
+(* token_init) (TokenProcessor **);
 
 int
-(* token_destruct) (Token_processing *);
+(* token_destruct) (TokenProcessor *);
 #endif

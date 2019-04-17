@@ -64,14 +64,14 @@ int main(int argc, char *argv[]) {
     }
     if (strcmp(processing_type, "coloring") == 0) {
 //        token_processing_type = token_coloring;
-        token_init = (int (* ) (Token_processing **)) token_init_color;
-        token_destruct = (int (* ) (Token_processing *)) token_destruct_color;
+        token_init = (int (* ) (TokenProcessor **)) token_init_color;
+        token_destruct = (int (* ) (TokenProcessor *)) token_destruct_color;
     } else if (strcmp(processing_type, "counting") == 0) {
 //        token_processing_type = token_counting;
-        token_init = (int (*) (Token_processing **)) token_init_count;
-        token_destruct = (int (*) (Token_processing *)) token_destruct_count;
+        token_init = (int (*) (TokenProcessor **)) token_init_count;
+        token_destruct = (int (*) (TokenProcessor *)) token_destruct_count;
     }
-    Token_processing *token_processing_struct; //init processing func
+    TokenProcessor *token_processing_struct; //init processing func
     token_init(&token_processing_struct);
 
     input_file = input_stage(file_name);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         if (current_token->type == 0) {
             break;
         }
-        token_processing_struct->token_state_changer(current_token, token_processing_struct);
+        token_processing_struct->process_token(current_token, token_processing_struct);
         output_stage(*current_token);
         free(current_token->buffer);
         free(current_token);
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     }
     free(current_token);
     if (strcmp(processing_type, "counting") == 0) {
-        output_count_statistics((Token_processing_counting *) token_processing_struct);
+        output_count_statistics((TokenProcessor_counting *) token_processing_struct);
     }
     fclose(input_file);
     if ((int) argv[1][0] == '0') {

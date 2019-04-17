@@ -22,7 +22,7 @@ const char *WHITE = "\033[1;37m";
 const char *NOCOLOR = "\033[0m";
 
 
-struct Token_processing_coloring {
+struct TokenProcessor_coloring {
     Token * (* token_state_changer)(Token *);
 };
 
@@ -75,8 +75,8 @@ token_coloring(Token *token) {
 
 
 int
-token_init_color(Token_processing_coloring **token_struct_color) {
-    Token_processing_coloring *tmp = malloc(sizeof *tmp);
+token_init_color(TokenProcessor_coloring **token_struct_color) {
+    TokenProcessor_coloring *tmp = malloc(sizeof *tmp);
     if (tmp == NULL) {
         return 1;
     }
@@ -87,7 +87,7 @@ token_init_color(Token_processing_coloring **token_struct_color) {
 
 
 int
-token_destruct_color(Token_processing_coloring *token_struct_color) {
+token_destruct_color(TokenProcessor_coloring *token_struct_color) {
     free(token_struct_color);
     return 0;
 }
