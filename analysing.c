@@ -145,7 +145,7 @@ number_analyser() {
                 buffer[buffer_size-1] = '\0';
                 number_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(number_token->buffer, buffer, buffer_size);
-                number_token->type = 3;
+                number_token->type = NUMBER;
                 free(buffer);
                 return number_token;
             }
@@ -164,7 +164,7 @@ number_analyser() {
      buffer[buffer_size-1] = '\0';
      number_token->buffer = calloc(buffer_size, sizeof(char));
      strncpy(number_token->buffer, buffer, buffer_size);
-     number_token->type = 3;
+     number_token->type = NUMBER;
      free(buffer);
     return number_token;
 }
@@ -249,7 +249,7 @@ comment_analyser() {
                 comment_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(comment_token->buffer, buffer, buffer_size);
                 free(buffer);
-                comment_token->type = 7;
+                comment_token->type = COMMENT;
                 return comment_token;
             } else if (curr_symb == '\\') {
                 state1 = 3;
@@ -286,7 +286,7 @@ comment_analyser() {
                 buffer[buffer_size-1] = '\0';
                 comment_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(comment_token->buffer, buffer, buffer_size);
-                comment_token->type = 7;
+                comment_token->type = COMMENT;
                 free(buffer);
                 return comment_token;
             }
@@ -325,7 +325,7 @@ comment_analyser() {
     buffer[buffer_size-1] = '\0';
     comment_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(comment_token->buffer, buffer, buffer_size);
-    comment_token->type = 7;
+    comment_token->type = COMMENT;
     free(buffer);
     return comment_token;
 }
@@ -371,7 +371,7 @@ punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH) {
                 buffer[buffer_size - 1] = '\0';
                 punctuator_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(punctuator_token->buffer, buffer, buffer_size);
-                punctuator_token->type = 6;
+                punctuator_token->type = PUNCTUATOR;
                 free(buffer);
                 return punctuator_token;
             }
@@ -466,7 +466,7 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH) {
             buffer[buffer_size-1] = '\0';
             keyword_token->buffer = calloc(buffer_size, sizeof(char));
             strncpy(keyword_token->buffer, buffer, buffer_size);
-            keyword_token->type = 1;
+            keyword_token->type = KEYWORD;
             free(buffer);
             return keyword_token;
         }
@@ -501,7 +501,7 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH) {
                     buffer[buffer_size-1] = '\0';
                     keyword_token->buffer = calloc(buffer_size, sizeof(char));
                     strncpy(keyword_token->buffer, buffer, buffer_size);
-                    keyword_token->type = 1;
+                    keyword_token->type = KEYWORD;
                     free(buffer);
                     return keyword_token;
                 }
@@ -570,7 +570,7 @@ identifier_analyser() {
                     return identifier_token;
                 }
                 identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
-                identifier_token->type = 2;
+                identifier_token->type = IDENTIFIER;
                 for(int i = 0; i < amount_symb_was_read-1; i++) {
                     fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
                 }
@@ -587,7 +587,7 @@ identifier_analyser() {
     }
     if (state1 == 1) {
         identifier_token->buffer = calloc((size_t) amount_symb_was_read + 1, sizeof(char));
-        identifier_token->type = 2;
+        identifier_token->type = IDENTIFIER;
         for (int i = 0; i < amount_symb_was_read; i++) {
             fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
         }
@@ -876,7 +876,7 @@ string_literal_analyser() {
                 buffer[buffer_size-1] = '\0';
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = 5;
+                string_literal_token->type = STRING_LITERAL;
                 free(buffer);
                 return string_literal_token;
             } else if (curr_symb == '\n') {
@@ -885,7 +885,7 @@ string_literal_analyser() {
                 buffer[buffer_size-1] = '\0';
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = 5;
+                string_literal_token->type = STRING_LITERAL;
                 free(buffer);
                 return string_literal_token;
             } else {
@@ -906,7 +906,7 @@ string_literal_analyser() {
                 buffer[buffer_size-1] = '\0';
                 string_literal_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = 5;
+                string_literal_token->type = STRING_LITERAL;
                 free(buffer);
                 return string_literal_token;
             }
@@ -916,7 +916,7 @@ string_literal_analyser() {
             }
         }
     }
-    string_literal_token->type = 5;
+    string_literal_token->type = STRING_LITERAL;
     buffer_size++;
     buffer = realloc(buffer, buffer_size);
     buffer[buffer_size-1] = '\0';
@@ -993,7 +993,7 @@ char_consts_analyser() {
                 buffer[buffer_size-1] = '\0';
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
-                char_consts_token->type = 4;
+                char_consts_token->type = CHAR_CONST;
                 free(buffer);
                 return char_consts_token;
             } else if (curr_symb == '\n') {
@@ -1002,7 +1002,7 @@ char_consts_analyser() {
                 buffer[buffer_size-1] = '\0';
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
-                char_consts_token->type = 4;
+                char_consts_token->type = CHAR_CONST;
                 free(buffer);
                 return char_consts_token;
             } else {
@@ -1023,7 +1023,7 @@ char_consts_analyser() {
                 buffer[buffer_size-1] = '\0';
                 char_consts_token->buffer = calloc(buffer_size, sizeof(char));
                 strncpy(char_consts_token->buffer, buffer, buffer_size);
-                char_consts_token->type = 4;
+                char_consts_token->type = CHAR_CONST;
                 free(buffer);
                 return char_consts_token;
             }
@@ -1034,13 +1034,13 @@ char_consts_analyser() {
         }
     }
     //EOF
-    char_consts_token->type = 4;
+    char_consts_token->type = CHAR_CONST;
     buffer_size++;
     buffer = realloc(buffer, buffer_size);
     buffer[buffer_size-1] = '\0';
     char_consts_token->buffer = calloc(buffer_size, sizeof(char));
     strncpy(char_consts_token->buffer, buffer, buffer_size);
-    char_consts_token->type = 4;
+    char_consts_token->type = CHAR_CONST;
     free(buffer);
     return char_consts_token;
 }
