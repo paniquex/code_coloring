@@ -63,11 +63,9 @@ int main(int argc, char *argv[]) {
         input_stage = input_file_type;
     }
     if (strcmp(processing_type, "coloring") == 0) {
-//        token_processing_type = token_coloring;
         token_init = (int (* ) (TokenProcessor **)) token_init_color;
         token_destruct = (int (* ) (TokenProcessor *)) token_destruct_color;
     } else if (strcmp(processing_type, "counting") == 0) {
-//        token_processing_type = token_counting;
         token_init = (int (*) (TokenProcessor **)) token_init_count;
         token_destruct = (int (*) (TokenProcessor *)) token_destruct_count;
     }

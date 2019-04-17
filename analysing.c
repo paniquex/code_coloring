@@ -1055,9 +1055,6 @@ analysing_stage() {
     while (fread(&check, 1, sizeof(char), input_file) > 0) {
         if (fseek(input_file, -1, SEEK_CUR) == -1) {
             perror("fseek error: ");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         while (white_space_print_skip() == 0);
@@ -1067,14 +1064,10 @@ analysing_stage() {
 
         current_token = comment_analyser();
         if (current_token->type == 7) {
-//            comment_token->buffer = current_token->buffer;
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Comment analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1086,7 +1079,6 @@ analysing_stage() {
 
         current_token = string_literal_analyser();
         if (current_token->type == 5) {
-//            string_literal_token->buffer = current_token->buffer;
             return current_token;
         } else if (current_token->type == -2) {
             if (current_token->buffer != NULL) {
@@ -1094,9 +1086,6 @@ analysing_stage() {
             }
             free(current_token);
             perror("***String literal analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1108,19 +1097,10 @@ analysing_stage() {
 
         current_token = char_consts_analyser();
         if (current_token->type == 4) {
-//            token_coloring(current_token, YELLOW);
-//            char_consts_token->buffer = current_token->buffer;
-//            token_processing_type(current_token);
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
             return current_token;
         } else if (current_token->type == -2) {\
             free(current_token);
             perror("***Char consts analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1132,19 +1112,10 @@ analysing_stage() {
 
         current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH);
         if (current_token->type == 1) {
-//            token_coloring(current_token, BLUE);
-//            keyword_token->buffer = current_token->buffer;
-//            token_processing_type(current_token);
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Keyword analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1156,16 +1127,10 @@ analysing_stage() {
 
         current_token = ucn_analyser();
         if (current_token->type == 8) {
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Ucn analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1177,18 +1142,10 @@ analysing_stage() {
 
         current_token = identifier_analyser();
         if (current_token->type == 2) {
-//            identifier_token->buffer = current_token->buffer;
-//            token_processing_type(current_token);
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Identifier analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1200,18 +1157,10 @@ analysing_stage() {
 
         current_token = number_analyser();
         if (current_token->type == 3) {
-//            number_token->buffer = current_token->buffer;
-//            token_processing_type(current_token);
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Number analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1223,19 +1172,10 @@ analysing_stage() {
 
         current_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH);
         if (current_token->type == 6) {
-//            punctuator_token->buffer = current_token->buffer;
-//            token_processing_type(current_token);
-//            output_stage(*current_token);
-//            free(current_token->buffer);
-//            free(current_token);
-//            continue;
             return current_token;
         } else if (current_token->type == -2) {
             free(current_token);
             perror("***Punctuator analyser***");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         if (current_token != NULL) {
@@ -1248,15 +1188,10 @@ analysing_stage() {
         /* if not of the 7 patterns, then print without color */
         if ((fread(&symb, 1, sizeof(char), input_file)) == 0) {
             perror("getchar error: ");
-//            token_destruct();
-//            free(punctuators);
-//            free(keywords);
             return NULL;
         }
         putchar(symb);
     }
-//    free(punctuators);
-//    free(keywords);
     current_token = calloc(1, sizeof(*current_token));
     current_token->type = 0;
     return current_token;
