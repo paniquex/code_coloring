@@ -1,7 +1,6 @@
 #include "analysing.h"
 #include "input.h"
 #include "coloring.h"
-#include "output.h"
 #include "token_processing.h"
 #include "counting.h"
 #include "token.h"

@@ -16,6 +16,6 @@ Token *
 int
 (* token_init) (TokenProcessor **);
 
-int
+void
 (* token_destruct) (TokenProcessor *);
 #endif

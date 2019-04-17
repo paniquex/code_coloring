@@ -3,13 +3,22 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "input.h"
-#include "output.h"
 #include "analysing.h"
 #include "coloring.h"
 #include "counting.h"
 #include "input_file.h"
 #include "token_processing.h"
 #include "input_stdin_type.h"
+
+int
+output_stage(Token token);
+/* DESCRIPTION:
+    * output_stage takes 1 parameter - token struct, which will be printed to stdout
+    *
+ * RETURN VALUES:
+    * token struct with colored buffer, if everything was correct
+    * NULL, if buffer or token is NULL
+ */
 
 
 int main(int argc, char *argv[]) {
@@ -64,10 +73,10 @@ int main(int argc, char *argv[]) {
     }
     if (strcmp(processing_type, "coloring") == 0) {
         token_init = (int (* ) (TokenProcessor **)) token_init_color;
-        token_destruct = (int (* ) (TokenProcessor *)) token_destruct_color;
+        token_destruct = (void (* ) (TokenProcessor *)) token_destruct_color;
     } else if (strcmp(processing_type, "counting") == 0) {
         token_init = (int (*) (TokenProcessor **)) token_init_count;
-        token_destruct = (int (*) (TokenProcessor *)) token_destruct_count;
+        token_destruct = (void (*) (TokenProcessor *)) token_destruct_count;
     }
     TokenProcessor *token_processing_struct; //init processing func
     token_init(&token_processing_struct);
@@ -111,5 +120,16 @@ int main(int argc, char *argv[]) {
     }
     token_destruct(token_processing_struct);
     free(file_name);
+    return 0;
+}
+
+
+int
+output_stage(Token token) {
+    if (token.buffer == NULL) {
+    fprintf(stdout, "Error in output_stage");
+    return -1;
+    }
+    printf("%s", token.buffer);
     return 0;
 }

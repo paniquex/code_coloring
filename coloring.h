@@ -22,5 +22,5 @@ token_coloring(Token *token);
 int
 token_init_color(struct TokenProcessor_coloring **);
 
-int
+void
 token_destruct_color(struct TokenProcessor_coloring *);

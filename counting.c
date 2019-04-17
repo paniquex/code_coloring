@@ -31,7 +31,7 @@ token_init_count(struct TokenProcessor_counting **token_struct_count) {
     return 0;
 }
 
-int
+void
 output_count_statistics(TokenProcessor_counting *token_struct_count) {
     printf("\n\nSTATISTICS:");
     printf("\nComments amount: %d\n", token_struct_count->comment_amount);
@@ -41,7 +41,6 @@ output_count_statistics(TokenProcessor_counting *token_struct_count) {
     printf("Char consts amount: %d\n", token_struct_count->char_consts_amount);
     printf("Punctuators amount: %d\n", token_struct_count->punctuator_amount);
     printf("String literals amount: %d\n", token_struct_count->string_literal_amount);
-    return 0;
 }
 
 Token *
@@ -72,9 +71,8 @@ token_counting(Token *token, TokenProcessor_counting *token_struct_count) {
     return token;
 }
 
-int
+void
 token_destruct_count(struct TokenProcessor_counting *token_struct_count) {
     free(token_struct_count);
-    return 0;
 }
 

@@ -86,8 +86,7 @@ token_init_color(TokenProcessor_coloring **token_struct_color) {
 }
 
 
-int
+void
 token_destruct_color(TokenProcessor_coloring *token_struct_color) {
     free(token_struct_color);
-    return 0;
 }

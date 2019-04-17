@@ -10,13 +10,13 @@ struct TokenProcessor_counting;
 int
 token_init_count(TokenProcessor_counting **token_struct_count);
 
-int
+void
 output_count_statistics(TokenProcessor_counting *);
 
 Token *
 token_counting(Token *token, TokenProcessor_counting *token_struct_count);
 
-int
+void
 token_destruct_count(TokenProcessor_counting *token_struct_count);
 
 #endif
