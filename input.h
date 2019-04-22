@@ -1,15 +1,17 @@
+#ifndef INPUT
+#define INPUT
 #include <stdio.h>
 #include <uuid/uuid.h>
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
-FILE *input_file;
-char *file_name;
 
-FILE *
-(* input_stage)(char *);
+std::fstream
+(* input_stage)(std::string, std::fstream *input_file);
 /* DESCRIPTION:
        * input_stage takes:
        * 1) input_type, which indicates type of input..
@@ -18,5 +20,7 @@ FILE *
        * 2) input_file_name. It is name of input file..
     * RETURN VALUES:
        * pointer to working file - if function works correctly
-       * NULL - if somekind of error was found
+       * nullptr - if somekind of error was found
    */
+
+#endif

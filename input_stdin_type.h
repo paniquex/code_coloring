@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-FILE *
-input_stdin_type(char *input_file_name);
+std::fstream *
+input_stdin_type(std::string input_file_name, std::fstream *input_file);
 
 #endif

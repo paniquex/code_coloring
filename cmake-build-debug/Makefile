@@ -123,32 +123,167 @@ code_colorer/fast:
 	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/build
 .PHONY : code_colorer/fast
 
-main.o: main.c.o
+analysing.o: analysing.cpp.o
+
+.PHONY : analysing.o
+
+# target to build an object file
+analysing.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.o
+.PHONY : analysing.cpp.o
+
+analysing.i: analysing.cpp.i
+
+.PHONY : analysing.i
+
+# target to preprocess a source file
+analysing.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.i
+.PHONY : analysing.cpp.i
+
+analysing.s: analysing.cpp.s
+
+.PHONY : analysing.s
+
+# target to generate assembly for a file
+analysing.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.s
+.PHONY : analysing.cpp.s
+
+coloring.o: coloring.cpp.o
+
+.PHONY : coloring.o
+
+# target to build an object file
+coloring.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/coloring.cpp.o
+.PHONY : coloring.cpp.o
+
+coloring.i: coloring.cpp.i
+
+.PHONY : coloring.i
+
+# target to preprocess a source file
+coloring.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/coloring.cpp.i
+.PHONY : coloring.cpp.i
+
+coloring.s: coloring.cpp.s
+
+.PHONY : coloring.s
+
+# target to generate assembly for a file
+coloring.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/coloring.cpp.s
+.PHONY : coloring.cpp.s
+
+counting.o: counting.cpp.o
+
+.PHONY : counting.o
+
+# target to build an object file
+counting.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/counting.cpp.o
+.PHONY : counting.cpp.o
+
+counting.i: counting.cpp.i
+
+.PHONY : counting.i
+
+# target to preprocess a source file
+counting.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/counting.cpp.i
+.PHONY : counting.cpp.i
+
+counting.s: counting.cpp.s
+
+.PHONY : counting.s
+
+# target to generate assembly for a file
+counting.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/counting.cpp.s
+.PHONY : counting.cpp.s
+
+input_file.o: input_file.cpp.o
+
+.PHONY : input_file.o
+
+# target to build an object file
+input_file.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_file.cpp.o
+.PHONY : input_file.cpp.o
+
+input_file.i: input_file.cpp.i
+
+.PHONY : input_file.i
+
+# target to preprocess a source file
+input_file.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_file.cpp.i
+.PHONY : input_file.cpp.i
+
+input_file.s: input_file.cpp.s
+
+.PHONY : input_file.s
+
+# target to generate assembly for a file
+input_file.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_file.cpp.s
+.PHONY : input_file.cpp.s
+
+input_stdin_type.o: input_stdin_type.cpp.o
+
+.PHONY : input_stdin_type.o
+
+# target to build an object file
+input_stdin_type.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o
+.PHONY : input_stdin_type.cpp.o
+
+input_stdin_type.i: input_stdin_type.cpp.i
+
+.PHONY : input_stdin_type.i
+
+# target to preprocess a source file
+input_stdin_type.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_stdin_type.cpp.i
+.PHONY : input_stdin_type.cpp.i
+
+input_stdin_type.s: input_stdin_type.cpp.s
+
+.PHONY : input_stdin_type.s
+
+# target to generate assembly for a file
+input_stdin_type.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/input_stdin_type.cpp.s
+.PHONY : input_stdin_type.cpp.s
+
+main.o: main.cpp.o
 
 .PHONY : main.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.o
-.PHONY : main.c.o
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-main.i: main.c.i
+main.i: main.cpp.i
 
 .PHONY : main.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.i
-.PHONY : main.c.i
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-main.s: main.c.s
+main.s: main.cpp.s
 
 .PHONY : main.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.s
-.PHONY : main.c.s
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -159,6 +294,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... code_colorer"
+	@echo "... analysing.o"
+	@echo "... analysing.i"
+	@echo "... analysing.s"
+	@echo "... coloring.o"
+	@echo "... coloring.i"
+	@echo "... coloring.s"
+	@echo "... counting.o"
+	@echo "... counting.i"
+	@echo "... counting.s"
+	@echo "... input_file.o"
+	@echo "... input_file.i"
+	@echo "... input_file.s"
+	@echo "... input_stdin_type.o"
+	@echo "... input_stdin_type.i"
+	@echo "... input_stdin_type.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

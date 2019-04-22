@@ -1,0 +1,4 @@
+/home/paniquex/Programes/clion-2018.2.6/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/paniquex/CLionProjects/code_colorer
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/paniquex/CLionProjects/code_colorer/cmake-build-debug
