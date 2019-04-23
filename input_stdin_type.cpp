@@ -18,7 +18,7 @@ input_stdin_type(std::string random_file_name, std::fstream *input_file) {
     int curr_symb;
     std::string tmp;
     while ((curr_symb = getchar()) != EOF) {
-        *input_file << "s234\n";
+        *input_file << (char) curr_symb;
     }
     input_file->seekg(0, std::fstream::beg);
     return input_file;

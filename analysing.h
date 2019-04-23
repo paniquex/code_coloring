@@ -14,7 +14,7 @@
 
 
 Token *
-analysing_stage();
+analysing_stage(std::fstream *input_file);
 /* DESCRIPTION:
     * сoloring_stage takes 4 parameters, which are needed for punctuator_analyser and keyword_analyser functions.
     * analysing_stage() contains all analyser functions:

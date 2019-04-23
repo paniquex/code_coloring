@@ -9,6 +9,7 @@
 #include "input_file.h"
 //#include "token_processing.h"
 #include "input_stdin_type.h"
+#include "token.h"
 
 //int
 //output_stage(Token token);
@@ -73,10 +74,9 @@ int main(int argc, char *argv[]) {
         processing_type = argv[3];
         input_file_type(file_name, &f);
     }
-    char curr_symb;
-    while (f.read(&curr_symb, 1)) {
-        std::cout << curr_symb;
-    }
+    Token *curr_token;
+    curr_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH, &f);
+    std::cout << curr_token->type;
     f.close();
 
 

@@ -109,7 +109,7 @@ is_nondigit(int symb) {
 
 
 static Token *
-number_analyser() {
+number_analyser(std::fstream *input_file) {
     /*
  * DESCRIPTION:
  * number_analyser() attempts to read symbols from stdin until EOF
@@ -125,46 +125,40 @@ number_analyser() {
     char curr_symb, is_first_digit = 1;
     auto *number_token = new Token;
     std::string buffer;
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
-        ;
+    while (!input_file->eof()) {
+        input_file->read(&curr_symb, sizeof(char));
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
                 is_first_digit = 0;
             }
-            buffer[buffer.length() - 1] = (char) curr_symb;
+            buffer += (char) curr_symb;
         } else {
             if (!is_first_digit) {
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    number_token->type = -2;
-                    
-                    return number_token;
-                }
-                buffer = realloc(buffer, buffer.length());
-                buffer[buffer.length()-1] = '\0';
-                number_token->buffer = calloc(buffer.length(), sizeof(char));
-                strncpy(number_token->buffer, buffer, buffer.length());
+                input_file->seekg(-1, std::fstream::cur);
+//                    number_token->type = -2;
+
+//                    return number_token;
+//                }
+                number_token->buffer = buffer;
                 number_token->type = NUMBER;
-                
                 return number_token;
             }
-            if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                number_token->type = -2;
-                
-                return number_token;
-            }
+            input_file->seekg(-1, std::fstream::cur);
+//                number_token->type = -2;
+//                return number_token;
+//            }
             number_token->type = -3;
-            
             return number_token;
         }
     }
-    number_token->buffer += buffer;
+    number_token->buffer += buffer; //NEED TO CHECK!
     number_token->type = NUMBER;
     return number_token;
 }
 
 
 static Token *
-comment_analyser() {
+comment_analyser(std::fstream *input_file) {
     /*
  * DESCRIPTION:
     * comment_analyser() attempts to read symbols from stdin until EOF
@@ -180,43 +174,38 @@ comment_analyser() {
     int state1 = 0, state2 = 0;
     std::string buffer;
     auto *comment_token = new Token;
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
-        ;
+    while (!input_file->eof()) {
+        input_file->read(&curr_symb, sizeof(char));
         if ((curr_symb == '/') && (state1 == 0) && (state2 == 0)) {
             state1 = 1;
             state2 = 1;
             continue;
         } else if ((state1 == 0) && (state2 == 0)) {
-            if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                comment_token->type = -2;
-                
-                return comment_token;
-            }
-            comment_token->type = -3;
-            
-            return comment_token;
+            input_file->seekg(-1, std::fstream::cur);
+//                comment_token->type = -2;
+//                return comment_token;
+//            }
+//            comment_token->type = -3;
+//
+//            return comment_token;
         }
         if ((state1 == 1) || (state2 == 1)) {
             if ((curr_symb != '/') && (curr_symb != '*')) {
                 state1 = 0;
                 state2 = 0;
-                if (fseek(input_file, -buffer.length(), SEEK_CUR) == -1) {
-                    comment_token->type = -2;
-                    
-                    return comment_token;
-                }
-                comment_token->type = -3;
-                
-                return comment_token;
-            }
-            else {
+                input_file->seekg(-1, std::fstream::cur);
+//                    comment_token->type = -2;
+//                    return comment_token;
+//                }
+//                comment_token->type = -3;
+//                return comment_token;
+            } else {
                 if (curr_symb == '/') {
                     state1 = 2;
                     state2 = 0;
                     buffer += '/';
                     buffer += '/';
-                }
-                else {
+                } else {
                     state1 = 0;
                     state2 = 2;
                     buffer += '/';
@@ -229,11 +218,11 @@ comment_analyser() {
         if (state1 == 2) {
             if (curr_symb == '\n') {
                 state1 = 0;
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    comment_token->type = -2;
-                    
-                    return comment_token;
-                }
+                input_file->seekg(-1, std::fstream::cur);
+//                    comment_token->type = -2;
+//
+//                    return comment_token;
+//                }
                 comment_token->buffer = buffer;
                 comment_token->type = COMMENT;
                 return comment_token;
@@ -272,37 +261,33 @@ comment_analyser() {
             buffer += (char) curr_symb;
             continue;
         }
-        if (fseek(input_file, -1, SEEK_CUR) == -1) {
-            comment_token->type = -2;
-            
+        input_file->seekg(-1, std::fstream::cur);
+//            comment_token->type = -2;
+//            return comment_token;
+//        }
+        comment_token->type = -3;
+        return comment_token;
+    }
+        if (buffer.length() == 0) {
+            comment_token->type = -3;
             return comment_token;
         }
-        comment_token->type = -3;
-        
-        return comment_token;
-    }
-    if (buffer.length() == 0) {
-        comment_token->type = -3;
-        return comment_token;
-    }
-    if (buffer.length() < 2) {
-        if (fseek(input_file, -buffer.length(), SEEK_CUR) == -1) {
-            comment_token->type = -2;
-            
+        if (buffer.length() < 2) {
+            input_file->seekg(-1, std::fstream::cur);
+//            comment_token->type = -2;
+//            return comment_token;
+//        }
+            comment_token->type = -3;
             return comment_token;
         }
-        comment_token->type = -3;
-        
+        comment_token->buffer += buffer;
+        comment_token->type = COMMENT;
         return comment_token;
-    }
-    comment_token->buffer += buffer;
-    comment_token->type = COMMENT;
-    return comment_token;
 }
 
 
 static Token *
-punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH) {
+punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream *input_file) {
     /*
  * DESCRIPTION:
     * punctuator_analyser() attempts to read symbols from stdin until EOF
@@ -315,49 +300,48 @@ punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH) {
      * 3, if no punctuator was found
 */
     std::string buffer;
+    char *buffer_read = new char[PUNCTUATOR_MAX_LENGTH];
     auto *punctuator_token = new Token;
-    fread(buffer, sizeof(char), PUNCTUATOR_MAX_LENGTH, input_file);
-    if (buffer_size == 0) {
+    input_file->read(buffer_read, sizeof(char) * PUNCTUATOR_MAX_LENGTH);
+    buffer += buffer_read;
+    delete[] buffer_read;
+    if (buffer.length() == 0) {
         punctuator_token->type = -3;
-        
-        if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
-            punctuator_token->type = -2;
-            return punctuator_token;
-        }
-        return punctuator_token;
+        input_file->seekg(-buffer.length(), std::fstream::cur);
+//            punctuator_token->type = -2;
+//            return punctuator_token;
+//        }
+//        return punctuator_token;
     }
-    int punctuator_curr_length = buffer_size;
+    unsigned long punctuator_curr_length = buffer.length();
     for (int i = 0; i < punctuator_curr_length; i++) {
         for (int k = 0; k < PUNCTUATORS_AMOUNT; k++) {
-            if (strncmp(PUNCTUATORS[k], buffer, (size_t) punctuator_curr_length - i) == 0) {
-                buffer_size = punctuator_curr_length - i;
-                if (fseek(input_file, -punctuator_curr_length + buffer_size, SEEK_CUR) == -1) {
-                    punctuator_token->type = -2;
-                    return punctuator_token;
-                }
-                ;
-                buffer = realloc(buffer, buffer_size);
-                buffer[buffer_size - 1] = '\0';
-                punctuator_token->buffer = calloc(buffer_size, sizeof(char));
-                strncpy(punctuator_token->buffer, buffer, buffer_size);
+            if (strncmp(PUNCTUATORS[k], buffer.c_str(), (size_t) punctuator_curr_length - i) == 0) {
+//                buffer_size = punctuator_curr_length - i;
+//                if (fseek(input_file, -i, SEEK_CUR) == -1) {
+//                    punctuator_token->type = -2;
+//                    return punctuator_token;
+//                }
+                input_file->seekg(-i, std::fstream::cur);
+                punctuator_token->buffer = buffer.substr(0, punctuator_curr_length - i);
                 punctuator_token->type = PUNCTUATOR;
-                
                 return punctuator_token;
             }
         }
     }
     punctuator_token->type = -3;
     
-    if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
-        punctuator_token->type = -2;
-        return punctuator_token;
-    }
+//    if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
+//        punctuator_token->type = -2;
+//        return punctuator_token;
+//    }
+    input_file->seekg(-buffer.length(), std::fstream::cur);
     return punctuator_token;
 }
 
 
 static Token *
-keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH) {
+keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_file) {
     /* DESCRIPTION:
     * keyword_analyser() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
@@ -495,7 +479,7 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH) {
 
 
 static Token *
-identifier_analyser() {
+identifier_analyser(std::fstream *input_file) {
     /* DESCRIPTION:
  * identifier_analyser() attempts to read symbols from stdin until EOF
  * if it has found "identifier token(or pattern)" then saves it in Token->buffer, and changes Token->type
@@ -598,7 +582,7 @@ is_hexadecimal_digit(int symb) {
 
 
 static Token *
-ucn_analyser() {
+ucn_analyser(std::fstream *input_file) {
     /* DESCRIPTION:
  * ucn_analyser() attempts to read symbols from stdin until EOF
  * if it has found "universal character token(or pattern)" then saves it in Token->buffer, and changes Token->type
@@ -734,7 +718,7 @@ white_space_print_skip() {
 
 
 static Token *
-string_literal_analyser() {
+string_literal_analyser(std::fstream *input_file) {
     /* DESCRIPTION:
     * string_literal_analyser() attempts to read symbols from stdin until EOF
     * if it has found "string_literal token(or pattern)" then saves it in Token->buffer, and changes Token->type
@@ -896,7 +880,7 @@ string_literal_analyser() {
 }
 
 static Token *
-char_consts_analyser() {
+char_consts_analyser(std::fstream *input_file) {
     /* DESCRIPTION:
    * char_consts_analyser() attempts to read symbols from stdin until EOF
    * if it has found "char_consts token(or pattern)" then saves it in Token->buffer, and changes Token->type
@@ -1006,7 +990,7 @@ char_consts_analyser() {
 
 
 Token *
-analysing_stage() {
+analysing_stage(std::fstream *input_file) {
     char symb;
     int check;
     Token *current_token;
@@ -1020,7 +1004,7 @@ analysing_stage() {
             break;
         }
 
-        current_token = comment_analyser();
+        current_token = comment_analyser(input_file);
         if (current_token->type == 7) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1035,7 +1019,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = string_literal_analyser();
+        current_token = string_literal_analyser(input_file);
         if (current_token->type == 5) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1053,7 +1037,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = char_consts_analyser();
+        current_token = char_consts_analyser(input_file);
         if (current_token->type == 4) {
             return current_token;
         } else if (current_token->type == -2) {\
@@ -1068,7 +1052,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH);
+        current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH, input_file);
         if (current_token->type == 1) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1083,7 +1067,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = ucn_analyser();
+        current_token = ucn_analyser(input_file);
         if (current_token->type == 8) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1098,7 +1082,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = identifier_analyser();
+        current_token = identifier_analyser(input_file);
         if (current_token->type == 2) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1113,7 +1097,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = number_analyser();
+        current_token = number_analyser(input_file);
         if (current_token->type == 3) {
             return current_token;
         } else if (current_token->type == -2) {
@@ -1128,7 +1112,7 @@ analysing_stage() {
             free(current_token);
         }
 
-        current_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH);
+        current_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH, input_file);
         if (current_token->type == 6) {
             return current_token;
         } else if (current_token->type == -2) {
