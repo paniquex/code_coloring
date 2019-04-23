@@ -21,17 +21,22 @@ CMakeFiles/code_colorer.dir/counting.cpp.o: ../counting.h
 CMakeFiles/code_colorer.dir/counting.cpp.o: ../token.h
 CMakeFiles/code_colorer.dir/counting.cpp.o: ../token_processing.h
 
-CMakeFiles/code_colorer.dir/input_file.cpp.o: ../input.h
 CMakeFiles/code_colorer.dir/input_file.cpp.o: ../input_file.cpp
 CMakeFiles/code_colorer.dir/input_file.cpp.o: ../input_file.h
 
-CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o: ../input.h
 CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o: ../input_file.h
 CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o: ../input_stdin_type.cpp
 CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o: ../input_stdin_type.h
 
-CMakeFiles/code_colorer.dir/main.cpp.o: ../input.h
+CMakeFiles/code_colorer.dir/main.cpp.o: ../analysing.h
+CMakeFiles/code_colorer.dir/main.cpp.o: ../coloring.h
+CMakeFiles/code_colorer.dir/main.cpp.o: ../counting.h
 CMakeFiles/code_colorer.dir/main.cpp.o: ../input_file.h
 CMakeFiles/code_colorer.dir/main.cpp.o: ../input_stdin_type.h
 CMakeFiles/code_colorer.dir/main.cpp.o: ../main.cpp
+CMakeFiles/code_colorer.dir/main.cpp.o: ../token.h
+CMakeFiles/code_colorer.dir/main.cpp.o: ../token_processing.h
+
+CMakeFiles/code_colorer.dir/token.cpp.o: ../token.cpp
+CMakeFiles/code_colorer.dir/token.cpp.o: ../token.h
 

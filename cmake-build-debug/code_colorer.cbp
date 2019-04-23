@@ -117,6 +117,9 @@
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/main.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token.cpp">
+			<Option target="code_colorer"/>
+		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token.h">
 			<Option target="code_colorer"/>
 		</Unit>

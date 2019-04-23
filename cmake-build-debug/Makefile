@@ -285,6 +285,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+token.o: token.cpp.o
+
+.PHONY : token.o
+
+# target to build an object file
+token.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token.cpp.o
+.PHONY : token.cpp.o
+
+token.i: token.cpp.i
+
+.PHONY : token.i
+
+# target to preprocess a source file
+token.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token.cpp.i
+.PHONY : token.cpp.i
+
+token.s: token.cpp.s
+
+.PHONY : token.s
+
+# target to generate assembly for a file
+token.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token.cpp.s
+.PHONY : token.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -312,6 +339,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... token.o"
+	@echo "... token.i"
+	@echo "... token.s"
 .PHONY : help
 
 

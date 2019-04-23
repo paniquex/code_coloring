@@ -4,18 +4,9 @@
 #include "token.h"
 
 
-typedef struct TokenProcessor TokenProcessor;
-
-struct TokenProcessor {
-    int (* process_token)(Token *, TokenProcessor *);
+class TokenProcessor {
+public:
+    virtual void process_token(Token *token) = 0;
 };
 
-Token *
-(* token_processing_type) (Token *token, TokenProcessor *);
-
-int
-(* token_init) (TokenProcessor **);
-
-void
-(* token_destruct) (TokenProcessor *);
 #endif

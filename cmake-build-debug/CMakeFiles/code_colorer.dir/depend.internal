@@ -22,16 +22,21 @@ CMakeFiles/code_colorer.dir/counting.cpp.o
  /home/paniquex/CLionProjects/code_colorer/token.h
  /home/paniquex/CLionProjects/code_colorer/token_processing.h
 CMakeFiles/code_colorer.dir/input_file.cpp.o
- /home/paniquex/CLionProjects/code_colorer/input.h
  /home/paniquex/CLionProjects/code_colorer/input_file.cpp
  /home/paniquex/CLionProjects/code_colorer/input_file.h
 CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o
- /home/paniquex/CLionProjects/code_colorer/input.h
  /home/paniquex/CLionProjects/code_colorer/input_file.h
  /home/paniquex/CLionProjects/code_colorer/input_stdin_type.cpp
  /home/paniquex/CLionProjects/code_colorer/input_stdin_type.h
 CMakeFiles/code_colorer.dir/main.cpp.o
- /home/paniquex/CLionProjects/code_colorer/input.h
+ /home/paniquex/CLionProjects/code_colorer/analysing.h
+ /home/paniquex/CLionProjects/code_colorer/coloring.h
+ /home/paniquex/CLionProjects/code_colorer/counting.h
  /home/paniquex/CLionProjects/code_colorer/input_file.h
  /home/paniquex/CLionProjects/code_colorer/input_stdin_type.h
  /home/paniquex/CLionProjects/code_colorer/main.cpp
+ /home/paniquex/CLionProjects/code_colorer/token.h
+ /home/paniquex/CLionProjects/code_colorer/token_processing.h
+CMakeFiles/code_colorer.dir/token.cpp.o
+ /home/paniquex/CLionProjects/code_colorer/token.cpp
+ /home/paniquex/CLionProjects/code_colorer/token.h

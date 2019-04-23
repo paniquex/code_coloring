@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/paniquex/CLionProjects/code_colorer/input_file.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/input_file.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/input_stdin_type.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/main.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/main.cpp.o"
+  "/home/paniquex/CLionProjects/code_colorer/token.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/token.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

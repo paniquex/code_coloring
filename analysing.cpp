@@ -125,7 +125,7 @@ number_analyser(std::fstream *input_file) {
     char curr_symb, is_first_digit = 1;
     auto *number_token = new Token;
     std::string buffer;
-    while (!input_file->eof()) {
+    while (input_file->peek() != EOF) {
         input_file->read(&curr_symb, sizeof(char));
         if (isdigit(curr_symb)) {
             if (is_first_digit) {
@@ -139,20 +139,20 @@ number_analyser(std::fstream *input_file) {
 
 //                    return number_token;
 //                }
-                number_token->buffer = buffer;
-                number_token->type = NUMBER;
+                number_token->set_buffer(buffer);;
+                number_token->set_type(NUMBER);
                 return number_token;
             }
             input_file->seekg(-1, std::fstream::cur);
 //                number_token->type = -2;
 //                return number_token;
 //            }
-            number_token->type = -3;
+            number_token->set_type(-3);
             return number_token;
         }
     }
-    number_token->buffer += buffer; //NEED TO CHECK!
-    number_token->type = NUMBER;
+    number_token->set_buffer(buffer); //NEED TO CHECK!
+    number_token->set_type(NUMBER);
     return number_token;
 }
 
@@ -174,7 +174,7 @@ comment_analyser(std::fstream *input_file) {
     int state1 = 0, state2 = 0;
     std::string buffer;
     auto *comment_token = new Token;
-    while (!input_file->eof()) {
+    while (input_file->peek() != EOF) {
         input_file->read(&curr_symb, sizeof(char));
         if ((curr_symb == '/') && (state1 == 0) && (state2 == 0)) {
             state1 = 1;
@@ -185,9 +185,8 @@ comment_analyser(std::fstream *input_file) {
 //                comment_token->type = -2;
 //                return comment_token;
 //            }
-//            comment_token->type = -3;
-//
-//            return comment_token;
+            comment_token->set_type(-3);
+            return comment_token;
         }
         if ((state1 == 1) || (state2 == 1)) {
             if ((curr_symb != '/') && (curr_symb != '*')) {
@@ -197,8 +196,8 @@ comment_analyser(std::fstream *input_file) {
 //                    comment_token->type = -2;
 //                    return comment_token;
 //                }
-//                comment_token->type = -3;
-//                return comment_token;
+                comment_token->set_type(-3);
+                return comment_token;
             } else {
                 if (curr_symb == '/') {
                     state1 = 2;
@@ -223,8 +222,8 @@ comment_analyser(std::fstream *input_file) {
 //
 //                    return comment_token;
 //                }
-                comment_token->buffer = buffer;
-                comment_token->type = COMMENT;
+                comment_token->set_buffer(buffer);
+                comment_token->set_type(COMMENT);
                 return comment_token;
             } else if (curr_symb == '\\') {
                 state1 = 3;
@@ -251,8 +250,8 @@ comment_analyser(std::fstream *input_file) {
             if (curr_symb == '/') {
                 buffer += '/';
                 state2 = 0;
-                comment_token->buffer = buffer;
-                comment_token->type = COMMENT;
+                comment_token->set_buffer(buffer);
+                comment_token->set_type(COMMENT);
                 return comment_token;
             }
             if (curr_symb != '*') {
@@ -265,11 +264,11 @@ comment_analyser(std::fstream *input_file) {
 //            comment_token->type = -2;
 //            return comment_token;
 //        }
-        comment_token->type = -3;
+        comment_token->set_type(-3);
         return comment_token;
     }
         if (buffer.length() == 0) {
-            comment_token->type = -3;
+            comment_token->set_type(-3);
             return comment_token;
         }
         if (buffer.length() < 2) {
@@ -277,17 +276,17 @@ comment_analyser(std::fstream *input_file) {
 //            comment_token->type = -2;
 //            return comment_token;
 //        }
-            comment_token->type = -3;
+            comment_token->set_type(-3);
             return comment_token;
         }
-        comment_token->buffer += buffer;
-        comment_token->type = COMMENT;
+        comment_token->set_buffer(buffer); //NEED TO CHECK!
+        comment_token->set_type(COMMENT);
         return comment_token;
 }
 
 
 static Token *
-punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream *input_file) {
+punctuator_analyser(std::string *PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream *input_file) {
     /*
  * DESCRIPTION:
     * punctuator_analyser() attempts to read symbols from stdin until EOF
@@ -306,7 +305,7 @@ punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream 
     buffer += buffer_read;
     delete[] buffer_read;
     if (buffer.length() == 0) {
-        punctuator_token->type = -3;
+        punctuator_token->set_type(-3);
         input_file->seekg(-buffer.length(), std::fstream::cur);
 //            punctuator_token->type = -2;
 //            return punctuator_token;
@@ -316,20 +315,20 @@ punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream 
     unsigned long punctuator_curr_length = buffer.length();
     for (int i = 0; i < punctuator_curr_length; i++) {
         for (int k = 0; k < PUNCTUATORS_AMOUNT; k++) {
-            if (strncmp(PUNCTUATORS[k], buffer.c_str(), (size_t) punctuator_curr_length - i) == 0) {
+            if (strncmp(PUNCTUATORS[k].c_str(), buffer.c_str(), (size_t) punctuator_curr_length - i) == 0) {
 //                buffer_size = punctuator_curr_length - i;
 //                if (fseek(input_file, -i, SEEK_CUR) == -1) {
 //                    punctuator_token->type = -2;
 //                    return punctuator_token;
 //                }
                 input_file->seekg(-i, std::fstream::cur);
-                punctuator_token->buffer = buffer.substr(0, punctuator_curr_length - i);
-                punctuator_token->type = PUNCTUATOR;
+                punctuator_token->set_buffer(buffer.substr(0, punctuator_curr_length - i));
+                punctuator_token->set_type(PUNCTUATOR);
                 return punctuator_token;
             }
         }
     }
-    punctuator_token->type = -3;
+    punctuator_token->set_type(-3);
     
 //    if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
 //        punctuator_token->type = -2;
@@ -341,7 +340,7 @@ punctuator_analyser(char **PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fstream 
 
 
 static Token *
-keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_file) {
+keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_file) {
     /* DESCRIPTION:
     * keyword_analyser() attempts to read symbols from stdin until EOF
     * it uses KEYWORDS array, which contains all available pattern of punctuators
@@ -367,10 +366,7 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_f
     for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
-    int keyword_to_print[KEYWORDS_MAX_LENGTH];
-    for (int i=0; i < KEYWORDS_MAX_LENGTH; i++) {
-        keyword_to_print[i] = 0;
-    }
+    std::string keyword_to_print;
     char curr_symb;
     char is_first_keyword = 1;
     char is_at_least_one_full_keyword = 0;
@@ -378,9 +374,8 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_f
     int amount_symb_was_read = 0;
     int length_of_current_keyword = 0;
     int is_indexes_array_of_zeros = 0;
-    size_t buffer_size = 0;
-    char *buffer = calloc(1, sizeof(buffer));
-    Token *keyword_token = calloc(1, sizeof(*keyword_token));
+    std::string buffer;
+    auto *keyword_token = new Token;
     for (; amount_symb_was_read < KEYWORDS_MAX_LENGTH + 1; amount_symb_was_read++) {
         is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
         for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
@@ -389,47 +384,34 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_f
             }
         }
         if (is_indexes_array_of_zeros) {
-            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                keyword_token->type = -2;
-                
-                return keyword_token;
-            }
-            keyword_token->type = -3;
-            
-            return keyword_token;
+            input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+//                keyword_token->type = -2;
+//                return keyword_token;
+//            }
+//            keyword_token->type = -3;
+//            return keyword_token;
         }
         was_printed = 0;
-        if ((fread(&curr_symb, 1, sizeof(char), input_file)) == 0) {
+        input_file->read(&curr_symb, sizeof(char));
+        amount_symb_was_read++;
+        if (input_file->peek() != EOF) {
             if (is_at_least_one_full_keyword) {
-                buffer_size = length_of_current_keyword;
-                buffer = realloc(buffer, length_of_current_keyword);
-                for (int i = 0; i < length_of_current_keyword; i++) {
-                    buffer[i] = (char) keyword_to_print[i];
-                }
+                buffer = keyword_to_print;
             } else {
 
             }
-            if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
-                keyword_token->type = -2;
-                
-                return keyword_token;
-            }
-            ;
-            buffer = realloc(buffer, buffer_size);
-            buffer[buffer_size-1] = '\0';
-            keyword_token->buffer = calloc(buffer_size, sizeof(char));
-            strncpy(keyword_token->buffer, buffer, buffer_size);
-            keyword_token->type = KEYWORD;
-            
+            input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+            keyword_token->set_buffer(buffer);
+            keyword_token->set_type(-3);
             return keyword_token;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
-            int curr_length = strlen(KEYWORDS[i]);
+            unsigned long curr_length = KEYWORDS[i].length();
             if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
                 if ((amount_symb_was_read == 0) && (is_first_keyword)) {
                     is_first_keyword = 0;
                 }
-                if (strlen(KEYWORDS[i]) == (amount_symb_was_read + 1)) {
+                if (KEYWORDS[i].length() == (amount_symb_was_read + 1)) {
                     is_at_least_one_full_keyword = 1;
                 }
                 if (!was_printed) {
@@ -439,42 +421,36 @@ keyword_analyser(char **KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *input_f
                 }
             } else {
                 if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
-                    buffer_size = length_of_current_keyword;
-                    buffer = realloc(buffer, buffer_size);
-                    for (int k = 0; k < length_of_current_keyword; k++) {
-                        buffer[k] = (char) keyword_to_print[k];
-                    }
-                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                        keyword_token->type = -2;
-                        
-                        return keyword_token;
-                    }
-                    ;
-                    buffer = realloc(buffer, buffer_size);
-                    buffer[buffer_size-1] = '\0';
-                    keyword_token->buffer = calloc(buffer_size, sizeof(char));
-                    strncpy(keyword_token->buffer, buffer, buffer_size);
-                    keyword_token->type = KEYWORD;
-                    
+//                    buffer_size = length_of_current_keyword;
+//                    buffer = realloc(buffer, buffer_size);
+//                    for (int k = 0; k < length_of_current_keyword; k++) {
+//                        buffer[k] = (char) keyword_to_print[k];
+//                    }
+//                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
+//                        keyword_token->type = -2;
+//                        return keyword_token;
+//                    }
+                    buffer = keyword_to_print;
+                    keyword_token->set_buffer(buffer);
+                    keyword_token->set_type(KEYWORD);
                     return keyword_token;
                 }
                 indexes[i] = 0;
             }
         }
     }
-    if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
-        keyword_token->type = -2;
-        
-        return keyword_token;
-    }
-    if (buffer_size == 0) {
-        keyword_token->type = -3;
-        
+//    if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
+//        keyword_token->type = -2;
+//
+//        return keyword_token;
+//    }
+    input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+    if (buffer.length() == 0) {
+        keyword_token->set_type(-3);
         return keyword_token;
     }
     return nullptr;
 }
-
 
 
 
@@ -494,67 +470,56 @@ identifier_analyser(std::fstream *input_file) {
     char curr_symb;
     int amount_symb_was_read = 0;
     int state1 = 0;
-    Token *identifier_token = calloc(1, sizeof(*identifier_token));
-    char *buffer = calloc(1, sizeof(*buffer));
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
+    auto *identifier_token = new Token;
+    std::string buffer;
+    while (input_file->peek() != EOF) {
+        input_file->get(curr_symb);
         amount_symb_was_read++;
         if (state1 == 0) {
             if (is_nondigit(curr_symb)) {
                 state1 = 1;
                 continue;
             } else {
-                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    identifier_token->type = -2;
-                    
-                    return identifier_token;
-                }
-                identifier_token->type = -3;
-                
+                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+//                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
+//                    identifier_token->type = -2;
+//
+//                    return identifier_token;
+//                }
+                identifier_token->set_type(-3);
                 return identifier_token;
             }
         }
         if (state1 == 1) {
             if ((is_nondigit(curr_symb)) || (isdigit(curr_symb)))  {
-
+                continue;
             } else {
-                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    identifier_token->type = -2;
-                    
-                    return identifier_token;
+                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+                identifier_token->set_type(IDENTIFIER);
+                char curr_tok_symb;
+                for (int i = 0; i < amount_symb_was_read; i++) {
+                    input_file->read(&curr_tok_symb, sizeof(char));
+                    identifier_token->set_buffer(identifier_token->get_buffer() + curr_tok_symb);
                 }
-                identifier_token->buffer = calloc(amount_symb_was_read, sizeof(char));
-                identifier_token->type = IDENTIFIER;
-                for(int i = 0; i < amount_symb_was_read-1; i++) {
-                    fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
-                }
-                identifier_token->buffer[amount_symb_was_read-1] = '\0';
-                
                 return identifier_token;
             }
         }
     }
-    if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-        identifier_token->type = -2;
-        
-        return identifier_token;
-    }
+    input_file->seekg(-amount_symb_was_read, std::fstream::cur);
     if (state1 == 1) {
-        identifier_token->buffer = calloc((size_t) amount_symb_was_read + 1, sizeof(char));
-        identifier_token->type = IDENTIFIER;
+        identifier_token->set_type(IDENTIFIER);
+        char curr_tok_symb;
         for (int i = 0; i < amount_symb_was_read; i++) {
-            fread(&identifier_token->buffer[i], 1, sizeof(char), input_file);
+            input_file->get(curr_tok_symb);
+            identifier_token->set_buffer(identifier_token->get_buffer() + curr_tok_symb);
         }
-        identifier_token->buffer[amount_symb_was_read] = '\0';
-        
         return identifier_token;
     }
     if (amount_symb_was_read == 0) {
-        identifier_token->type = -3;
-        
+        identifier_token->set_type(-3);
         return identifier_token;
     }
-    
-    identifier_token->type = -3;
+    identifier_token->set_type(-3);
     return identifier_token;
 }
 
@@ -597,22 +562,18 @@ ucn_analyser(std::fstream *input_file) {
     int amount_symb_was_read = 0;
     int print_u_or_U = 'u'; // if 'u' - print u, if 1 - print 'U'
     int state1 = 0;
-    Token *ucn_token = calloc(1, sizeof(*ucn_token));
-    char *buffer = calloc(1, sizeof(char));
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
+    auto *ucn_token = new Token;
+    std::string buffer;
+    while (input_file->peek() != EOF) {
+        input_file->get(curr_symb);
         amount_symb_was_read++;
         if (state1 == 0) {
             if (curr_symb == '\\') {
                 state1 = 1;
                 continue;
             } else {
-                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    ucn_token->type = -2;
-                    
-                    return ucn_token;
-                }
-                ucn_token->type = -3;
-                
+                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+                ucn_token->set_type(-3);
                 return ucn_token;
             }
         }
@@ -627,67 +588,43 @@ ucn_analyser(std::fstream *input_file) {
                 state1 = 2;
                 continue;
             }
-            if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                ucn_token->type = -2;
-                
-                return ucn_token;
-            }
-            ucn_token->type = -3;
-            
+            input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+            ucn_token->set_type(-3);
             return ucn_token;
         }
         if (state1 == 2) {
             if (is_hexadecimal_digit(curr_symb)) {
-                buffer = realloc(buffer, amount_symb_was_read);
-                buffer[amount_symb_was_read - 3] = '\\';
-                buffer[amount_symb_was_read - 2] = (char) print_u_or_U;
-                buffer[amount_symb_was_read - 1] = curr_symb;
+                buffer += '\\';
+                buffer += (char) print_u_or_U;
+                buffer += curr_symb;
                 state1 = 3;
                 continue;
             } else {
-                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-                    ucn_token->type = -2;
-                    
-                    return ucn_token;
-                }
-                ucn_token->type = -3;
-                
+                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+                ucn_token->set_type(-3);
                 return ucn_token;
             }
         }
         if (state1 == 3) {
             if (is_hexadecimal_digit(curr_symb)) {
-                buffer = realloc(buffer, amount_symb_was_read);
-                buffer[amount_symb_was_read - 1] = curr_symb;
+                buffer += curr_symb;
             } else {
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    ucn_token->type = -2;
-                    
-                    return ucn_token;
-                }
-                buffer = realloc(buffer, amount_symb_was_read);
-                buffer[amount_symb_was_read - 1] = '\0';
-                ucn_token->buffer = calloc(amount_symb_was_read, sizeof(char));
-                strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
-                ucn_token->type = 8;
-                
+                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
+                ucn_token->set_buffer(buffer);
+                ucn_token->set_type(8);
                 return ucn_token;
             }
         }
     }
     amount_symb_was_read++;
-    buffer = realloc(buffer, amount_symb_was_read);
-    buffer[amount_symb_was_read - 1] = '\0';
-    ucn_token->buffer = calloc((size_t) amount_symb_was_read, sizeof(char));
-    strncpy(ucn_token->buffer, buffer, amount_symb_was_read);
-    ucn_token->type = -3;
-    
+    ucn_token->set_buffer(buffer);
+    ucn_token->set_type(8);
     return ucn_token;
 }
 
 
 static int
-white_space_print_skip() {
+white_space_print_skip(std::fstream *input_file) {
     /* DESCRIPTION:
  * white_space_print_skip() attempts to read one symbol from stdin
  * and checks if it is white_space character, then prints it
@@ -702,11 +639,10 @@ white_space_print_skip() {
      * 2, if some kind of error was found
      * 3, if symb is not white_space*/
     char curr_symb;
-    if ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
+    if (input_file->peek() != EOF) {
+        input_file->get(curr_symb);
         if (!is_white_space(curr_symb)) {
-            if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                return 2;
-            }
+            input_file->seekg(-1, std::fstream::cur);
             return 3;
         } else {
             putchar(curr_symb);
@@ -731,115 +667,81 @@ string_literal_analyser(std::fstream *input_file) {
 
     char curr_symb;
     int state = 0;
-    size_t buffer_size = 0;
-    Token *string_literal_token = calloc(1, sizeof(*string_literal_token));
-    char *buffer = calloc(1, sizeof(*buffer));
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
-        ;
+    auto *string_literal_token = new Token;
+    std::string buffer;
+    while (input_file->peek() != EOF) {
+        input_file->get(curr_symb);
         if (state == 0) {
             if (curr_symb == '\"') {
-                buffer[buffer_size - 1] = (char) curr_symb;
-
+                buffer += curr_symb;
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
                 if ((curr_symb == 'L') || (curr_symb == 'U')) {
-                    fread(&curr_symb, 1, sizeof(char), input_file);
-                    ;
+                    input_file->get(curr_symb);
                     if (curr_symb != '\"') {
-                        if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                            string_literal_token->type = -2;
-                            
-                            return string_literal_token;
-                        }
-                        string_literal_token->type = -3;
-                        
+                        input_file->seekg(-2, std::fstream::cur);
+                        string_literal_token->set_type(-3);
                         return string_literal_token;
                     } else {
-                        buffer = realloc(buffer, buffer_size);
-                        buffer[buffer_size - 2] = (char) curr_prefix;
-                        buffer[buffer_size - 1] = '\"';
+                        buffer += (char) curr_prefix;
+                        buffer += '\"';
                         state = 1;
                         continue;
                     }
                 } else { //curr_symb == u
-                    fread(&curr_symb, 1, sizeof(char), input_file);
-                    ;
+                    input_file->get(curr_symb);
                     if ((curr_symb != '8') && (curr_symb != '\"')) {
-                        if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                            string_literal_token->type = -2;
-                            
-                            return string_literal_token;
-                        }
-                        string_literal_token->type = -3;
-                        
+                        input_file->seekg(-2, std::fstream::cur);
+                        string_literal_token->set_type(-3);
                         return string_literal_token;
                     } else {
                         if (curr_symb == '\"') {
-                            buffer = realloc(buffer, buffer_size);
-                            buffer[buffer_size - 2] = (char) curr_prefix;
-                            buffer[buffer_size - 1] = '\"';
+                            buffer += (char) curr_prefix;
+                            buffer += '\"';
                             state = 1;
                             continue;
                         }
                         if (curr_symb == '8') {
-                            fread(&curr_symb, 1, sizeof(char), input_file);
-                            ;
+                            input_file->get(curr_symb);
                             if (curr_symb == '\"') {
-                                buffer = realloc(buffer, buffer_size);
-                                buffer[buffer_size - 3] = (char) curr_prefix;
-                                buffer[buffer_size - 2] = '8';
-                                buffer[buffer_size - 1] = '\"';
+                                buffer += (char) curr_prefix;
+                                buffer += '8';
+                                buffer += '\"';
                                 state = 1;
                                 continue;
                             } else {
-                                if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
-                                    string_literal_token->type = -2;
-                                    
-                                    return string_literal_token;
-                                }
-                                string_literal_token->type = -3;
-                                
+//                                if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
+//                                    string_literal_token->type = -2;
+//
+//                                    return string_literal_token;
+//                                }
+                                input_file->seekg(-buffer.length(), std::fstream::cur); // NEED TO CHECK
+                                string_literal_token->set_type(-3);
                                 return string_literal_token;
                             }
                         }
                     }
                 }
             } else {
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    string_literal_token->type = -2;
-                    
-                    return string_literal_token;
-                }
-                string_literal_token->type = -3;
-                
+                input_file->seekg(-1, std::fstream::cur);
+                string_literal_token->set_type(-3);
                 return string_literal_token;
             }
         }
         if (state == 1) {
-            buffer = realloc(buffer, buffer_size);
-            buffer[buffer_size - 1] = (char) curr_symb;
+            buffer += (char) curr_symb;
             if (curr_symb == '\\') {
                 state = 2;
                 continue;
             } else if (curr_symb == '\"') {
-                ;
-                buffer = realloc(buffer, buffer_size);
-                buffer[buffer_size-1] = '\0';
-                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
-                strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = STRING_LITERAL;
-                
+                string_literal_token->set_buffer(buffer);
+                string_literal_token->set_type(STRING_LITERAL);
                 return string_literal_token;
             } else if (curr_symb == '\n') {
-                ;
-                buffer = realloc(buffer, buffer_size);
-                buffer[buffer_size-1] = '\0';
-                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
-                strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = STRING_LITERAL;
-                
+                string_literal_token->set_buffer(buffer);
+                string_literal_token->set_type(STRING_LITERAL);
                 return string_literal_token;
             } else {
                 state = 1;
@@ -847,20 +749,14 @@ string_literal_analyser(std::fstream *input_file) {
             }
         }
         if (state == 2) {
-            buffer = realloc(buffer, buffer_size);
-            buffer[buffer_size - 1] = (char) curr_symb;
+            buffer += (char) curr_symb;
             if (curr_symb == '\\') {
                 state = 2;
                 continue;
             }
             else if (curr_symb == '\n') {
-                ;
-                buffer = realloc(buffer, buffer_size);
-                buffer[buffer_size-1] = '\0';
-                string_literal_token->buffer = calloc(buffer_size, sizeof(char));
-                strncpy(string_literal_token->buffer, buffer, buffer_size);
-                string_literal_token->type = STRING_LITERAL;
-                
+                string_literal_token->set_buffer(buffer);
+                string_literal_token->set_type(STRING_LITERAL);
                 return string_literal_token;
             }
             else {
@@ -869,13 +765,8 @@ string_literal_analyser(std::fstream *input_file) {
             }
         }
     }
-    string_literal_token->type = STRING_LITERAL;
-    ;
-    buffer = realloc(buffer, buffer_size);
-    buffer[buffer_size-1] = '\0';
-    string_literal_token->buffer = calloc(buffer.length(), sizeof(char));
-    strncpy(string_literal_token->buffer, buffer, buffer.length());
-    
+    string_literal_token->set_type(STRING_LITERAL);
+    string_literal_token->set_buffer(buffer);
     return string_literal_token;
 }
 
@@ -892,66 +783,46 @@ char_consts_analyser(std::fstream *input_file) {
 * */
     char curr_symb;
     int state = 0;
-    Token *char_consts_token = calloc(1, sizeof(*char_consts_token));
-    char *buffer = calloc(1, sizeof(*buffer));
-    while ((fread(&curr_symb, 1, sizeof(char), input_file)) > 0) {
-        ;
+    auto *char_consts_token = new Token;
+    std::string buffer;
+    while (input_file->peek() != EOF) {
+        input_file->get(curr_symb);
         if (state == 0) {
             if (curr_symb == '\'') {
-                buffer = realloc(buffer, buffer.length());
-                buffer[buffer.length() - 1] = (char) curr_symb;
+                buffer += (char) curr_symb;
                 state = 1;
                 continue;
             } else if ((curr_symb == 'L') || (curr_symb == 'U') || (curr_symb == 'u')) {
                 int curr_prefix = curr_symb;
-                fread(&curr_symb, 1, sizeof(char), input_file);
-                ;
+                input_file->get(curr_symb);
                 if (curr_symb == '\'') {
-                    buffer = realloc(buffer, buffer_size);
-                    buffer[buffer.length() - 2] = (char) curr_prefix;
-                    buffer[buffer.length() - 1] = '\'';
+                    buffer += (char) curr_prefix;
+                    buffer += '\'';
                     state = 1;
                     continue;
                 } else {
-                    if (fseek(input_file, -2, SEEK_CUR) == -1) {
-                        char_consts_token->type = -2;
-                        
-                        return char_consts_token;
-                    }
-                    char_consts_token->type = -3;
-                    
+                    input_file->seekg(-2, std::fstream::cur);
+                    char_consts_token->set_type(-3);
                     return char_consts_token;
                 }
             } else {
-                if (fseek(input_file, -1, SEEK_CUR) == -1) {
-                    char_consts_token->type = -2;
-                    
-                    return char_consts_token;
-                }
-                char_consts_token->type = -3;
-                
+                input_file->seekg(-1, std::fstream::cur);
+                char_consts_token->set_type(-3);
                 return char_consts_token;
             }
         }
         if (state == 1) {
-            buffer = realloc(buffer, buffer.length());
-            buffer[buffer.length() - 1] = (char) curr_symb;
+            buffer += (char) curr_symb;
             if (curr_symb == '\\') {
                 state = 2;
                 continue;
             } else if (curr_symb == '\'') {
-                ;
-                buffer = realloc(buffer, buffer.length());
-                buffer[buffer.length()-1] = '\0';
-                char_consts_token->buffer = calloc(buffer.length(), sizeof(char));
-                strncpy(char_consts_token->buffer, buffer, buffer.length());
-                char_consts_token->type = CHAR_CONST;
-                
+                char_consts_token->set_buffer(buffer);
+                char_consts_token->set_type(CHAR_CONST);
                 return char_consts_token;
             } else if (curr_symb == '\n') {
-               char_consts_token->buffer += buffer;
-                char_consts_token->type = CHAR_CONST;
-                
+                char_consts_token->set_buffer(buffer);
+                char_consts_token->set_type(CHAR_CONST);
                 return char_consts_token;
             } else {
                 state = 1;
@@ -959,14 +830,14 @@ char_consts_analyser(std::fstream *input_file) {
             }
         }
         if (state == 2) {
-            buffer[buffer.length() - 1] = (char) curr_symb;
+            buffer += (char) curr_symb;
             if (curr_symb == '\\') {
                 state = 2;
                 continue;
             }
             else if (curr_symb == '\n') {
-                char_consts_token->buffer += buffer;
-                char_consts_token->type = CHAR_CONST;
+                char_consts_token->set_buffer(buffer);
+                char_consts_token->set_type(CHAR_CONST);
                 return char_consts_token;
             }
             else {
@@ -976,14 +847,8 @@ char_consts_analyser(std::fstream *input_file) {
         }
     }
     //EOF
-    char_consts_token->type = CHAR_CONST;
-    ;
-    buffer = realloc(buffer, buffer.length());
-    buffer[buffer.length()-1] = '\0';
-    char_consts_token->buffer = calloc(buffer.length(), sizeof(char));
-    strncpy(char_consts_token->buffer, buffer, buffer.length());
-    char_consts_token->type = CHAR_CONST;
-    
+    char_consts_token->set_buffer(buffer);
+    char_consts_token->set_type(CHAR_CONST);
     return char_consts_token;
 }
 
@@ -992,149 +857,124 @@ char_consts_analyser(std::fstream *input_file) {
 Token *
 analysing_stage(std::fstream *input_file) {
     char symb;
-    int check;
+    char check;
     Token *current_token;
-    while (fread(&check, 1, sizeof(char), input_file) > 0) {
-        if (fseek(input_file, -1, SEEK_CUR) == -1) {
-            perror("fseek error: ");
-            return nullptr;
-        }
-        while (white_space_print_skip() == 0);
-        if (white_space_print_skip() == 1) {
+    while (input_file->peek() != EOF) {
+        input_file->get(check);
+        input_file->seekg(-1, std::fstream::cur);
+        while (white_space_print_skip(input_file) == 0);
+        if (white_space_print_skip(input_file) == 1) {
             break;
         }
 
         current_token = comment_analyser(input_file);
-        if (current_token->type == 7) {
+        if (current_token->get_type() == 7) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Comment analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = string_literal_analyser(input_file);
-        if (current_token->type == 5) {
+        if (current_token->get_type() == 5) {
             return current_token;
-        } else if (current_token->type == -2) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
+        } else if (current_token->get_type() == -2) {
+            if (current_token != nullptr) {
+                delete current_token;
             }
             free(current_token);
             perror("***String literal analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = char_consts_analyser(input_file);
-        if (current_token->type == 4) {
+        if (current_token->get_type() == 4) {
             return current_token;
-        } else if (current_token->type == -2) {\
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Char consts analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH, input_file);
-        if (current_token->type == 1) {
+        if (current_token->get_type() == 1) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Keyword analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = ucn_analyser(input_file);
-        if (current_token->type == 8) {
+        if (current_token->get_type() == 8) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Ucn analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = identifier_analyser(input_file);
-        if (current_token->type == 2) {
+        if (current_token->get_type() == 2) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Identifier analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = number_analyser(input_file);
-        if (current_token->type == 3) {
+        if (current_token->get_type() == 3) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Number analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         current_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH, input_file);
-        if (current_token->type == 6) {
+        if (current_token->get_type() == 6) {
             return current_token;
-        } else if (current_token->type == -2) {
+        } else if (current_token->get_type() == -2) {
             free(current_token);
             perror("***Punctuator analyser***");
             return nullptr;
         }
         if (current_token != nullptr) {
-            if (current_token->buffer != nullptr) {
-                free(current_token->buffer);
-            }
-            free(current_token);
+            delete current_token;
         }
 
         /* if not of the 7 patterns, then print without color */
-        if ((fread(&symb, 1, sizeof(char), input_file)) == 0) {
+        if (input_file->peek() == EOF) {
             perror("getchar error: ");
             return nullptr;
         }
+        input_file->get(symb);
         putchar(symb);
     }
-    current_token = calloc(1, sizeof(*current_token));
-    current_token->type = 0;
+    current_token = new Token;
+    current_token->set_type(0);
     return current_token;
 }

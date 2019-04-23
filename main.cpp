@@ -1,26 +1,26 @@
-//#include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <string>
 #include <unistd.h>
 #include <stdlib.h>
-//#include "analysing.h"
-//#include "coloring.h"
-//#include "counting.h"
+#include "analysing.h"
+#include "coloring.h"
+#include "counting.h"
 #include "input_file.h"
-//#include "token_processing.h"
 #include "input_stdin_type.h"
 #include "token.h"
 
-//int
-//output_stage(Token token);
-/* DESCRIPTION:
-    * output_stage takes 1 parameter - token struct, which will be printed to stdout
-    *
- * RETURN VALUES:
-    * token struct with colored buffer, if everything was correct
-    * nullptr, if buffer or token is nullptr
- */
 
+int
+output_stage(Token token);
+///* DESCRIPTION:
+//    * output_stage takes 1 parameter - token struct, which will be printed to stdout
+//    *
+// * RETURN VALUES:
+//    * token struct with colored buffer, if everything was correct
+//    * nullptr, if buffer or token is nullptr
+// */
+//
 
 int main(int argc, char *argv[]) {
     /* argv[1] - input type:
@@ -29,8 +29,11 @@ int main(int argc, char *argv[]) {
      * argv[2] - input_file_name:
         * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
     */
-    std::fstream f;
+
+    std::fstream input_file;
     std::string file_name;
+
+
     if (argc <= 1) {
         printf("Not enough program parametrs.\n");
         return 1;
@@ -69,132 +72,61 @@ int main(int argc, char *argv[]) {
     std::string processing_type;
     if (strcmp(argv[1], "0") == 0) {
         processing_type = argv[2];
-        input_stdin_type(file_name, &f);
+        input_stdin_type(file_name, &input_file);
     } else {
         processing_type = argv[3];
-        input_file_type(file_name, &f);
-    }
-    Token *curr_token;
-    curr_token = punctuator_analyser(punctuators, PUNCTUATOR_MAX_LENGTH, &f);
-    std::cout << curr_token->type;
-    f.close();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*    if (argc <= 1) {
-        printf("Not enough program parametrs.\n");
-        return 1;
-    }
-
-    if (argv[2] != nullptr) {
-        file_name = argv[2];
-    } else if (strcmp(argv[1], "1") == 0) {
-        fprintf(stderr, "You need to write file name in mode 1");
-        return 1;
-    }
-    if (strcmp(argv[1], "1") == 0) {
-        if (argv[3] == nullptr) {
-            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in third parametr(input type - 1)");
-            return 1;
-        }
-        if ((strcmp(argv[3], "coloring") != 0) && (strcmp(argv[3], "counting") != 0)) {
-            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in third parametr(input type - 1)");
-            return 1;
-        }
-    } else if (strcmp(argv[1], "0") == 0) {
-        if (argv[2] == nullptr) {
-            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in second parametr(input type - 0)");
-            return 1;
-        }
-        if ((strcmp(argv[2], "coloring") != 0) && (strcmp(argv[2], "counting") != 0)) {
-            fprintf(stderr, "You need to choose processing method: \"coloring\" or \"counting\" in second parametr(input type - 0)");
-            return 1;
-        }
-    }
-    if ((strcmp(argv[1], "0") != 0) && (strcmp(argv[1], "1") != 0)) {
-        fprintf(stderr, "First argument of program must be 0 or 1");
-        return 1;
-    }
-
-    std::string processing_type;
-    if (strcmp(argv[1], "0") == 0) {
-        processing_type = argv[2];
-        input_stage = input_stdin_type;
-    } else {
-        processing_type = argv[3];
-        input_stage = input_file_type;
+        input_file_type(file_name, &input_file);
     }
     if (processing_type == "coloring") {
-        token_init = (int (* ) (TokenProcessor **)) token_init_color;
-        token_destruct = (void (* ) (TokenProcessor *)) token_destruct_color;
+        TokenProcessor_coloring token_colorer;
     } else if (processing_type == "counting") {
-        token_init = (int (*) (TokenProcessor **)) token_init_count;
-        token_destruct = (void (*) (TokenProcessor *)) token_destruct_count;
+        TokenProcessor_counting token_processor_obj;
     }
-    TokenProcessor *token_processing_struct; //init processing func
-    token_init(&token_processing_struct);
-
-    input_file = input_stage(file_name);
-    if (input_file == nullptr) {
-        if ((int) argv[1][0] == '0') {
-            unlink(file_name);
-        }
-        free(file_name);
-        perror("Input stage error: ");
-        return 1;
-    }
+    TokenProcessor_coloring token_processor_obj;
+//    input_file = input_stage(file_name);
+//    if (input_file == nullptr) {
+//        if ((int) argv[1][0] == '0') {
+//            remove(file_name.c_str();
+//        }
+//        
+//        perror("Input stage error: ");
+//        return 1;
+//    }
     Token *current_token;
-    while ((current_token = analysing_stage()) != nullptr) {
-        if (current_token->type == 0) {
+    while ((current_token = analysing_stage(&input_file)) != nullptr) {
+        if (current_token->get_type() == 0) {
             break;
         }
-        token_processing_struct->process_token(current_token, token_processing_struct);
+        token_processor_obj.process_token(current_token);
         output_stage(*current_token);
-        free(current_token);
+        delete current_token;
     }
     if (current_token == nullptr) {
         if ((int) argv[1][0] == '0') {
-            unlink(file_name);
+            remove(file_name.c_str());
         }
-        fclose(input_file);
-        token_destruct(token_processing_struct);
-        free(file_name);
+        input_file.close();
         perror("Coloring stage error: ");
         return 1;
     }
-    free(current_token);
-    if (strcmp(processing_type, "counting") == 0) {
-        output_count_statistics((TokenProcessor_counting *) token_processing_struct);
+    delete current_token;
+    if (processing_type == "counting") {
+//        output_count_statistics((TokenProcessor_counting *) token_processing_struct);
     }
-    fclose(input_file);
+    input_file.close();
     if ((int) argv[1][0] == '0') {
-        unlink(file_name);
+        remove(file_name.c_str());
     }
-    token_destruct(token_processing_struct);
-    free(file_name);
     return 0;
 }
 
 
 int
 output_stage(Token token) {
-    if (token.buffer == nullptr) {
+    if (token.get_buffer().length() == 0) {
         fprintf(stdout, "Error in output_stage");
         return -1;
     }
-    printf("%s", token.buffer);
+    std::cout << token.get_buffer();
     return 0;
-    */
 }
