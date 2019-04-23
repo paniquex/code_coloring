@@ -96,6 +96,8 @@ int main(int argc, char *argv[]) {
     while ((current_token = analysing_stage(&input_file)) != nullptr) {
         if (current_token->get_type() == 0) {
             break;
+        } else if (current_token->get_type() == -1) {
+            return 1;
         }
         token_processor_obj.process_token(current_token);
         output_stage(*current_token);

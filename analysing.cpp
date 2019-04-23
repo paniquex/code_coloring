@@ -301,16 +301,25 @@ punctuator_analyser(std::string *PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fs
     std::string buffer;
     char *buffer_read = new char[PUNCTUATOR_MAX_LENGTH];
     auto *punctuator_token = new Token;
-    input_file->read(buffer_read, sizeof(char) * PUNCTUATOR_MAX_LENGTH);
+    for (int i = 0; i < PUNCTUATOR_MAX_LENGTH; i++) {
+        if (input_file->peek() == EOF) {
+            break;
+        }
+        input_file->read(buffer_read + i, sizeof(char));
+    }
+    if (strlen(buffer_read) == 0) {
+        punctuator_token->set_type(-3);
+        return punctuator_token;
+    }
     buffer += buffer_read;
     delete[] buffer_read;
     if (buffer.length() == 0) {
         punctuator_token->set_type(-3);
-        input_file->seekg(-buffer.length(), std::fstream::cur);
+//        input_file->seekg(-buffer.length(), std::fstream::cur);
 //            punctuator_token->type = -2;
 //            return punctuator_token;
 //        }
-//        return punctuator_token;
+        return punctuator_token;
     }
     unsigned long punctuator_curr_length = buffer.length();
     for (int i = 0; i < punctuator_curr_length; i++) {
@@ -361,9 +370,55 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
      * output:_Imaginary*WHITESPACE*
  */
 
-    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
+    std::string buffer;
+    char *buffer_read = new char[KEYWORDS_MAX_LENGTH];
+    auto *keyword_token = new Token;
+    for (int i = 0; i < KEYWORDS_MAX_LENGTH; i++) {
+        if (input_file->peek() == EOF) {
+            break;
+        }
+        input_file->read(buffer_read + i, sizeof(char));
+    }
+    if (strlen(buffer_read) == 0) {
+        keyword_token->set_type(-3);
+        return keyword_token;
+    }
+    buffer += buffer_read;
+    delete[] buffer_read;
+    if (buffer.length() == 0) {
+        keyword_token->set_type(-3);
+//            keyword_token->type = -2;
+//            return keyword_token;
+//        }
+        return keyword_token;
+    }
+    unsigned long keyword_curr_length = buffer.length();
+    for (int i = 0; i < keyword_curr_length; i++) {
+        for (int k = 0; k < KEYWORDS_AMOUNT; k++) {
+            if (strncmp(KEYWORDS[k].c_str(), buffer.c_str(), (size_t) keyword_curr_length - i) == 0) {
+//                buffer_size = keyword_curr_length - i;
+//                if (fseek(input_file, -i, SEEK_CUR) == -1) {
+//                    keyword_token->type = -2;
+//                    return keyword_token;
+//                }
+                input_file->seekg(-i, std::fstream::cur);
+                keyword_token->set_buffer(buffer.substr(0, keyword_curr_length - i));
+                keyword_token->set_type(KEYWORD);
+                return keyword_token;
+            }
+        }
+    }
+    keyword_token->set_type(-3);
+    input_file->seekg(-buffer.length(), std::fstream::cur);
+    return keyword_token;
+}
+
+
+
+
+/*    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
                                                     0, else*/
-    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
+/*    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
         indexes[i] = 1;
     }
     std::string keyword_to_print;
@@ -388,8 +443,8 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
 //                keyword_token->type = -2;
 //                return keyword_token;
 //            }
-//            keyword_token->type = -3;
-//            return keyword_token;
+            keyword_token->set_type(-3);
+            return keyword_token;
         }
         was_printed = 0;
         input_file->read(&curr_symb, sizeof(char));
@@ -402,7 +457,7 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
             }
             input_file->seekg(-amount_symb_was_read, std::fstream::cur);
             keyword_token->set_buffer(buffer);
-            keyword_token->set_type(-3);
+            keyword_token->set_type(KEYWORD);
             return keyword_token;
         }
         for (int i=0; i < KEYWORDS_AMOUNT; i++) {
@@ -450,7 +505,7 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
         return keyword_token;
     }
     return nullptr;
-}
+    */
 
 
 
@@ -906,7 +961,7 @@ analysing_stage(std::fstream *input_file) {
             delete current_token;
         }
 
-        current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH, input_file);
+       current_token = keyword_analyser(keywords, KEYWORDS_MAX_LENGTH, input_file);
         if (current_token->get_type() == 1) {
             return current_token;
         } else if (current_token->get_type() == -2) {
@@ -972,6 +1027,11 @@ analysing_stage(std::fstream *input_file) {
             return nullptr;
         }
         input_file->get(symb);
+//        if (symb == '\0') {
+//            std::cout << "Terminator symbol was found. Exit...";
+//            current_token->set_type(-1);
+//            return current_token;
+//        }
         putchar(symb);
     }
     current_token = new Token;
