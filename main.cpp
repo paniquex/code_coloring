@@ -3,24 +3,25 @@
 #include <string>
 #include <unistd.h>
 #include <stdlib.h>
-#include "analysing.h"
-#include "coloring.h"
-#include "counting.h"
-#include "input_file.h"
-#include "input_stdin_type.h"
-#include "token.h"
+#include "analysing.hpp"
+#include "token_headers/coloring.hpp"
+#include "token_headers/counting.hpp"
+#include "headers/input_file.hpp"
+#include "headers/input_stdin_type.hpp"
+#include "token_headers/token.hpp"
+#include "token_headers/token_processing.hpp"
 
 
 int
 output_stage(Token token);
-///* DESCRIPTION:
-//    * output_stage takes 1 parameter - token struct, which will be printed to stdout
-//    *
-// * RETURN VALUES:
-//    * token struct with colored buffer, if everything was correct
-//    * nullptr, if buffer or token is nullptr
-// */
-//
+/* DESCRIPTION:
+    * output_stage takes 1 parameter - token struct, which will be printed to stdout
+    *
+ * RETURN VALUES:
+    * token struct with colored buffer, if everything was correct
+    * nullptr, if buffer or token is nullptr
+ */
+
 
 int main(int argc, char *argv[]) {
     /* argv[1] - input type:
@@ -77,21 +78,14 @@ int main(int argc, char *argv[]) {
         processing_type = argv[3];
         input_file_type(file_name, &input_file);
     }
+    TokenProcessor *token_processor_obj;
     if (processing_type == "coloring") {
-        TokenProcessor_coloring token_colorer;
+        auto *token_colorer = new TokenProcessor_coloring;
+        token_processor_obj = token_colorer;
     } else if (processing_type == "counting") {
-        TokenProcessor_counting token_processor_obj;
+        auto *token_counter = new TokenProcessor_counting;
+        token_processor_obj = token_counter;
     }
-    TokenProcessor_coloring token_processor_obj;
-//    input_file = input_stage(file_name);
-//    if (input_file == nullptr) {
-//        if ((int) argv[1][0] == '0') {
-//            remove(file_name.c_str();
-//        }
-//        
-//        perror("Input stage error: ");
-//        return 1;
-//    }
     Token *current_token;
     while ((current_token = analysing_stage(&input_file)) != nullptr) {
         if (current_token->get_type() == 0) {
@@ -99,7 +93,7 @@ int main(int argc, char *argv[]) {
         } else if (current_token->get_type() == -1) {
             return 1;
         }
-        token_processor_obj.process_token(current_token);
+        token_processor_obj->process_token(current_token);
         output_stage(*current_token);
         delete current_token;
     }
@@ -109,16 +103,18 @@ int main(int argc, char *argv[]) {
         }
         input_file.close();
         perror("Coloring stage error: ");
+        delete token_processor_obj;
         return 1;
     }
     delete current_token;
     if (processing_type == "counting") {
-//        output_count_statistics((TokenProcessor_counting *) token_processing_struct);
+        token_processor_obj->print_token();
     }
     input_file.close();
     if ((int) argv[1][0] == '0') {
         remove(file_name.c_str());
     }
+    delete token_processor_obj;
     return 0;
 }
 

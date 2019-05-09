@@ -1,10 +1,5 @@
-#include "analysing.h"
-#include "input.h"
-#include "coloring.h"
-#include "token_processing.h"
-#include "counting.h"
-#include "token.h"
-#include <string>
+#include "analysing.hpp"
+
 
 
 /* keywords_amount for keyword_analyser func */
@@ -117,10 +112,10 @@ number_analyser(std::fstream *input_file) {
  * after first digit was found, if current symbol != digit, then saves it in Token->buffer, and changes Token->type
  * "standard color key".
  * RETURN VALUES:
-     * 0 - if digit was found
-     * 1 - if EOF was found
-     * 2 - if some kind of error was found
-     * 3 - if digit was not found
+     * token with type 0- if digit was found
+     * token with type 1 - if EOF was found
+     * token with type 2 - if some kind of error was found
+     * token with type 3 - if digit was not found
 */
     char curr_symb, is_first_digit = 1;
     auto *number_token = new Token;
@@ -135,23 +130,16 @@ number_analyser(std::fstream *input_file) {
         } else {
             if (!is_first_digit) {
                 input_file->seekg(-1, std::fstream::cur);
-//                    number_token->type = -2;
-
-//                    return number_token;
-//                }
                 number_token->set_buffer(buffer);;
                 number_token->set_type(NUMBER);
                 return number_token;
             }
             input_file->seekg(-1, std::fstream::cur);
-//                number_token->type = -2;
-//                return number_token;
-//            }
             number_token->set_type(-3);
             return number_token;
         }
     }
-    number_token->set_buffer(buffer); //NEED TO CHECK!
+    number_token->set_buffer(buffer);
     number_token->set_type(NUMBER);
     return number_token;
 }
@@ -164,10 +152,10 @@ comment_analyser(std::fstream *input_file) {
     * comment_analyser() attempts to read symbols from stdin until EOF
     * if it has found "comment token(or pattern)", then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
-    * 0, if somekind of comment was found
-    * 1, if EOF was reached
-    * 2, if somekind of error was found
-    * 3, if comment was not found
+    * token with type 0, if somekind of comment was found
+    * token with type 1, if EOF was reached
+    * token with type 2, if somekind of error was found
+    * token with type 3, if comment was not found
 */
 
     char curr_symb;
@@ -182,9 +170,6 @@ comment_analyser(std::fstream *input_file) {
             continue;
         } else if ((state1 == 0) && (state2 == 0)) {
             input_file->seekg(-1, std::fstream::cur);
-//                comment_token->type = -2;
-//                return comment_token;
-//            }
             comment_token->set_type(-3);
             return comment_token;
         }
@@ -193,9 +178,6 @@ comment_analyser(std::fstream *input_file) {
                 state1 = 0;
                 state2 = 0;
                 input_file->seekg(-1, std::fstream::cur);
-//                    comment_token->type = -2;
-//                    return comment_token;
-//                }
                 comment_token->set_type(-3);
                 return comment_token;
             } else {
@@ -218,10 +200,6 @@ comment_analyser(std::fstream *input_file) {
             if (curr_symb == '\n') {
                 state1 = 0;
                 input_file->seekg(-1, std::fstream::cur);
-//                    comment_token->type = -2;
-//
-//                    return comment_token;
-//                }
                 comment_token->set_buffer(buffer);
                 comment_token->set_type(COMMENT);
                 return comment_token;
@@ -261,9 +239,6 @@ comment_analyser(std::fstream *input_file) {
             continue;
         }
         input_file->seekg(-1, std::fstream::cur);
-//            comment_token->type = -2;
-//            return comment_token;
-//        }
         comment_token->set_type(-3);
         return comment_token;
     }
@@ -273,13 +248,10 @@ comment_analyser(std::fstream *input_file) {
         }
         if (buffer.length() < 2) {
             input_file->seekg(-1, std::fstream::cur);
-//            comment_token->type = -2;
-//            return comment_token;
-//        }
             comment_token->set_type(-3);
             return comment_token;
         }
-        comment_token->set_buffer(buffer); //NEED TO CHECK!
+        comment_token->set_buffer(buffer);
         comment_token->set_type(COMMENT);
         return comment_token;
 }
@@ -293,43 +265,37 @@ punctuator_analyser(std::string *PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fs
     * it uses PUNCTUATORS array, which contains all available pattern of punctuators
     * if it has found "punctuator token(or pattern)" then saved it in Token->buffer, and changes Token->type
  * RETURN VALUES:
-     * 0, if punctuator was found and printed
-     * 1, if EOF was reached
-     * 2, if somekind of error was found
-     * 3, if no punctuator was found
+     * token with type 0, if punctuator was found and printed
+     * token with type 1, if EOF was reached
+     * token with type 2, if somekind of error was found
+     * token with type 3, if no punctuator was found
 */
     std::string buffer;
-    char *buffer_read = new char[PUNCTUATOR_MAX_LENGTH];
+    char buffer_read;
     auto *punctuator_token = new Token;
     for (int i = 0; i < PUNCTUATOR_MAX_LENGTH; i++) {
         if (input_file->peek() == EOF) {
             break;
         }
-        input_file->read(buffer_read + i, sizeof(char));
+        input_file->read(&buffer_read, sizeof(char));
+        if (buffer_read == '\0') {
+            punctuator_token->set_type(-3);
+            return punctuator_token;
+        }
+        buffer += buffer_read;
     }
-    if (strlen(buffer_read) == 0) {
+    if (buffer.length() == 0) {
         punctuator_token->set_type(-3);
         return punctuator_token;
     }
-    buffer += buffer_read;
-    delete[] buffer_read;
     if (buffer.length() == 0) {
         punctuator_token->set_type(-3);
-//        input_file->seekg(-buffer.length(), std::fstream::cur);
-//            punctuator_token->type = -2;
-//            return punctuator_token;
-//        }
         return punctuator_token;
     }
     unsigned long punctuator_curr_length = buffer.length();
-    for (int i = 0; i < punctuator_curr_length; i++) {
+    for (unsigned long i = 0; i < punctuator_curr_length; i++) {
         for (int k = 0; k < PUNCTUATORS_AMOUNT; k++) {
             if (strncmp(PUNCTUATORS[k].c_str(), buffer.c_str(), (size_t) punctuator_curr_length - i) == 0) {
-//                buffer_size = punctuator_curr_length - i;
-//                if (fseek(input_file, -i, SEEK_CUR) == -1) {
-//                    punctuator_token->type = -2;
-//                    return punctuator_token;
-//                }
                 input_file->seekg(-i, std::fstream::cur);
                 punctuator_token->set_buffer(buffer.substr(0, punctuator_curr_length - i));
                 punctuator_token->set_type(PUNCTUATOR);
@@ -338,11 +304,6 @@ punctuator_analyser(std::string *PUNCTUATORS, int PUNCTUATOR_MAX_LENGTH, std::fs
         }
     }
     punctuator_token->set_type(-3);
-    
-//    if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
-//        punctuator_token->type = -2;
-//        return punctuator_token;
-//    }
     input_file->seekg(-buffer.length(), std::fstream::cur);
     return punctuator_token;
 }
@@ -355,10 +316,10 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
     * it uses KEYWORDS array, which contains all available pattern of punctuators
     * if it has found "keyword token(or pattern)" then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
-     * 0, if keyword was found and printed
-     * 1, if EOF was reached
-     * 2, if somekind of error was found
-     * 3, if no keyword was found
+     * token with type 0, if keyword was found and printed
+     * token with type 1, if EOF was reached
+     * token with type 2, if somekind of error was found
+     * token with type 3, if no keyword was found
   Important:
     * at the end of keyword must be at least one white space, if keyword ends without white spaces - don't print
   EXAMPLE:
@@ -371,36 +332,32 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
  */
 
     std::string buffer;
-    char *buffer_read = new char[KEYWORDS_MAX_LENGTH];
+
+    char buffer_read;
     auto *keyword_token = new Token;
     for (int i = 0; i < KEYWORDS_MAX_LENGTH; i++) {
         if (input_file->peek() == EOF) {
             break;
         }
-        input_file->read(buffer_read + i, sizeof(char));
+        input_file->read(&buffer_read, sizeof(char));
+        if (buffer_read == '\0') {
+            keyword_token->set_type(-3);
+            return keyword_token;
+        }
+        buffer += buffer_read;
     }
-    if (strlen(buffer_read) == 0) {
+    if (buffer.length() == 0) {
         keyword_token->set_type(-3);
         return keyword_token;
     }
-    buffer += buffer_read;
-    delete[] buffer_read;
     if (buffer.length() == 0) {
         keyword_token->set_type(-3);
-//            keyword_token->type = -2;
-//            return keyword_token;
-//        }
         return keyword_token;
     }
     unsigned long keyword_curr_length = buffer.length();
-    for (int i = 0; i < keyword_curr_length; i++) {
+    for (unsigned long i = 0; i < keyword_curr_length; i++) {
         for (int k = 0; k < KEYWORDS_AMOUNT; k++) {
             if (strncmp(KEYWORDS[k].c_str(), buffer.c_str(), (size_t) keyword_curr_length - i) == 0) {
-//                buffer_size = keyword_curr_length - i;
-//                if (fseek(input_file, -i, SEEK_CUR) == -1) {
-//                    keyword_token->type = -2;
-//                    return keyword_token;
-//                }
                 input_file->seekg(-i, std::fstream::cur);
                 keyword_token->set_buffer(buffer.substr(0, keyword_curr_length - i));
                 keyword_token->set_type(KEYWORD);
@@ -415,100 +372,6 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
 
 
 
-
-/*    short int indexes[KEYWORDS_AMOUNT];          /* 1, if start of keyword matches with KEYWORDS i-th row
-                                                    0, else*/
-/*    for (int i=0; i < KEYWORDS_AMOUNT; i++) {
-        indexes[i] = 1;
-    }
-    std::string keyword_to_print;
-    char curr_symb;
-    char is_first_keyword = 1;
-    char is_at_least_one_full_keyword = 0;
-    char was_printed = 0; // if on symb_was_read-step one symbol of keyword was printed
-    int amount_symb_was_read = 0;
-    int length_of_current_keyword = 0;
-    int is_indexes_array_of_zeros = 0;
-    std::string buffer;
-    auto *keyword_token = new Token;
-    for (; amount_symb_was_read < KEYWORDS_MAX_LENGTH + 1; amount_symb_was_read++) {
-        is_indexes_array_of_zeros = 1; // for check if there is at leats one 1
-        for (int i = 0; i < KEYWORDS_AMOUNT; i++) {
-            if (indexes[i] != 0) {
-                is_indexes_array_of_zeros = 0;
-            }
-        }
-        if (is_indexes_array_of_zeros) {
-            input_file->seekg(-amount_symb_was_read, std::fstream::cur);
-//                keyword_token->type = -2;
-//                return keyword_token;
-//            }
-            keyword_token->set_type(-3);
-            return keyword_token;
-        }
-        was_printed = 0;
-        input_file->read(&curr_symb, sizeof(char));
-        amount_symb_was_read++;
-        if (input_file->peek() != EOF) {
-            if (is_at_least_one_full_keyword) {
-                buffer = keyword_to_print;
-            } else {
-
-            }
-            input_file->seekg(-amount_symb_was_read, std::fstream::cur);
-            keyword_token->set_buffer(buffer);
-            keyword_token->set_type(KEYWORD);
-            return keyword_token;
-        }
-        for (int i=0; i < KEYWORDS_AMOUNT; i++) {
-            unsigned long curr_length = KEYWORDS[i].length();
-            if ((KEYWORDS[i][amount_symb_was_read] == curr_symb) && (curr_length >= amount_symb_was_read) && (indexes[i] == 1)) {
-                if ((amount_symb_was_read == 0) && (is_first_keyword)) {
-                    is_first_keyword = 0;
-                }
-                if (KEYWORDS[i].length() == (amount_symb_was_read + 1)) {
-                    is_at_least_one_full_keyword = 1;
-                }
-                if (!was_printed) {
-                    keyword_to_print[length_of_current_keyword] = curr_symb;
-                    length_of_current_keyword++;
-                    was_printed = 1;
-                }
-            } else {
-                if ((is_white_space(curr_symb)) && (curr_length >= amount_symb_was_read) && (indexes[i] != 0)) {
-//                    buffer_size = length_of_current_keyword;
-//                    buffer = realloc(buffer, buffer_size);
-//                    for (int k = 0; k < length_of_current_keyword; k++) {
-//                        buffer[k] = (char) keyword_to_print[k];
-//                    }
-//                    if (fseek(input_file, -1, SEEK_CUR) == -1) {
-//                        keyword_token->type = -2;
-//                        return keyword_token;
-//                    }
-                    buffer = keyword_to_print;
-                    keyword_token->set_buffer(buffer);
-                    keyword_token->set_type(KEYWORD);
-                    return keyword_token;
-                }
-                indexes[i] = 0;
-            }
-        }
-    }
-//    if (fseek(input_file, -amount_symb_was_read + length_of_current_keyword, SEEK_CUR) == -1) {
-//        keyword_token->type = -2;
-//
-//        return keyword_token;
-//    }
-    input_file->seekg(-amount_symb_was_read, std::fstream::cur);
-    if (buffer.length() == 0) {
-        keyword_token->set_type(-3);
-        return keyword_token;
-    }
-    return nullptr;
-    */
-
-
-
 static Token *
 identifier_analyser(std::fstream *input_file) {
     /* DESCRIPTION:
@@ -516,10 +379,10 @@ identifier_analyser(std::fstream *input_file) {
  * if it has found "identifier token(or pattern)" then saves it in Token->buffer, and changes Token->type
  *
  * RETURN VALUES:
-    * 0, if identifier was found and printed
-    * 1, if EOF was reached
-    * 2, if somekind of error was found
-    * 3, if no identifier was found
+    * token with type 0, if identifier was found and printed
+    * token with type 1, if EOF was reached
+    * token with type 2, if somekind of error was found
+    * token with type 3, if no identifier was found
 */
 
     char curr_symb;
@@ -536,11 +399,6 @@ identifier_analyser(std::fstream *input_file) {
                 continue;
             } else {
                 input_file->seekg(-amount_symb_was_read, std::fstream::cur);
-//                if (fseek(input_file, -amount_symb_was_read, SEEK_CUR) == -1) {
-//                    identifier_token->type = -2;
-//
-//                    return identifier_token;
-//                }
                 identifier_token->set_type(-3);
                 return identifier_token;
             }
@@ -608,10 +466,10 @@ ucn_analyser(std::fstream *input_file) {
  * if it has found "universal character token(or pattern)" then saves it in Token->buffer, and changes Token->type
  *
  * RETURN VALUES:
-    * 0, if Universal character name was found and printed
-    * 1, if EOF was reached
-    * 2, if somekind of error was found
-    * 3, if no Universal character name was found
+    * token with type 0, if Universal character name was found and printed
+    * token with type 1, if EOF was reached
+    * token with type 2, if somekind of error was found
+    * token with type 3, if no Universal character name was found
 */
     char curr_symb;
     int amount_symb_was_read = 0;
@@ -684,15 +542,15 @@ white_space_print_skip(std::fstream *input_file) {
  * white_space_print_skip() attempts to read one symbol from stdin
  * and checks if it is white_space character, then prints it
  * RETURN VALUES:
-    * 0, if this symb is white_space
-    * 1, if EOF
-    * 2, if some kind of error was found
-    * 3, if symb is not white_space
+    * token with type 0, if this symb is white_space
+    * token with type 1, if EOF
+    * token with type 2, if some kind of error was found
+    * token with type 3, if symb is not white_space
 */
-    /* 0, if this symb is white_space
-     * 1, if EOF
-     * 2, if some kind of error was found
-     * 3, if symb is not white_space*/
+    /* token with type 0, if this symb is white_space
+     * token with type 1, if EOF
+     * token with type 2, if some kind of error was found
+     * token with type 3, if symb is not white_space*/
     char curr_symb;
     if (input_file->peek() != EOF) {
         input_file->get(curr_symb);
@@ -714,10 +572,10 @@ string_literal_analyser(std::fstream *input_file) {
     * string_literal_analyser() attempts to read symbols from stdin until EOF
     * if it has found "string_literal token(or pattern)" then saves it in Token->buffer, and changes Token->type
  * RETURN VALUES:
-    * 0, if string_literal was found and printed
-    * 1, if EOF was reached
-    * 2, if somekind of error was found
-    * 3, if no string_literal was found
+    * token with type 0, if string_literal was found and printed
+    * token with type 1, if EOF was reached
+    * token with type 2, if somekind of error was found
+    * token with type 3, if no string_literal was found
  * */
 
     char curr_symb;
@@ -767,12 +625,7 @@ string_literal_analyser(std::fstream *input_file) {
                                 state = 1;
                                 continue;
                             } else {
-//                                if (fseek(input_file, -buffer_size, SEEK_CUR) == -1) {
-//                                    string_literal_token->type = -2;
-//
-//                                    return string_literal_token;
-//                                }
-                                input_file->seekg(-buffer.length(), std::fstream::cur); // NEED TO CHECK
+                                input_file->seekg(-buffer.length(), std::fstream::cur);
                                 string_literal_token->set_type(-3);
                                 return string_literal_token;
                             }
@@ -831,10 +684,10 @@ char_consts_analyser(std::fstream *input_file) {
    * char_consts_analyser() attempts to read symbols from stdin until EOF
    * if it has found "char_consts token(or pattern)" then saves it in Token->buffer, and changes Token->type
 * RETURN VALUES:
-   * 0, if char_consts was found and printed
-   * 1, if EOF was reached
-   * 2, if somekind of error was found
-   * 3, if no char_consts was found
+   * token with type 0, if char_consts was found and printed
+   * token with type 1, if EOF was reached
+   * token with type 2, if somekind of error was found
+   * token with type 3, if no char_consts was found
 * */
     char curr_symb;
     int state = 0;
@@ -1027,11 +880,6 @@ analysing_stage(std::fstream *input_file) {
             return nullptr;
         }
         input_file->get(symb);
-//        if (symb == '\0') {
-//            std::cout << "Terminator symbol was found. Exit...";
-//            current_token->set_type(-1);
-//            return current_token;
-//        }
         putchar(symb);
     }
     current_token = new Token;

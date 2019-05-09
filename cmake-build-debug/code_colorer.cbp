@@ -87,40 +87,37 @@
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/analysing.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/analysing.h">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/analysing.hpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/coloring.cpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/coloring.h">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/counting.cpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/counting.h">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/input_file.cpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/input_file.h">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/input_stdin_type.cpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/input_stdin_type.h">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/input_stdin_type.hpp">
 			<Option target="code_colorer"/>
 		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/main.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token.cpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/source/input_file.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token.h">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/coloring.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/counting.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/CMakeLists.txt">

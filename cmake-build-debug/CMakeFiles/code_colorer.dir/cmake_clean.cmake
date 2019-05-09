@@ -1,11 +1,10 @@
 file(REMOVE_RECURSE
   "CMakeFiles/code_colorer.dir/main.cpp.o"
-  "CMakeFiles/code_colorer.dir/input_file.cpp.o"
-  "CMakeFiles/code_colorer.dir/input_stdin_type.cpp.o"
+  "CMakeFiles/code_colorer.dir/source/input_file.cpp.o"
+  "CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o"
   "CMakeFiles/code_colorer.dir/analysing.cpp.o"
-  "CMakeFiles/code_colorer.dir/coloring.cpp.o"
-  "CMakeFiles/code_colorer.dir/counting.cpp.o"
-  "CMakeFiles/code_colorer.dir/token.cpp.o"
+  "CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o"
+  "CMakeFiles/code_colorer.dir/token_sources/token.cpp.o"
   "code_colorer.pdb"
   "code_colorer"
 )
