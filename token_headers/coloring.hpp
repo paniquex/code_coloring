@@ -27,9 +27,9 @@ class TokenProcessor_coloring: public TokenProcessor  {
     */
 public:
     void process_token(Token *token) {
-        /* DESCRIPTION:
+/* DESCRIPTION:
     * token_coloring takes 1 parameter, first - Token struct
-    *
+    * by token type it colors token in the right color
  */
         std::string color;
         switch (token->get_type()) {

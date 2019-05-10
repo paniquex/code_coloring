@@ -22,6 +22,10 @@ private:
 public:
     TokenProcessor_counting();
     void process_token(Token *token) {
+/* DESCRIPTION:
+*  process_token takes pointer to Token
+ *  It adds amount by the type of Token.
+*/
         switch (token->get_type()) {
             case KEYWORD:
                 keyword_amount++;

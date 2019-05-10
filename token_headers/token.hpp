@@ -5,6 +5,12 @@
 enum {KEYWORD = 1, IDENTIFIER, NUMBER, CHAR_CONST, STRING_LITERAL, PUNCTUATOR, COMMENT};
 
 class Token {
+/* DESCRIPTION:
+ * class Token has:
+ *      2 private data records - token buffer and type of token
+ *      4 methods - getters and setters
+ *
+ */
 private:
     std::string buffer;
     int type;
