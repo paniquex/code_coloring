@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/paniquex/CLionProjects/code_colorer/main.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/main.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/source/input_file.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/source/input_file.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o"
+  "/home/paniquex/CLionProjects/code_colorer/token_sources/coloring.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o"
   "/home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp" "/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles/code_colorer.dir/token_sources/token.cpp.o"
   )

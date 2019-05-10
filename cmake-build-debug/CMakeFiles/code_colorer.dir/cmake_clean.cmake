@@ -5,6 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/code_colorer.dir/analysing.cpp.o"
   "CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o"
   "CMakeFiles/code_colorer.dir/token_sources/token.cpp.o"
+  "CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.o"
   "code_colorer.pdb"
   "code_colorer"
 )

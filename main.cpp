@@ -9,7 +9,6 @@
 #include "headers/input_file.hpp"
 #include "headers/input_stdin_type.hpp"
 #include "token_headers/token.hpp"
-#include "token_headers/token_processing.hpp"
 
 
 int
@@ -21,6 +20,9 @@ output_stage(Token token);
     * token struct with colored buffer, if everything was correct
     * nullptr, if buffer or token is nullptr
  */
+
+template<typename processor>
+int main_cycle(processor *token_processor_obj, std::fstream *input_file,  char *argv[], std::string file_name, std::string processing_type);
 
 
 int main(int argc, char *argv[]) {
@@ -78,43 +80,13 @@ int main(int argc, char *argv[]) {
         processing_type = argv[3];
         input_file_type(file_name, &input_file);
     }
-    TokenProcessor *token_processor_obj;
     if (processing_type == "coloring") {
         auto *token_colorer = new TokenProcessor_coloring;
-        token_processor_obj = token_colorer;
+        main_cycle(token_colorer, &input_file, argv, file_name, processing_type);
     } else if (processing_type == "counting") {
         auto *token_counter = new TokenProcessor_counting;
-        token_processor_obj = token_counter;
+        main_cycle(token_counter, &input_file,  argv, file_name, processing_type);
     }
-    Token *current_token;
-    while ((current_token = analysing_stage(&input_file)) != nullptr) {
-        if (current_token->get_type() == 0) {
-            break;
-        } else if (current_token->get_type() == -1) {
-            return 1;
-        }
-        token_processor_obj->process_token(current_token);
-        output_stage(*current_token);
-        delete current_token;
-    }
-    if (current_token == nullptr) {
-        if ((int) argv[1][0] == '0') {
-            remove(file_name.c_str());
-        }
-        input_file.close();
-        perror("Coloring stage error: ");
-        delete token_processor_obj;
-        return 1;
-    }
-    delete current_token;
-    if (processing_type == "counting") {
-        token_processor_obj->print_token();
-    }
-    input_file.close();
-    if ((int) argv[1][0] == '0') {
-        remove(file_name.c_str());
-    }
-    delete token_processor_obj;
     return 0;
 }
 
@@ -126,5 +98,41 @@ output_stage(Token token) {
         return -1;
     }
     std::cout << token.get_buffer();
+    return 0;
+}
+
+
+template<typename processor>
+int main_cycle(processor *token_processor_obj, std::fstream *input_file, char *argv[], std::string file_name, std::string processing_type) {
+    Token *current_token;
+    while ((current_token = analysing_stage(input_file)) != nullptr) {
+        if (current_token->get_type() == 0) {
+            delete current_token;
+            break;
+        } else if (current_token->get_type() == -1) {
+            delete current_token;
+            return 1;
+        }
+        token_processor_obj->process_token(current_token);
+        output_stage(*current_token);
+        delete current_token;
+    }
+    if (current_token == nullptr) {
+        if ((int) argv[1][0] == '0') {
+            remove(file_name.c_str());
+        }
+        input_file->close();
+        perror("Coloring stage error: ");
+        delete token_processor_obj;
+        return 1;
+    }
+    if (processing_type == "counting") {
+        token_processor_obj->print_token();
+    }
+    input_file->close();
+    if ((int) argv[1][0] == '0') {
+        remove(file_name.c_str());
+    }
+    delete token_processor_obj;
     return 0;
 }

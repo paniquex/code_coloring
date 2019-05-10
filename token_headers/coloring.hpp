@@ -1,7 +1,6 @@
 #ifndef COLORING
 #define COLORING
 #include "../token_headers/token.hpp"
-#include "../token_headers/token_processing.hpp"
 
 const std::string BLACK = "\033[0;30m";
 const std::string DARKGRAY = "\033[1;30m";
@@ -21,36 +20,13 @@ const std::string LIGHTGRAY = "\033[0;37m";
 const std::string WHITE = "\033[1;37m";
 const std::string NOCOLOR = "\033[0m";
 
-class TokenProcessor_coloring: public TokenProcessor  {
+class TokenProcessor_coloring {
     /* DESCRIPTION:
         * It is  child class of TokenProcessor, which is coloring token with process_token function
     */
 public:
-    void process_token(Token *token) {
-        /* DESCRIPTION:
-    * token_coloring takes 1 parameter, first - Token struct
-    *
- */
-        std::string color;
-        switch (token->get_type()) {
-            case 1: color = BLUE;
-                break;
-            case 2: color = LIGHTPURPLE;
-                break;
-            case 3: color = LIGHTBLUE;
-                break;
-            case 4: color = YELLOW;
-                break;
-            case 5: color = GREEN;
-                break;
-            case 6: color = RED;
-                break;
-            case 7: color = DARKGRAY;
-                break;
-        }
-        token->set_buffer(color + token->get_buffer());
-        token->set_buffer(token->get_buffer() + NOCOLOR);
-    }
+    void process_token(Token *token);
+    void print_token() const;
 };
 
 #endif

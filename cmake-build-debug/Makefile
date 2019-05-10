@@ -231,6 +231,33 @@ source/input_stdin_type.cpp.s:
 	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.s
 .PHONY : source/input_stdin_type.cpp.s
 
+token_sources/coloring.o: token_sources/coloring.cpp.o
+
+.PHONY : token_sources/coloring.o
+
+# target to build an object file
+token_sources/coloring.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.o
+.PHONY : token_sources/coloring.cpp.o
+
+token_sources/coloring.i: token_sources/coloring.cpp.i
+
+.PHONY : token_sources/coloring.i
+
+# target to preprocess a source file
+token_sources/coloring.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.i
+.PHONY : token_sources/coloring.cpp.i
+
+token_sources/coloring.s: token_sources/coloring.cpp.s
+
+.PHONY : token_sources/coloring.s
+
+# target to generate assembly for a file
+token_sources/coloring.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.s
+.PHONY : token_sources/coloring.cpp.s
+
 token_sources/counting.o: token_sources/counting.cpp.o
 
 .PHONY : token_sources/counting.o
@@ -306,6 +333,9 @@ help:
 	@echo "... source/input_stdin_type.o"
 	@echo "... source/input_stdin_type.i"
 	@echo "... source/input_stdin_type.s"
+	@echo "... token_sources/coloring.o"
+	@echo "... token_sources/coloring.i"
+	@echo "... token_sources/coloring.s"
 	@echo "... token_sources/counting.o"
 	@echo "... token_sources/counting.i"
 	@echo "... token_sources/counting.s"

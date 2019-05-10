@@ -114,6 +114,9 @@
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp">
 			<Option target="code_colorer"/>
 		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/coloring.cpp">
+			<Option target="code_colorer"/>
+		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
