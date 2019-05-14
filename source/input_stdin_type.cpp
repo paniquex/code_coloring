@@ -1,4 +1,7 @@
-#include "../headers/input_stdin_type.hpp"
+#include "input_stdin_type.hpp"
+#include <string.h>
+#include <unistd.h>
+#include <fstream>
 
 std::fstream *
 input_stdin_type(std::string random_file_name, std::fstream *input_file) {

@@ -1,4 +1,10 @@
 #include "analysing.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <ctype.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 
 
@@ -879,8 +885,11 @@ analysing_stage(std::fstream *input_file) {
             perror("getchar error: ");
             return nullptr;
         }
+        current_token = new Token;
+        current_token->set_type(8);
         input_file->get(symb);
-        putchar(symb);
+        current_token->set_buffer(std::string(1, symb));
+        return current_token;
     }
     current_token = new Token;
     current_token->set_type(0);

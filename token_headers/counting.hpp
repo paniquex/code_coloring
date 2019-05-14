@@ -1,6 +1,5 @@
 #ifndef CODE_COLORER_COUNTING_H
 #define CODE_COLORER_COUNTING_H
-
 #include "token_processing.hpp"
 
 class TokenProcessor_counting: public TokenProcessor  {
@@ -50,15 +49,6 @@ public:
                 break;
         }
     }
-    void print_token() const {
-        printf("\n\nSTATISTICS:");
-        printf("\nComments amount: %d\n", this->comment_amount);
-        printf("Keywords amount: %d\n", this->keyword_amount);
-        printf("Identifiers amount: %d\n", this->identifier_amount);
-        printf("Numbers amount: %d\n", this->number_amount);
-        printf("Char consts amount: %d\n", this->char_consts_amount);
-        printf("Punctuators amount: %d\n", this->punctuator_amount);
-        printf("String literals amount: %d\n", this->string_literal_amount);
-    }
+    void print_token() const;
 };
 #endif

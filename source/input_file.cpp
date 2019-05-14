@@ -1,4 +1,5 @@
-#include "../headers/input_file.hpp"
+#include "input_file.hpp"
+#include <iostream>
 
 std::fstream *
 input_file_type(std::string input_file_name, std::fstream *input_file) {

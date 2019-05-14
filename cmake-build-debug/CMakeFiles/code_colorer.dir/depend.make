@@ -3,8 +3,6 @@
 
 CMakeFiles/code_colorer.dir/analysing.cpp.o: ../analysing.cpp
 CMakeFiles/code_colorer.dir/analysing.cpp.o: ../analysing.hpp
-CMakeFiles/code_colorer.dir/analysing.cpp.o: ../headers/input_file.hpp
-CMakeFiles/code_colorer.dir/analysing.cpp.o: ../token_headers/token.hpp
 
 CMakeFiles/code_colorer.dir/main.cpp.o: ../analysing.hpp
 CMakeFiles/code_colorer.dir/main.cpp.o: ../headers/input_file.hpp
@@ -15,18 +13,11 @@ CMakeFiles/code_colorer.dir/main.cpp.o: ../token_headers/counting.hpp
 CMakeFiles/code_colorer.dir/main.cpp.o: ../token_headers/token.hpp
 CMakeFiles/code_colorer.dir/main.cpp.o: ../token_headers/token_processing.hpp
 
-CMakeFiles/code_colorer.dir/source/input_file.cpp.o: ../headers/input_file.hpp
 CMakeFiles/code_colorer.dir/source/input_file.cpp.o: ../source/input_file.cpp
 
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o: ../headers/input_file.hpp
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o: ../headers/input_stdin_type.hpp
 CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o: ../source/input_stdin_type.cpp
 
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: ../token_headers/counting.hpp
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: ../token_headers/token.hpp
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: ../token_headers/token_processing.hpp
 CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: ../token_sources/counting.cpp
 
-CMakeFiles/code_colorer.dir/token_sources/token.cpp.o: ../token_headers/token.hpp
 CMakeFiles/code_colorer.dir/token_sources/token.cpp.o: ../token_sources/token.cpp
 

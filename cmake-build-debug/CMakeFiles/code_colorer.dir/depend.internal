@@ -4,8 +4,6 @@
 CMakeFiles/code_colorer.dir/analysing.cpp.o
  /home/paniquex/CLionProjects/code_colorer/analysing.cpp
  /home/paniquex/CLionProjects/code_colorer/analysing.hpp
- /home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
- /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
 CMakeFiles/code_colorer.dir/main.cpp.o
  /home/paniquex/CLionProjects/code_colorer/analysing.hpp
  /home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
@@ -16,17 +14,10 @@ CMakeFiles/code_colorer.dir/main.cpp.o
  /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
  /home/paniquex/CLionProjects/code_colorer/token_headers/token_processing.hpp
 CMakeFiles/code_colorer.dir/source/input_file.cpp.o
- /home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
  /home/paniquex/CLionProjects/code_colorer/source/input_file.cpp
 CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o
- /home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
- /home/paniquex/CLionProjects/code_colorer/headers/input_stdin_type.hpp
  /home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp
 CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o
- /home/paniquex/CLionProjects/code_colorer/token_headers/counting.hpp
- /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
- /home/paniquex/CLionProjects/code_colorer/token_headers/token_processing.hpp
  /home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp
 CMakeFiles/code_colorer.dir/token_sources/token.cpp.o
- /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
  /home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp

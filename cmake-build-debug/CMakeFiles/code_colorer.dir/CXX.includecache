@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/home/paniquex/CLionProjects/code_colorer/analysing.cpp
+analysing.hpp
 /home/paniquex/CLionProjects/code_colorer/analysing.hpp
 stdio.h
 -
@@ -19,10 +21,12 @@ unistd.h
 -
 sys/types.h
 -
-headers/input_file.hpp
-/home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
-token_headers/token.hpp
-/home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
+
+/home/paniquex/CLionProjects/code_colorer/analysing.hpp
+input_file.hpp
+/home/paniquex/CLionProjects/code_colorer/input_file.hpp
+token.hpp
+/home/paniquex/CLionProjects/code_colorer/token.hpp
 
 /home/paniquex/CLionProjects/code_colorer/headers/input_file.hpp
 stdio.h
@@ -79,9 +83,9 @@ token_headers/token_processing.hpp
 /home/paniquex/CLionProjects/code_colorer/token_headers/token_processing.hpp
 
 /home/paniquex/CLionProjects/code_colorer/token_headers/coloring.hpp
-../token_headers/token.hpp
+token.hpp
 /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
-../token_headers/token_processing.hpp
+token_processing.hpp
 /home/paniquex/CLionProjects/code_colorer/token_headers/token_processing.hpp
 
 /home/paniquex/CLionProjects/code_colorer/token_headers/counting.hpp
@@ -95,8 +99,4 @@ string
 /home/paniquex/CLionProjects/code_colorer/token_headers/token_processing.hpp
 token.hpp
 /home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp
-
-/home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp
-../token_headers/counting.hpp
-/home/paniquex/CLionProjects/code_colorer/token_headers/counting.hpp
 

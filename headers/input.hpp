@@ -1,13 +1,5 @@
 #ifndef INPUT
 #define INPUT
-#include <stdio.h>
-#include <uuid/uuid.h>
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
 
 
 std::fstream *

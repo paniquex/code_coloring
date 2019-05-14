@@ -1,7 +1,7 @@
 #ifndef COLORING
 #define COLORING
-#include "../token_headers/token.hpp"
-#include "../token_headers/token_processing.hpp"
+#include "token.hpp"
+#include "token_processing.hpp"
 
 const std::string BLACK = "\033[0;30m";
 const std::string DARKGRAY = "\033[1;30m";
