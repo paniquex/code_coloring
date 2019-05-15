@@ -1,6 +1,5 @@
 #include "input_stdin_type.hpp"
 #include <string.h>
-#include <unistd.h>
 #include <fstream>
 
 std::fstream *

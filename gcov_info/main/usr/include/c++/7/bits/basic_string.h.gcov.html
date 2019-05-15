@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-04-26 08:36:00</td>
+            <td class="headerValue">2019-05-15 08:10:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -6003,15 +6003,15 @@
 <span class="lineNum">    5941 </span>            : #if __cplusplus &gt;= 201103L
 <a name="5942"><span class="lineNum">    5942 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;</a>
 <span class="lineNum">    5943 </span>            :     inline basic_string&lt;_CharT, _Traits, _Alloc&gt;
-<span class="lineNum">    5944 </span><span class="lineCov">       7826 :     operator+(basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp;&amp; __lhs,</span>
+<span class="lineNum">    5944 </span><span class="lineCov">      27662 :     operator+(basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp;&amp; __lhs,</span>
 <span class="lineNum">    5945 </span>            :               const basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp; __rhs)
-<span class="lineNum">    5946 </span><span class="lineCov">       7826 :     { return std::move(__lhs.append(__rhs)); }</span>
+<span class="lineNum">    5946 </span><span class="lineCov">      27662 :     { return std::move(__lhs.append(__rhs)); }</span>
 <span class="lineNum">    5947 </span>            : 
 <a name="5948"><span class="lineNum">    5948 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;</a>
 <span class="lineNum">    5949 </span>            :     inline basic_string&lt;_CharT, _Traits, _Alloc&gt;
-<span class="lineNum">    5950 </span><span class="lineCov">       7826 :     operator+(const basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp; __lhs,</span>
+<span class="lineNum">    5950 </span><span class="lineCov">      27662 :     operator+(const basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp; __lhs,</span>
 <span class="lineNum">    5951 </span>            :               basic_string&lt;_CharT, _Traits, _Alloc&gt;&amp;&amp; __rhs)
-<span class="lineNum">    5952 </span><span class="lineCov">       7826 :     { return std::move(__rhs.insert(0, __lhs)); }</span>
+<span class="lineNum">    5952 </span><span class="lineCov">      27662 :     { return std::move(__rhs.insert(0, __lhs)); }</span>
 <span class="lineNum">    5953 </span>            : 
 <span class="lineNum">    5954 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;
 <span class="lineNum">    5955 </span>            :     inline basic_string&lt;_CharT, _Traits, _Alloc&gt;

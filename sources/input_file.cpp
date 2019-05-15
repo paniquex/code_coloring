@@ -1,4 +1,5 @@
 #include "input_file.hpp"
+#include <string>
 #include <iostream>
 
 std::fstream *

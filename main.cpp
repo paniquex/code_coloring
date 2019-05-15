@@ -1,15 +1,14 @@
-#include <stdio.h>
 #include <string.h>
 #include <string>
-#include <unistd.h>
 #include <stdlib.h>
+#include <iostream>
 #include "analysing.hpp"
-#include "token_headers/coloring.hpp"
-#include "token_headers/counting.hpp"
-#include "headers/input_file.hpp"
-#include "headers/input_stdin_type.hpp"
-#include "token_headers/token.hpp"
-#include "token_headers/token_processing.hpp"
+#include "coloring.hpp"
+#include "counting.hpp"
+#include "input_file.hpp"
+#include "input_stdin_type.hpp"
+#include "token.hpp"
+#include "token_processing.hpp"
 
 
 int
