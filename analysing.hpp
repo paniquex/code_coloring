@@ -2,8 +2,8 @@
 #define ANALYSING
 
 
-#include "input_file.hpp"
-#include "token.hpp"
+#include "./headers/input_file.hpp"
+#include "./headers/token/token.hpp"
 #include <fstream>
 
 
@@ -24,7 +24,7 @@ analysing_stage(std::fstream *input_file);
     *
  * RETURN VALUES:
     * token pointer with right type, if everything was correct
-    * token pointer with type 8, if no token was found
+    * token pointer with type 9, if no token was found
     * token pointer with type -1, if fgetc(input_file) occurs an error
     * token pointer with type -2, if some of analysers occurs an error
  */

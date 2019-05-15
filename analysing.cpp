@@ -179,7 +179,7 @@ comment_analyser(std::fstream *input_file) {
             if ((curr_symb != '/') && (curr_symb != '*')) {
                 state1 = 0;
                 state2 = 0;
-                input_file->seekg(-1, std::fstream::cur);
+                input_file->seekg(-2, std::fstream::cur);
                 comment_token->set_type(-3);
                 return comment_token;
             } else {
@@ -357,14 +357,13 @@ keyword_analyser(std::string *KEYWORDS, int KEYWORDS_MAX_LENGTH, std::fstream *i
         return keyword_token;
     }
     unsigned long keyword_curr_length = buffer.length();
-    for (unsigned long i = 0; i < keyword_curr_length; i++) {
-        for (int k = 0; k < KEYWORDS_AMOUNT; k++) {
-            if (strncmp(KEYWORDS[k].c_str(), buffer.c_str(), (size_t) keyword_curr_length - i) == 0) {
-                input_file->seekg(-i, std::fstream::cur);
-                keyword_token->set_buffer(buffer.substr(0, keyword_curr_length - i));
-                keyword_token->set_type(KEYWORD);
-                return keyword_token;
-            }
+    for (int k = 0; k < KEYWORDS_AMOUNT; k++) {
+        unsigned long keyword_length = KEYWORDS[k].length();
+        if (strncmp(KEYWORDS[k].c_str(), buffer.c_str(), (size_t) keyword_length) == 0) {
+            input_file->seekg(-keyword_curr_length + keyword_length, std::fstream::cur);
+            keyword_token->set_buffer(buffer.substr(0, keyword_length));
+            keyword_token->set_type(KEYWORD);
+            return keyword_token;
         }
     }
     keyword_token->set_type(-3);
@@ -412,7 +411,7 @@ identifier_analyser(std::fstream *input_file) {
                 input_file->seekg(-amount_symb_was_read, std::fstream::cur);
                 identifier_token->set_type(IDENTIFIER);
                 char curr_tok_symb;
-                for (int i = 0; i < amount_symb_was_read; i++) {
+                for (int i = 1; i < amount_symb_was_read; i++) {
                     input_file->read(&curr_tok_symb, sizeof(char));
                     identifier_token->set_buffer(identifier_token->get_buffer() + curr_tok_symb);
                 }
@@ -469,9 +468,9 @@ ucn_analyser(std::fstream *input_file) {
  *
  * RETURN VALUES:
     * token with type 0, if Universal character name was found and printed
-    * token with type 1, if EOF was reached
-    * token with type 2, if somekind of error was found
-    * token with type 3, if no Universal character name was found
+    * token with type -1, if EOF was reached
+    * token with type -2, if somekind of error was found
+    * token with type -3, if no Universal character name was found
 */
     char curr_symb;
     int amount_symb_was_read = 0;
@@ -515,8 +514,10 @@ ucn_analyser(std::fstream *input_file) {
                 state1 = 3;
                 continue;
             } else {
-                input_file->seekg(-amount_symb_was_read, std::fstream::cur);
-                ucn_token->set_type(-3);
+                input_file->seekg(-1, std::fstream::cur);
+                buffer += "\\" + std::string(1, print_u_or_U);
+                ucn_token->set_buffer(buffer);
+                ucn_token->set_type(8);
                 return ucn_token;
             }
         }
@@ -882,7 +883,7 @@ analysing_stage(std::fstream *input_file) {
             return nullptr;
         }
         current_token = new Token;
-        current_token->set_type(8);
+        current_token->set_type(9);
         input_file->get(symb);
         current_token->set_buffer(std::string(1, symb));
         return current_token;

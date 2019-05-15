@@ -47,6 +47,8 @@ public:
                 break;
             case 7: color = DARKGRAY;
                 break;
+            case 8: color = LIGHTPURPLE;
+                break;
         }
         token->set_buffer(color + token->get_buffer());
         token->set_buffer(token->get_buffer() + NOCOLOR);

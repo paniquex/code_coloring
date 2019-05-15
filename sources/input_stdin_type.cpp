@@ -1,4 +1,4 @@
-#include "input_stdin_type.hpp"
+#include "../headers/input_stdin_type.hpp"
 #include <string.h>
 #include <fstream>
 

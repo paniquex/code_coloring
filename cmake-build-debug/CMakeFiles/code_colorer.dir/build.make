@@ -70,31 +70,31 @@ CMakeFiles/code_colorer.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/main.cpp -o CMakeFiles/code_colorer.dir/main.cpp.s
 
-CMakeFiles/code_colorer.dir/source/input_file.cpp.o: CMakeFiles/code_colorer.dir/flags.make
-CMakeFiles/code_colorer.dir/source/input_file.cpp.o: ../source/input_file.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/code_colorer.dir/source/input_file.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/source/input_file.cpp.o -c /home/paniquex/CLionProjects/code_colorer/source/input_file.cpp
+CMakeFiles/code_colorer.dir/sources/input_file.cpp.o: CMakeFiles/code_colorer.dir/flags.make
+CMakeFiles/code_colorer.dir/sources/input_file.cpp.o: ../sources/input_file.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/code_colorer.dir/sources/input_file.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/sources/input_file.cpp.o -c /home/paniquex/CLionProjects/code_colorer/sources/input_file.cpp
 
-CMakeFiles/code_colorer.dir/source/input_file.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/source/input_file.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/source/input_file.cpp > CMakeFiles/code_colorer.dir/source/input_file.cpp.i
+CMakeFiles/code_colorer.dir/sources/input_file.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/sources/input_file.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/sources/input_file.cpp > CMakeFiles/code_colorer.dir/sources/input_file.cpp.i
 
-CMakeFiles/code_colorer.dir/source/input_file.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/source/input_file.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/source/input_file.cpp -o CMakeFiles/code_colorer.dir/source/input_file.cpp.s
+CMakeFiles/code_colorer.dir/sources/input_file.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/sources/input_file.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/sources/input_file.cpp -o CMakeFiles/code_colorer.dir/sources/input_file.cpp.s
 
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o: CMakeFiles/code_colorer.dir/flags.make
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o: ../source/input_stdin_type.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o -c /home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp
+CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o: CMakeFiles/code_colorer.dir/flags.make
+CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o: ../sources/input_stdin_type.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o -c /home/paniquex/CLionProjects/code_colorer/sources/input_stdin_type.cpp
 
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp > CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.i
+CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/sources/input_stdin_type.cpp > CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.i
 
-CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp -o CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.s
+CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/sources/input_stdin_type.cpp -o CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.s
 
 CMakeFiles/code_colorer.dir/analysing.cpp.o: CMakeFiles/code_colorer.dir/flags.make
 CMakeFiles/code_colorer.dir/analysing.cpp.o: ../analysing.cpp
@@ -109,50 +109,50 @@ CMakeFiles/code_colorer.dir/analysing.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/analysing.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/analysing.cpp -o CMakeFiles/code_colorer.dir/analysing.cpp.s
 
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: CMakeFiles/code_colorer.dir/flags.make
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o: ../token_sources/counting.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o -c /home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp
+CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o: CMakeFiles/code_colorer.dir/flags.make
+CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o: ../sources/token/counting.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o -c /home/paniquex/CLionProjects/code_colorer/sources/token/counting.cpp
 
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/token_sources/counting.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp > CMakeFiles/code_colorer.dir/token_sources/counting.cpp.i
+CMakeFiles/code_colorer.dir/sources/token/counting.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/sources/token/counting.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/sources/token/counting.cpp > CMakeFiles/code_colorer.dir/sources/token/counting.cpp.i
 
-CMakeFiles/code_colorer.dir/token_sources/counting.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/token_sources/counting.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp -o CMakeFiles/code_colorer.dir/token_sources/counting.cpp.s
+CMakeFiles/code_colorer.dir/sources/token/counting.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/sources/token/counting.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/sources/token/counting.cpp -o CMakeFiles/code_colorer.dir/sources/token/counting.cpp.s
 
-CMakeFiles/code_colorer.dir/token_sources/token.cpp.o: CMakeFiles/code_colorer.dir/flags.make
-CMakeFiles/code_colorer.dir/token_sources/token.cpp.o: ../token_sources/token.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/code_colorer.dir/token_sources/token.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/token_sources/token.cpp.o -c /home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp
+CMakeFiles/code_colorer.dir/sources/token/token.cpp.o: CMakeFiles/code_colorer.dir/flags.make
+CMakeFiles/code_colorer.dir/sources/token/token.cpp.o: ../sources/token/token.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/code_colorer.dir/sources/token/token.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/code_colorer.dir/sources/token/token.cpp.o -c /home/paniquex/CLionProjects/code_colorer/sources/token/token.cpp
 
-CMakeFiles/code_colorer.dir/token_sources/token.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/token_sources/token.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp > CMakeFiles/code_colorer.dir/token_sources/token.cpp.i
+CMakeFiles/code_colorer.dir/sources/token/token.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/code_colorer.dir/sources/token/token.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/paniquex/CLionProjects/code_colorer/sources/token/token.cpp > CMakeFiles/code_colorer.dir/sources/token/token.cpp.i
 
-CMakeFiles/code_colorer.dir/token_sources/token.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/token_sources/token.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp -o CMakeFiles/code_colorer.dir/token_sources/token.cpp.s
+CMakeFiles/code_colorer.dir/sources/token/token.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/code_colorer.dir/sources/token/token.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/paniquex/CLionProjects/code_colorer/sources/token/token.cpp -o CMakeFiles/code_colorer.dir/sources/token/token.cpp.s
 
 # Object files for target code_colorer
 code_colorer_OBJECTS = \
 "CMakeFiles/code_colorer.dir/main.cpp.o" \
-"CMakeFiles/code_colorer.dir/source/input_file.cpp.o" \
-"CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o" \
+"CMakeFiles/code_colorer.dir/sources/input_file.cpp.o" \
+"CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o" \
 "CMakeFiles/code_colorer.dir/analysing.cpp.o" \
-"CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o" \
-"CMakeFiles/code_colorer.dir/token_sources/token.cpp.o"
+"CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o" \
+"CMakeFiles/code_colorer.dir/sources/token/token.cpp.o"
 
 # External object files for target code_colorer
 code_colorer_EXTERNAL_OBJECTS =
 
 code_colorer: CMakeFiles/code_colorer.dir/main.cpp.o
-code_colorer: CMakeFiles/code_colorer.dir/source/input_file.cpp.o
-code_colorer: CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o
+code_colorer: CMakeFiles/code_colorer.dir/sources/input_file.cpp.o
+code_colorer: CMakeFiles/code_colorer.dir/sources/input_stdin_type.cpp.o
 code_colorer: CMakeFiles/code_colorer.dir/analysing.cpp.o
-code_colorer: CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o
-code_colorer: CMakeFiles/code_colorer.dir/token_sources/token.cpp.o
+code_colorer: CMakeFiles/code_colorer.dir/sources/token/counting.cpp.o
+code_colorer: CMakeFiles/code_colorer.dir/sources/token/token.cpp.o
 code_colorer: CMakeFiles/code_colorer.dir/build.make
 code_colorer: CMakeFiles/code_colorer.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/paniquex/CLionProjects/code_colorer/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable code_colorer"

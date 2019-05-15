@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include "analysing.hpp"
-#include "coloring.hpp"
-#include "counting.hpp"
-#include "input_file.hpp"
-#include "input_stdin_type.hpp"
-#include "token.hpp"
-#include "token_processing.hpp"
+#include "./headers/token/coloring.hpp"
+#include "./headers/token/counting.hpp"
+#include "./headers/input_file.hpp"
+#include "./headers/input_stdin_type.hpp"
+#include "./headers/token/token.hpp"
+#include "./headers/token/token_processing.hpp"
 
 
 int

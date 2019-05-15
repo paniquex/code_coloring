@@ -96,28 +96,28 @@
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/input_stdin_type.hpp">
 			<Option target="code_colorer"/>
 		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/token/coloring.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/token/counting.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/headers/token/token.hpp">
+			<Option target="code_colorer"/>
+		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/main.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/source/input_file.cpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/sources/input_file.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/source/input_stdin_type.cpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/sources/input_stdin_type.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/coloring.hpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/sources/token/counting.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/counting.hpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_headers/token.hpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/counting.cpp">
-			<Option target="code_colorer"/>
-		</Unit>
-		<Unit filename="/home/paniquex/CLionProjects/code_colorer/token_sources/token.cpp">
+		<Unit filename="/home/paniquex/CLionProjects/code_colorer/sources/token/token.cpp">
 			<Option target="code_colorer"/>
 		</Unit>
 		<Unit filename="/home/paniquex/CLionProjects/code_colorer/CMakeLists.txt">

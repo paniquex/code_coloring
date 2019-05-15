@@ -1,4 +1,4 @@
-#include "counting.hpp"
+#include "../../headers/token/counting.hpp"
 
 TokenProcessor_counting::TokenProcessor_counting() {
     keyword_amount = 0;
