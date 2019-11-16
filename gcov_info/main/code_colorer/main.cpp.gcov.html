@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - gcov_main.info - code_colorer/main.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">code_colorer</a> - main.cpp<span style="font-size: 80%;"> (source / <a href="main.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">gcov_main.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntryLo">72.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-04-26 08:36:00</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;stdio.h&gt;</a>
+<span class="lineNum">       2 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       3 </span>            : #include &lt;string&gt;
+<span class="lineNum">       4 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">       5 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">       6 </span>            : #include &quot;analysing.hpp&quot;
+<span class="lineNum">       7 </span>            : #include &quot;coloring.hpp&quot;
+<span class="lineNum">       8 </span>            : #include &quot;counting.hpp&quot;
+<span class="lineNum">       9 </span>            : #include &quot;headers/input_file.hpp&quot;
+<span class="lineNum">      10 </span>            : #include &quot;headers/input_stdin_type.hpp&quot;
+<span class="lineNum">      11 </span>            : #include &quot;headers/token.hpp&quot;
+<span class="lineNum">      12 </span>            : #include &quot;token_processing.hpp&quot;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : int
+<span class="lineNum">      16 </span>            : output_stage(Token token);
+<span class="lineNum">      17 </span>            : /* DESCRIPTION:
+<span class="lineNum">      18 </span>            :     * output_stage takes 1 parameter - token struct, which will be printed to stdout
+<span class="lineNum">      19 </span>            :     *
+<span class="lineNum">      20 </span>            :  * RETURN VALUES:
+<span class="lineNum">      21 </span>            :     * token struct with colored buffer, if everything was correct
+<span class="lineNum">      22 </span>            :     * nullptr, if buffer or token is nullptr
+<span class="lineNum">      23 </span>            :  */
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span><span class="lineCov">         77 : int main(int argc, char *argv[]) {</span>
+<span class="lineNum">      27 </span>            :     /* argv[1] - input type:
+<span class="lineNum">      28 </span>            :         * 0 - program takes input from stdin;
+<span class="lineNum">      29 </span>            :         * 1 - program takes input from file
+<span class="lineNum">      30 </span>            :      * argv[2] - input_file_name:
+<span class="lineNum">      31 </span>            :         * if agrv[1] == 1, then this is name of input file s(NOT BINARY FILE!)
+<span class="lineNum">      32 </span>            :     */
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span><span class="lineCov">        154 :     std::fstream input_file;</span>
+<span class="lineNum">      35 </span><span class="lineCov">        154 :     std::string file_name;</span>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span><span class="lineCov">         77 :     if (argc &lt;= 1) {</span>
+<span class="lineNum">      39 </span><span class="lineCov">          2 :         printf(&quot;Not enough program parametrs.\n&quot;);</span>
+<span class="lineNum">      40 </span><span class="lineCov">          2 :         return 1;</span>
+<span class="lineNum">      41 </span>            :     }
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">         75 :     if (argv[2] != nullptr) {</span>
+<span class="lineNum">      44 </span><span class="lineCov">         73 :         file_name = argv[2];</span>
+<span class="lineNum">      45 </span><span class="lineCov">          2 :     } else if (strcmp(argv[1], &quot;1&quot;) == 0) {</span>
+<span class="lineNum">      46 </span><span class="lineCov">          1 :         fprintf(stderr, &quot;You need to write file name in mode 1&quot;);</span>
+<span class="lineNum">      47 </span><span class="lineCov">          1 :         return 1;</span>
+<span class="lineNum">      48 </span>            :     }
+<span class="lineNum">      49 </span><span class="lineCov">         74 :     if (strcmp(argv[1], &quot;1&quot;) == 0) {</span>
+<span class="lineNum">      50 </span><span class="lineCov">         72 :         if (argv[3] == nullptr) {</span>
+<span class="lineNum">      51 </span><span class="lineCov">          3 :             fprintf(stderr, &quot;You need to choose processing method: \&quot;coloring\&quot; or \&quot;counting\&quot; in third parametr(input type - 1)&quot;);</span>
+<span class="lineNum">      52 </span><span class="lineCov">          3 :             return 1;</span>
+<span class="lineNum">      53 </span>            :         }
+<span class="lineNum">      54 </span><span class="lineCov">         69 :         if ((strcmp(argv[3], &quot;coloring&quot;) != 0) &amp;&amp; (strcmp(argv[3], &quot;counting&quot;) != 0)) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :             fprintf(stderr, &quot;You need to choose processing method: \&quot;coloring\&quot; or \&quot;counting\&quot; in third parametr(input type - 1)&quot;);</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :             return 1;</span>
+<span class="lineNum">      57 </span>            :         }
+<span class="lineNum">      58 </span><span class="lineCov">          2 :     } else if (strcmp(argv[1], &quot;0&quot;) == 0) {</span>
+<span class="lineNum">      59 </span><span class="lineCov">          1 :         if (argv[2] == nullptr) {</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :             fprintf(stderr, &quot;You need to choose processing method: \&quot;coloring\&quot; or \&quot;counting\&quot; in second parametr(input type - 0)&quot;);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :             return 1;</span>
+<span class="lineNum">      62 </span>            :         }
+<span class="lineNum">      63 </span><span class="lineCov">          1 :         if ((strcmp(argv[2], &quot;coloring&quot;) != 0) &amp;&amp; (strcmp(argv[2], &quot;counting&quot;) != 0)) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :             fprintf(stderr, &quot;You need to choose processing method: \&quot;coloring\&quot; or \&quot;counting\&quot; in second parametr(input type - 0)&quot;);</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :             return 1;</span>
+<span class="lineNum">      66 </span>            :         }
+<span class="lineNum">      67 </span>            :     }
+<span class="lineNum">      68 </span><span class="lineCov">         71 :     if ((strcmp(argv[1], &quot;0&quot;) != 0) &amp;&amp; (strcmp(argv[1], &quot;1&quot;) != 0)) {</span>
+<span class="lineNum">      69 </span><span class="lineCov">          1 :         fprintf(stderr, &quot;First argument of program must be 0 or 1&quot;);</span>
+<span class="lineNum">      70 </span><span class="lineCov">          1 :         return 1;</span>
+<span class="lineNum">      71 </span>            :     }
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">        140 :     std::string processing_type;</span>
+<span class="lineNum">      74 </span><span class="lineCov">         70 :     if (strcmp(argv[1], &quot;0&quot;) == 0) {</span>
+<span class="lineNum">      75 </span><span class="lineCov">          1 :         processing_type = argv[2];</span>
+<span class="lineNum">      76 </span><span class="lineCov">          1 :         input_stdin_type(file_name, &amp;input_file);</span>
+<span class="lineNum">      77 </span>            :     } else {
+<span class="lineNum">      78 </span><span class="lineCov">         69 :         processing_type = argv[3];</span>
+<span class="lineNum">      79 </span><span class="lineCov">         69 :         input_file_type(file_name, &amp;input_file);</span>
+<span class="lineNum">      80 </span>            :     }
+<span class="lineNum">      81 </span>            :     TokenProcessor *token_processor_obj;
+<span class="lineNum">      82 </span><span class="lineCov">         70 :     if (processing_type == &quot;coloring&quot;) {</span>
+<span class="lineNum">      83 </span><span class="lineCov">         70 :         auto *token_colorer = new TokenProcessor_coloring;</span>
+<span class="lineNum">      84 </span><span class="lineCov">         70 :         token_processor_obj = token_colorer;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     } else if (processing_type == &quot;counting&quot;) {</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         auto *token_counter = new TokenProcessor_counting;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         token_processor_obj = token_counter;</span>
+<span class="lineNum">      88 </span>            :     }
+<span class="lineNum">      89 </span>            :     Token *current_token;
+<span class="lineNum">      90 </span><span class="lineCov">      15722 :     while ((current_token = analysing_stage(&amp;input_file)) != nullptr) {</span>
+<span class="lineNum">      91 </span><span class="lineCov">       7896 :         if (current_token-&gt;get_type() == 0) {</span>
+<span class="lineNum">      92 </span><span class="lineCov">         70 :             break;</span>
+<span class="lineNum">      93 </span><span class="lineCov">       7826 :         } else if (current_token-&gt;get_type() == -1) {</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :             return 1;</span>
+<span class="lineNum">      95 </span>            :         }
+<span class="lineNum">      96 </span><span class="lineCov">       7826 :         token_processor_obj-&gt;process_token(current_token);</span>
+<span class="lineNum">      97 </span><span class="lineCov">       7826 :         output_stage(*current_token);</span>
+<span class="lineNum">      98 </span><span class="lineCov">       7826 :         delete current_token;</span>
+<span class="lineNum">      99 </span>            :     }
+<span class="lineNum">     100 </span><span class="lineCov">         70 :     if (current_token == nullptr) {</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         if ((int) argv[1][0] == '0') {</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :             remove(file_name.c_str());</span>
+<span class="lineNum">     103 </span>            :         }
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         input_file.close();</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :         perror(&quot;Coloring stage error: &quot;);</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         delete token_processor_obj;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     108 </span>            :     }
+<span class="lineNum">     109 </span><span class="lineCov">         70 :     delete current_token;</span>
+<span class="lineNum">     110 </span><span class="lineCov">         70 :     if (processing_type == &quot;counting&quot;) {</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         token_processor_obj-&gt;print_token();</span>
+<span class="lineNum">     112 </span>            :     }
+<span class="lineNum">     113 </span><span class="lineCov">         70 :     input_file.close();</span>
+<span class="lineNum">     114 </span><span class="lineCov">         70 :     if ((int) argv[1][0] == '0') {</span>
+<span class="lineNum">     115 </span><span class="lineCov">          1 :         remove(file_name.c_str());</span>
+<span class="lineNum">     116 </span>            :     }
+<span class="lineNum">     117 </span><span class="lineCov">         70 :     delete token_processor_obj;</span>
+<span class="lineNum">     118 </span><span class="lineCov">         70 :     return 0;</span>
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : 
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<span class="lineNum">     122 </span>            : int
+<span class="lineNum">     123 </span><span class="lineCov">       7826 : output_stage(Token token) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">       7826 :     if (token.get_buffer().length() == 0) {</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         fprintf(stdout, &quot;Error in output_stage&quot;);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     127 </span>            :     }
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">       7826 :     std::cout &lt;&lt; token.get_buffer();</span></a>
+<span class="lineNum">     129 </span><span class="lineCov">       7826 :     return 0;</span>
+<span class="lineNum">     130 </span><span class="lineCov">        231 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

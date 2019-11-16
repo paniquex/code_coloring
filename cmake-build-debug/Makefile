@@ -123,32 +123,194 @@ code_colorer/fast:
 	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/build
 .PHONY : code_colorer/fast
 
-main.o: main.c.o
+analysing.o: analysing.cpp.o
+
+.PHONY : analysing.o
+
+# target to build an object file
+analysing.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.o
+.PHONY : analysing.cpp.o
+
+analysing.i: analysing.cpp.i
+
+.PHONY : analysing.i
+
+# target to preprocess a source file
+analysing.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.i
+.PHONY : analysing.cpp.i
+
+analysing.s: analysing.cpp.s
+
+.PHONY : analysing.s
+
+# target to generate assembly for a file
+analysing.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/analysing.cpp.s
+.PHONY : analysing.cpp.s
+
+main.o: main.cpp.o
 
 .PHONY : main.o
 
 # target to build an object file
-main.c.o:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.o
-.PHONY : main.c.o
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-main.i: main.c.i
+main.i: main.cpp.i
 
 .PHONY : main.i
 
 # target to preprocess a source file
-main.c.i:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.i
-.PHONY : main.c.i
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-main.s: main.c.s
+main.s: main.cpp.s
 
 .PHONY : main.s
 
 # target to generate assembly for a file
-main.c.s:
-	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.c.s
-.PHONY : main.c.s
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/main.cpp.s
+.PHONY : main.cpp.s
+
+source/input_file.o: source/input_file.cpp.o
+
+.PHONY : source/input_file.o
+
+# target to build an object file
+source/input_file.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_file.cpp.o
+.PHONY : source/input_file.cpp.o
+
+source/input_file.i: source/input_file.cpp.i
+
+.PHONY : source/input_file.i
+
+# target to preprocess a source file
+source/input_file.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_file.cpp.i
+.PHONY : source/input_file.cpp.i
+
+source/input_file.s: source/input_file.cpp.s
+
+.PHONY : source/input_file.s
+
+# target to generate assembly for a file
+source/input_file.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_file.cpp.s
+.PHONY : source/input_file.cpp.s
+
+source/input_stdin_type.o: source/input_stdin_type.cpp.o
+
+.PHONY : source/input_stdin_type.o
+
+# target to build an object file
+source/input_stdin_type.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.o
+.PHONY : source/input_stdin_type.cpp.o
+
+source/input_stdin_type.i: source/input_stdin_type.cpp.i
+
+.PHONY : source/input_stdin_type.i
+
+# target to preprocess a source file
+source/input_stdin_type.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.i
+.PHONY : source/input_stdin_type.cpp.i
+
+source/input_stdin_type.s: source/input_stdin_type.cpp.s
+
+.PHONY : source/input_stdin_type.s
+
+# target to generate assembly for a file
+source/input_stdin_type.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/source/input_stdin_type.cpp.s
+.PHONY : source/input_stdin_type.cpp.s
+
+token_sources/coloring.o: token_sources/coloring.cpp.o
+
+.PHONY : token_sources/coloring.o
+
+# target to build an object file
+token_sources/coloring.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.o
+.PHONY : token_sources/coloring.cpp.o
+
+token_sources/coloring.i: token_sources/coloring.cpp.i
+
+.PHONY : token_sources/coloring.i
+
+# target to preprocess a source file
+token_sources/coloring.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.i
+.PHONY : token_sources/coloring.cpp.i
+
+token_sources/coloring.s: token_sources/coloring.cpp.s
+
+.PHONY : token_sources/coloring.s
+
+# target to generate assembly for a file
+token_sources/coloring.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/coloring.cpp.s
+.PHONY : token_sources/coloring.cpp.s
+
+token_sources/counting.o: token_sources/counting.cpp.o
+
+.PHONY : token_sources/counting.o
+
+# target to build an object file
+token_sources/counting.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/counting.cpp.o
+.PHONY : token_sources/counting.cpp.o
+
+token_sources/counting.i: token_sources/counting.cpp.i
+
+.PHONY : token_sources/counting.i
+
+# target to preprocess a source file
+token_sources/counting.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/counting.cpp.i
+.PHONY : token_sources/counting.cpp.i
+
+token_sources/counting.s: token_sources/counting.cpp.s
+
+.PHONY : token_sources/counting.s
+
+# target to generate assembly for a file
+token_sources/counting.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/counting.cpp.s
+.PHONY : token_sources/counting.cpp.s
+
+token_sources/token.o: token_sources/token.cpp.o
+
+.PHONY : token_sources/token.o
+
+# target to build an object file
+token_sources/token.cpp.o:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/token.cpp.o
+.PHONY : token_sources/token.cpp.o
+
+token_sources/token.i: token_sources/token.cpp.i
+
+.PHONY : token_sources/token.i
+
+# target to preprocess a source file
+token_sources/token.cpp.i:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/token.cpp.i
+.PHONY : token_sources/token.cpp.i
+
+token_sources/token.s: token_sources/token.cpp.s
+
+.PHONY : token_sources/token.s
+
+# target to generate assembly for a file
+token_sources/token.cpp.s:
+	$(MAKE) -f CMakeFiles/code_colorer.dir/build.make CMakeFiles/code_colorer.dir/token_sources/token.cpp.s
+.PHONY : token_sources/token.cpp.s
 
 # Help Target
 help:
@@ -159,9 +321,27 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... code_colorer"
+	@echo "... analysing.o"
+	@echo "... analysing.i"
+	@echo "... analysing.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... source/input_file.o"
+	@echo "... source/input_file.i"
+	@echo "... source/input_file.s"
+	@echo "... source/input_stdin_type.o"
+	@echo "... source/input_stdin_type.i"
+	@echo "... source/input_stdin_type.s"
+	@echo "... token_sources/coloring.o"
+	@echo "... token_sources/coloring.i"
+	@echo "... token_sources/coloring.s"
+	@echo "... token_sources/counting.o"
+	@echo "... token_sources/counting.i"
+	@echo "... token_sources/counting.s"
+	@echo "... token_sources/token.o"
+	@echo "... token_sources/token.i"
+	@echo "... token_sources/token.s"
 .PHONY : help
 
 

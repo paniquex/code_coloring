@@ -1,55 +1,56 @@
-all: main
+LDFLAGS=-I headers -I token_headers
 
-main: main.o analysing.o coloring.o input.o input_file.o input_stdin_type.o counting.o
-	gcc -Wall main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out
+main: main.o analysing.o  input_file.o input_stdin_type.o counting.o coloring.o token.o
+	g++ -Wall main.o analysing.o  counting.o coloring.o input_file.o input_stdin_type.o token.o -luuid -o main.out
 
-debug: main.o analysing.o coloring.o input.o counting.o
-	gcc main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out -g
+debug: main.o analysing.o  counting.o coloring.o
+	g++ main.o analysing.o  counting.o coloring.o  input_file.o input_stdin_type.o token.o -luuid -o main.out -g
 
-gcov: main_gcov.o analysing_gcov.o coloring_gcov.o counting_gcov.o input_gcov.o input_file.o input_stdin_type.o
-	gcc -coverage -fprofile-arcs -ftest-coverage -lgcov main.o analysing.o coloring.o counting.o input.o input_file.o input_stdin_type.o -luuid -o main.out
+gcov: main_gcov.o analysing_gcov.o counting_gcov.o coloring_gcov.o input_file_gcov.o input_stdin_type_gcov.o token_gcov.o
+	g++ -coverage -fprofile-arcs -ftest-coverage -lgcov main.o analysing.o  counting.o coloring.o input_file.o input_stdin_type.o token.o -luuid -o main.out
 
-main.o: main.c
-	gcc -Wall  main.c -c
+main.o: main.cpp
+	g++ -Wall  main.cpp -c
 
-input.o: input.c
-	gcc -Wall  input.c -c
+input_file.o:
+	g++ -Wall $(LDFLAGS) source/input_file.cpp -c
 
-input_file.o: input_file.c
-	gcc -Wall input_file.c -c
+input_stdin_type.o:
+	g++ -Wall $(LDFLAGS) source/input_stdin_type.cpp -c
 
-input_stdin_type.o: input_stdin_type.c
-	gcc -Wall input_stdin_type.c -c
+analysing.o: analysing.cpp
+	g++ -Wall  analysing.cpp -c
 
-analysing.o: analysing.c
-	gcc -Wall  analysing.c -c
+counting.o:
+	g++ -Wall token_sources/counting.cpp -c
 
-coloring.o: coloring.c
-	gcc -Wall  coloring.c -c
+coloring.o:
+	g++ -Wall token_sources/coloring.cpp -c
 
-counting.o: counting.c
-	gcc -Wall counting.c -c
+token.o:
+	g++ -Wall $(LDFLAGS) token_sources/token.cpp -c
 
-main_gcov.o: main.c
-	gcc -Wall  main.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+main_gcov.o:
+	g++ -Wall  main.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-input_gcov.o: input.c
-	gcc -Wall  input.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+input_file_gcov.o:
+	g++ -Wall $(LDFLAGS) source/input_file.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-input_file_gcov.o: input_file.c
-	gcc -Wall input_file.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+input_stdin_type_gcov.o:
+	g++ -Wall $(LDFLAGS) source/input_stdin_type.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-input_stdin_type_gcov.o: input_stdin_type_gcov.c
-	gcc -Wall input_stdin_type.c -c
+analysing_gcov.o:
+	g++ -Wall  analysing.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-analysing_gcov.o: analysing.c
-	gcc -Wall  analysing.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-coloring_gcov.o: coloring.c
-	gcc -Wall  coloring.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+counting_gcov.o:
+	g++ -Wall token_sources/counting.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
-counting_gcov.o: counting.c
-	gcc -Wall counting.c -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+coloring_gcov.o:
+	g++ -Wall token_sources/coloring.cpp -coverage -fprofile-arcs -ftest-coverage -lgcov -c
+
+token_gcov.o:
+	g++ -Wall $(LDFLAGS) token_sources/token.cpp  -coverage -fprofile-arcs -ftest-coverage -lgcov -c
 
 clean:
-	-rm *.o *.gcno *.gcda *.info main.out
+	rm *.gcda *.gcno *.o main.out
